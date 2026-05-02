@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts",
+    "src/themes/typography.jsx",
+    "src/themes/theme.jsx",
+    "src/themes/index.jsx",
+    "src/components/Logo.jsx",
+    "src/components/NoDataFound.tsx",
+    "src/components/Goback.jsx",
+    "app/index.jsx",
+    "src/context/AppContext.js",
+    "src/context/ContextWrapper.js",
+    "src/components/client-guard.jsx",
+    "app/layouts/DashboardLayout/TopBar/index.jsx",
+    "app/layouts/DashboardLayout/layout.jsx",
+    "app/layouts/HomeLayout/layout.jsx",
+    "app/layouts/HomeLayout/layout.jsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,174 @@
+@media (max-width: 1440px) {
+}
+@media (max-width: 1280px) {
+  .resend {
+    margin-right: -43px !important;
+    margin-top: 10px !important;
+  }
+  .bottomslickbottomslider .slick-next {
+    right: 45% !important;
+  }
+}
+@media (max-width: 1024px) {
+  .mainConatiner {
+    padding: 0px 30px !important;
+  }
+  .bottomslickbottomslider .slick-next {
+    right: 43% !important;
+  }
+}
+@media (max-width: 991px) {
+  .bottomslickbottomslider .slick-next {
+    right: 39% !important;
+  }
+}
+@media (max-width: 767px) {
+  .outfitbottomtext {
+    margin-top: 101px;
+  }
+  .borderbottomaspect {
+    left: 7px;
+  }
+  .exploreText {
+    justify-content: flex-start;
+  }
+  .borderbottom {
+    left: 7px;
+  }
+  .bottomslickbottomslider .slick-next {
+    right: 35% !important;
+  }
+  .lineanimation {
+    display: none;
+  }
+  .steperscrollBox {
+    min-width: 100px;
+    overflow: auto;
+    width: calc(100% - -2px);
+  }
+  .chatButton {
+    padding: 7px 16px !important;
+  }
+  .gradientTextborder {
+    padding: 2px !important;
+  }
+  .buttonChat .iconBox {
+    width: 55px !important;
+    height: 55px !important;
+    padding: 12px;
+  }
+  .dropZoneBox {
+    padding: 10px 0px;
+  }
+  .tableContainer .MuiTableCell-root {
+    min-width: 258px !important;
+  }
+
+  // .filtersButton {
+  //   margin-left: 0px !important;
+  //   margin-top: 15px !important;
+  // }
+  .sortButton {
+    margin-top: 15px !important;
+  }
+  .dropContantBox {
+    padding: 41px 0 0 !important;
+  }
+  .dropZoneBox .viewImg {
+    left: 0 !important;
+  }
+  .MuiDialogContent-root {
+    padding: 15px;
+  }
+  .createvariantButton1 {
+    font-size: 12px !important;
+  }
+  .createvariantButton {
+    margin: 7px !important;
+  }
+  .firsrdetailsText {
+    width: 105px !important;
+  }
+  .multipleButton {
+    flex-wrap: wrap !important;
+  }
+  .carduserBox {
+    padding: 40px 0;
+  }
+  .frameBox {
+    order: 0;
+    background: transparent !important;
+  }
+  .frameBox1 {
+    order: 1;
+  }
+  .detailsImg {
+    max-width: 200px;
+  }
+  .resend {
+    margin-right: -138px !important;
+    margin-top: 10px !important;
+  }
+  .socialButtonres {
+    margin-left: 0px !important;
+  }
+  .socialButton {
+    padding: 10px 24px !important;
+    font-size: 12px !important;
+    min-width: 80px !important;
+    img {
+      width: 20px !important;
+    }
+  }
+  .mainBox1 {
+    padding: 68px 0px 0px;
+  }
+  .talkimg {
+    width: auto;
+    max-width: 200px !important;
+  }
+  .PhoneInput {
+    width: calc(100% - 0px) !important;
+  }
+  .sliderBoxres {
+    margin: 42px 0 80px !important;
+  }
+  .copyBox {
+    margin-top: 10px;
+  }
+  .copyRightBox1 {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 26px 0 !important;
+  }
+  .mainBox .sliderBox input {
+    // width: calc(100% - 0px);
+    margin: 10px;
+  }
+  .footerlogo1 {
+    width: 70px !important;
+  }
+  .aspectborder {
+    display: none;
+  }
+  .aspectbutton {
+    right: 0;
+    top: 25%;
+  }
+  .planslider {
+    width: calc(100% - 0px) !important;
+  }
+  .staticFooter {
+    flex-direction: column;
+  }
+  .footerBtn {
+    font-size: 12px !important;
+    margin-bottom: 10px !important;
+  }
+  .mainFooterBox {
+    padding: 20px 35px;
+  }
+  .mainContainer {
+    padding: 0 15px !important;
+  }
+}

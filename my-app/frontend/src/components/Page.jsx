@@ -1,0 +1,15 @@
+"use client";
+
+import React from "react";
+import Head from "next/head";
+
+export default function Page({ title, children }) {
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+      </Head>
+      <div>{children}</div>
+    </>
+  );
+}

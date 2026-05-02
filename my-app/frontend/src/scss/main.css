@@ -1,0 +1,866 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400&family=Sora:wght@100;200;300;400;500;600;700;800&display=swap");
+@font-face {
+  font-family: "Gilroy-SemiBold";
+  src: url("./font/Gilroy-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gilroy-Bold";
+  src: url("./font/Gilroy-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gilroy-Regular";
+  src: url("./font/Gilroy-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gilroy-Light";
+  src: url("./font/Gilroy-Light.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Gilroy-Medium";
+  src: url("./font/Gilroy-Medium.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+.planBox {
+  background: #000000;
+  padding: 85px 0;
+}
+.planBox h2 {
+  color: #fff;
+}
+
+.displayCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.displayColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.displayWrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.displayWrapCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.displayStart {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.displayEnd {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.displaySpacebetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.displaySpacearound {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.displayAlign {
+  display: flex;
+  align-items: center;
+}
+
+.logoImg {
+  width: 120px !important;
+}
+
+.dropZoneBox {
+  border-radius: 10px;
+  padding: 40px;
+  border: 1px dashed rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.mainFooterBox {
+  padding: 40px 65px;
+}
+
+.slickbottomslider {
+  width: 100%;
+  position: relative;
+}
+
+.slick-initialized .slick-slide.slick-current .active {
+  transform: scale(1.15);
+  transition: all 0.4s ease-in;
+}
+
+.slick-next:before,
+.slick-prev:before {
+  font-size: 40px;
+  opacity: 1 !important;
+  color: #fff;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center;
+  margin-top: -17px !important;
+}
+
+.slick-track {
+  padding: 40px 0;
+}
+
+.slick-prev:before {
+  content: "‹";
+}
+
+.slick-next:before {
+  content: "›";
+}
+
+.slick-list {
+  padding-left: 0px !important;
+}
+
+.slick-prev {
+  left: auto !important;
+  top: -22px !important;
+  right: 150px !important;
+  color: #fff !important;
+  z-index: 999 !important;
+  border: 1px solid #333333 !important;
+  background-color: rgba(16, 13, 75, 0.045) !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+}
+
+.slick-next {
+  top: -22px !important;
+  left: auto !important;
+  right: 95px !important;
+  color: #fff !important;
+  border: 1px solid #333333 !important;
+  background-color: rgba(16, 13, 75, 0.045) !important;
+  z-index: 999 !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+}
+
+.slick-next:before,
+.slick-prev:before {
+  font-size: 40px;
+  opacity: 0.75;
+  color: #f53756;
+  margin-top: -17px;
+}
+
+.mainContainer {
+  padding: 0px 65px !important;
+}
+
+.responsiveManage {
+  padding: "200px 150px 600px";
+}
+
+.mainContainerHomeLayout {
+  margin: 120px 0px !important;
+}
+
+.responsiveManage {
+  padding: "200px 150px 600px";
+}
+
+.albumslickbottomslider .slick-initialized .slick-slide.slick-current .active {
+  transform: scale(1.15);
+  transition: all 0.4s ease-in;
+}
+.albumslickbottomslider .slick-next:before,
+.albumslickbottomslider .slick-prev:before {
+  font-size: 40px;
+  opacity: 1 !important;
+  color: #fff;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center;
+  margin-top: -14px !important;
+}
+.albumslickbottomslider .slick-track {
+  padding: 20px 0;
+}
+.albumslickbottomslider .slick-prev:before {
+  content: "‹";
+}
+.albumslickbottomslider .slick-next:before {
+  content: "›";
+}
+.albumslickbottomslider .slick-prev {
+  left: 8% !important;
+  top: 50% !important;
+  background-color: #fff !important;
+  border: 2px solid #323232;
+  z-index: 999 !important;
+  position: absolute;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none !important;
+}
+.albumslickbottomslider .slick-next {
+  right: 8% !important;
+  top: 50% !important;
+  background-color: #fff !important;
+  border: 2px solid #323232;
+  z-index: 999 !important;
+  position: absolute;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none !important;
+}
+.albumslickbottomslider .slick-next:before,
+.albumslickbottomslider .slick-prev:before {
+  font-size: 40px;
+  color: #000;
+  margin-top: -17px;
+}
+
+.planslider {
+  width: calc(100% - 60px) !important;
+  margin: 0 auto;
+  z-index: 99;
+  position: relative;
+  text-align: center;
+}
+
+.viewButton {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #fff !important;
+  margin-left: 50px;
+}
+
+.coreplanningBox {
+  margin-top: 40px;
+  margin-left: 10px;
+}
+
+.borderbottomaspect {
+  position: absolute;
+  max-width: 98px !important;
+  left: 51px;
+  bottom: 0;
+}
+
+.mainContainerHomeLayout {
+  margin: "120px 0px";
+}
+
+.css-128rwpq-MuiPaper-root-MuiDrawer-paper {
+  background-color: #101017 !important;
+  padding: 20px !important;
+  width: 240px !important;
+}
+
+.aspectborder {
+  position: absolute !important;
+  right: 39%;
+  width: auto;
+  max-width: 294px !important;
+  top: 12%;
+}
+
+.aspectbutton {
+  right: 26%;
+  top: 18%;
+}
+
+.bottomslickbottomslider .slick-next {
+  right: 47% !important;
+  top: 158% !important;
+  width: 45px;
+  height: 45px;
+  background: transparent !important;
+  border: 2px solid #fff !important;
+}
+
+.bottomslickbottomslider .slick-prev {
+  left: 47% !important;
+  top: 158% !important;
+  width: 45px;
+  height: 45px;
+  background: transparent !important;
+  border: 2px solid #fff !important;
+}
+
+.mainBox .sliderBox input {
+  width: calc(100% - 61px);
+}
+
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  background: #fff !important;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  height: 50px;
+  font-size: 16px;
+  color: #000;
+  padding-left: 8px;
+}
+
+.PhoneInputInput:focus-visible {
+  border: none;
+}
+
+.PhoneInputCountry {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  margin-left: 13px;
+  padding-right: 10px;
+  /* height: 50px; */
+}
+
+.PhoneInputInput {
+  flex: 1 1;
+  min-width: 0;
+  border: none !important;
+}
+
+.talkimg {
+  width: auto;
+  max-width: 300px;
+}
+
+.socialButtonres {
+  margin-right: 16px;
+}
+
+.resend {
+  margin-right: -17px !important;
+  margin-top: 10px !important;
+}
+
+.detailsImg {
+  width: auto;
+  max-width: 300px;
+}
+
+.prupleiconButton {
+  background: #7a69fe !important;
+}
+
+.MuiBackdrop-root {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  z-index: -1;
+  position: fixed;
+  align-items: center;
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.iconTransparent {
+  background-color: transparent !important;
+}
+.iconTransparent svg {
+  color: #7418c9;
+}
+
+.bodyText {
+  color: rgba(22, 30, 41, 0.8392156863);
+}
+
+.dropZoneBox {
+  border-radius: 10px;
+  padding: 40px;
+  border: 1px dashed rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.labelprogressBox {
+  background: rgba(122, 105, 254, 0.08);
+  padding: 20px;
+  border-radius: 10px;
+}
+.labelprogressBox .circlemainBox {
+  background: rgba(122, 105, 254, 0.08);
+  padding: 10px;
+  border-radius: 50px;
+  width: 100px;
+  height: 100px;
+}
+.labelprogressBox .circlemainBox img {
+  width: auto;
+  max-width: 100%;
+}
+.labelprogressBox .closeIconBox {
+  color: rgb(122, 105, 254);
+  right: 11px;
+  position: absolute;
+  top: 10px;
+  font-size: 19px !important;
+}
+.labelprogressBox .greenclose {
+  color: rgb(2, 188, 125);
+  top: 64% !important;
+  font-size: 29px !important;
+}
+
+.dopicon {
+  position: absolute !important;
+  z-index: 9 !important;
+  right: 5px !important;
+  top: 18% !important;
+  font-size: 32px !important;
+  color: #161e2a !important;
+}
+
+.css-1x1qu2e-MuiAutocomplete-root .MuiInput-root .MuiInput-input {
+  padding: 4px 4px 4px 0px;
+  height: 40px;
+}
+
+.buttonChat {
+  position: fixed;
+  bottom: 10px;
+  z-index: 99999;
+  border-radius: 21px;
+  padding: 1px 4px;
+  right: 15px;
+  cursor: pointer;
+}
+.buttonChat .iconBox {
+  background: linear-gradient(159deg, #8c7dff 8.84%, #4027ff 87.99%);
+  width: 70px !important;
+  height: 70px !important;
+  padding: 14px;
+}
+.buttonChat .iconBox img {
+  width: auto;
+  max-width: 100% !important;
+  -o-object-fit: cover !important;
+     object-fit: cover !important;
+}
+
+.chatdialogBox .MuiPaper-root-MuiDialog-paper {
+  border-radius: 20px;
+  background: linear-gradient(90deg, #7a69fe 0%, #3d50ff 100%) !important;
+}
+
+.chatcontentBox {
+  background: #3b44d4;
+  width: 70px !important;
+  padding: 14px !important;
+  height: 70px !important;
+}
+
+.chatcontentmainBox {
+  padding: 50px 0 30px;
+}
+
+.learnmore {
+  background: rgba(255, 255, 255, 0.1) !important;
+  width: calc(100% - 78px);
+}
+
+.msg {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.left-msg .msg-bubble {
+  border-bottom-left-radius: 0;
+}
+
+.right-msg {
+  flex-direction: row-reverse;
+}
+
+.right-msg .msg-bubble {
+  background: linear-gradient(90deg, #7a69fe 0%, #3d50ff 100%);
+  color: #fff;
+  border-bottom-right-radius: 0;
+}
+
+.msg-bubble {
+  /* max-width: 450px; */
+  padding: 15px;
+  border-radius: 15px;
+  background: #f4f3f4;
+}
+
+.profilechatImg {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.profilechatImg img {
+  width: auto;
+  max-width: 100%;
+  border-radius: 50%;
+}
+
+.chatButton {
+  text-transform: capitalize;
+  border: 1.248px solid #452dff !important;
+  /* color: #7a69fe; */
+  background: linear-gradient(159deg, #8c7dff 8.84%, #4027ff 87.99%) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  margin: 5px !important;
+}
+
+.chatborder {
+  position: absolute;
+  bottom: 21px;
+  z-index: 9;
+}
+
+.bottomTextfeild {
+  position: relative;
+  width: calc(100% - 4px);
+  margin-left: 2px;
+  padding: 5px 10px;
+  background: white;
+  border-top: 1px solid gray;
+  margin-top: -16px;
+  border-radius: 1px 0px 20px 20px;
+}
+.bottomTextfeild .css-lo8n20-MuiInputBase-root-MuiInput-root:before {
+  border-bottom: none !important;
+  left: 0;
+  bottom: 0;
+  content: " ";
+  position: absolute;
+  right: 0;
+  transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  pointer-events: none;
+}
+
+.chatIconBox {
+  background-color: transparent !important;
+  border-top: 2px solid rgba(128, 128, 128, 0.431372549);
+  padding-top: 15px;
+}
+
+.gradientTextborder {
+  border-radius: 12px;
+  background: linear-gradient(90deg, #7a69fe 0%, #3d50ff 100%);
+  padding: 2px !important;
+  margin-top: -10px;
+}
+
+.gradientbackground {
+  background: #fff;
+  border-radius: 20px 20px 0px 0px;
+  padding: 15px;
+  margin-top: 42px;
+}
+
+.chatopButton {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 10px !important;
+  background: rgba(96, 94, 254, 0.6784313725) !important;
+  position: absolute !important;
+  right: 10px;
+  top: 13px !important;
+}
+
+.chatscrollBox {
+  height: calc(100vh - 218px);
+  overflow: auto;
+  border-radius: 20px;
+}
+
+* {
+  scrollbar-width: 0px;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+::-moz-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.blackBox {
+  border-radius: 3px;
+  background: #161e29;
+  padding: 10px 5px;
+}
+
+.pagelaoding {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+.loginimgbox {
+  animation: grow-and-shrink 7000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.box-hidden {
+  display: none;
+  visibility: hidden;
+}
+
+/* Show the Box */
+.box-visible {
+  display: block;
+  visibility: visible;
+}
+
+.navbar a:hover,
+.dropdown:hover .dropbtn {
+  background-color: red;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+@media (max-width: 1280px) {
+  .resend {
+    margin-right: -43px !important;
+    margin-top: 10px !important;
+  }
+  .bottomslickbottomslider .slick-next {
+    right: 45% !important;
+  }
+}
+@media (max-width: 1024px) {
+  .mainConatiner {
+    padding: 0px 30px !important;
+  }
+  .bottomslickbottomslider .slick-next {
+    right: 43% !important;
+  }
+}
+@media (max-width: 991px) {
+  .bottomslickbottomslider .slick-next {
+    right: 39% !important;
+  }
+}
+@media (max-width: 767px) {
+  .outfitbottomtext {
+    margin-top: 101px;
+  }
+  .borderbottomaspect {
+    left: 7px;
+  }
+  .exploreText {
+    justify-content: flex-start;
+  }
+  .borderbottom {
+    left: 7px;
+  }
+  .bottomslickbottomslider .slick-next {
+    right: 35% !important;
+  }
+  .lineanimation {
+    display: none;
+  }
+  .steperscrollBox {
+    min-width: 100px;
+    overflow: auto;
+    width: calc(100% + 2px);
+  }
+  .chatButton {
+    padding: 7px 16px !important;
+  }
+  .gradientTextborder {
+    padding: 2px !important;
+  }
+  .buttonChat .iconBox {
+    width: 55px !important;
+    height: 55px !important;
+    padding: 12px;
+  }
+  .dropZoneBox {
+    padding: 10px 0px;
+  }
+  .tableContainer .MuiTableCell-root {
+    min-width: 258px !important;
+  }
+  .sortButton {
+    margin-top: 15px !important;
+  }
+  .dropContantBox {
+    padding: 41px 0 0 !important;
+  }
+  .dropZoneBox .viewImg {
+    left: 0 !important;
+  }
+  .MuiDialogContent-root {
+    padding: 15px;
+  }
+  .createvariantButton1 {
+    font-size: 12px !important;
+  }
+  .createvariantButton {
+    margin: 7px !important;
+  }
+  .firsrdetailsText {
+    width: 105px !important;
+  }
+  .multipleButton {
+    flex-wrap: wrap !important;
+  }
+  .carduserBox {
+    padding: 40px 0;
+  }
+  .frameBox {
+    order: 0;
+    background: transparent !important;
+  }
+  .frameBox1 {
+    order: 1;
+  }
+  .detailsImg {
+    max-width: 200px;
+  }
+  .resend {
+    margin-right: -138px !important;
+    margin-top: 10px !important;
+  }
+  .socialButtonres {
+    margin-left: 0px !important;
+  }
+  .socialButton {
+    padding: 10px 24px !important;
+    font-size: 12px !important;
+    min-width: 80px !important;
+  }
+  .socialButton img {
+    width: 20px !important;
+  }
+  .mainBox1 {
+    padding: 68px 0px 0px;
+  }
+  .talkimg {
+    width: auto;
+    max-width: 200px !important;
+  }
+  .PhoneInput {
+    width: calc(100% - 0px) !important;
+  }
+  .sliderBoxres {
+    margin: 42px 0 80px !important;
+  }
+  .copyBox {
+    margin-top: 10px;
+  }
+  .copyRightBox1 {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 26px 0 !important;
+  }
+  .mainBox .sliderBox input {
+    margin: 10px;
+  }
+  .footerlogo1 {
+    width: 70px !important;
+  }
+  .aspectborder {
+    display: none;
+  }
+  .aspectbutton {
+    right: 0;
+    top: 25%;
+  }
+  .planslider {
+    width: calc(100% - 0px) !important;
+  }
+  .staticFooter {
+    flex-direction: column;
+  }
+  .footerBtn {
+    font-size: 12px !important;
+    margin-bottom: 10px !important;
+  }
+  .mainFooterBox {
+    padding: 20px 35px;
+  }
+  .mainContainer {
+    padding: 0 15px !important;
+  }
+}/*# sourceMappingURL=main.css.map */
