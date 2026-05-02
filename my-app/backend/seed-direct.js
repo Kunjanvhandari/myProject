@@ -27,11 +27,10 @@ async function seed() {
     console.log("Cleared existing data");
 
     // Create admin user
-    const adminPassword = await bcrypt.hash("admin123", 10);
     const admin = await User.create({
       name: "Admin User",
       email: "admin@librivista.com",
-      password: adminPassword,
+      password: "admin123",
       phone: "+977-01-4256789",
       address: "Kathmandu, Nepal",
       membershipType: "Premium",
@@ -42,11 +41,10 @@ async function seed() {
     console.log("Created admin user");
 
     // Create regular user
-    const userPassword = await bcrypt.hash("user123", 10);
     const user = await User.create({
       name: "Kunjan Bhandari",
       email: "Bhandarikunjan9@gmail.com",
-      password: userPassword,
+      password: "user123",
       phone: "+977 9743962189",
       address: "gulmi, satyawati-07-juniya",
       membershipType: "Premium",
