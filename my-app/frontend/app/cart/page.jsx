@@ -43,9 +43,15 @@ export default function Cart() {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("Cash on Pickup");
 
+  const demoReservations = [
+    { _id: "dr1", book: { title: "Atomic Habits", author: "James Clear", category: "Self-Help", coverImage: "/images/footer/book19.svg" }, reservedOn: "2026-04-18", reserveExpiry: "2026-04-25", totalPrice: 1100 },
+    { _id: "dr2", book: { title: "The Psychology of Money", author: "Morgan Housel", category: "Business", coverImage: "/images/footer/book20.svg" }, reservedOn: "2026-04-16", reserveExpiry: "2026-04-23", totalPrice: 950 },
+    { _id: "dr3", book: { title: "Clean Code", author: "Robert C. Martin", category: "Technology", coverImage: "/images/footer/book2.svg" }, reservedOn: "2026-04-14", reserveExpiry: "2026-04-21", totalPrice: 1300 },
+  ];
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push("/auth/login");
+      router.push("/login");
     }
   }, [loading, isAuthenticated, router]);
 
@@ -57,13 +63,16 @@ export default function Cart() {
 
   const fetchReservations = async () => {
     try {
-      const res = await apiFetch("/api/reservations?status=pending");
+      const res = await apiFetch("/reservations?status=pending");
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.reservations.length > 0) {
         setReservations(data.reservations);
+      } else {
+        setReservations(demoReservations);
       }
     } catch (error) {
       console.error("Failed to fetch reservations:", error);
+      setReservations(demoReservations);
     } finally {
       setIsLoading(false);
     }
@@ -310,7 +319,7 @@ export default function Cart() {
                         </Typography>
                       </Box>
                       <Typography variant="body2" sx={{ color: "#666", lineHeight: 1.7 }}>
-                        Free delivery within Kathmandu valley. 15% discount on all purchases. Extended borrowing period of 21 days.
+                        Free delivery within Gulmi and surrounding areas. 15% discount on all purchases. Extended borrowing period of 21 days.
                       </Typography>
                     </CardContent>
                   </Card>

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Box, Typography, Container, Grid, Card, CardContent, Avatar, Button, LinearProgress, CircularProgress } from "@mui/material";
+import { Box, Typography, Container, Grid, Card, CardContent, Avatar, Button, LinearProgress, CircularProgress, Badge, IconButton, Chip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HomeLayout from "../layouts/HomeLayout/layout";
 import { useAuth } from "@/context/AuthContext";
@@ -11,6 +11,9 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import EventIcon from "@mui/icons-material/Event";
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import AddIcon from "@mui/icons-material/Add";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import Divider from "@mui/material/Divider";
 import { useRouter } from "next/navigation";
 
@@ -45,6 +48,7 @@ export default function Dashboard() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [popularBooks, setPopularBooks] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (!loading) {
@@ -62,8 +66,12 @@ export default function Dashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch("/api/stats");
-      const data = await res.json();
+      const [statsRes, profileRes] = await Promise.all([
+        fetch("/api/stats"),
+        fetch("/api/user/profile", { credentials: "include" }),
+      ]);
+      const data = await statsRes.json();
+      const profileData = await profileRes.json();
 
       if (data.success) {
         setStats(data.stats);
@@ -78,6 +86,10 @@ export default function Dashboard() {
           time: new Date(b.createdAt).toLocaleString(),
         }));
         setRecentActivities(activities);
+      }
+
+      if (profileData.success) {
+        setNotifications(profileData.user?.notifications?.slice(-5).reverse() || []);
       }
     } catch (error) {
       console.error("Failed to fetch stats:", error);
@@ -182,147 +194,182 @@ export default function Dashboard() {
                   ))}
                 </Grid>
 
-                <Grid container spacing={4}>
-                  <Grid item xs={12} md={6}>
-                    <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", height: "100%" }}>
-                      <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000" }}>
-                            Recent Activity
-                          </Typography>
-                          <Button size="small" sx={{ textTransform: "none" }}>View All</Button>
-                        </Box>
+                <Box sx={{ display: "flex", gap: 4, flexDirection: { xs: "column", md: "row" } }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Grid container spacing={4}>
+                      <Grid item xs={12} md={6}>
+                        <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", height: "100%" }}>
+                          <CardContent sx={{ p: 3 }}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000" }}>
+                                Recent Activity
+                              </Typography>
+                              <Button size="small" sx={{ textTransform: "none" }}>View All</Button>
+                            </Box>
 
-                        {recentActivities.length === 0 ? (
-                          <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No recent activity</Typography>
-                        ) : (
-                          recentActivities.slice(0, 5).map((activity, index) => (
-                            <Box key={activity.id || index}>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 1.5 }}>
-                                <Avatar sx={{ width: 36, height: 36, bgcolor: "#333333", fontSize: "0.875rem" }}>
-                                  {activity.user.charAt(0)}
-                                </Avatar>
-                                <Box sx={{ flex: 1 }}>
-                                  <Typography variant="body2">
-                                    <strong>{activity.user}</strong>{" "}
-                                    <span style={{ color: "#666" }}>{activity.action}</span>{" "}
-                                    <strong style={{ color: "#000000" }}>{activity.book}</strong>
-                                  </Typography>
+                            {recentActivities.length === 0 ? (
+                              <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No recent activity</Typography>
+                            ) : (
+                              recentActivities.slice(0, 5).map((activity, index) => (
+                                <Box key={activity.id || index}>
+                                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 1.5 }}>
+                                    <Avatar sx={{ width: 36, height: 36, bgcolor: "#333333", fontSize: "0.875rem" }}>
+                                      {activity.user.charAt(0)}
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                      <Typography variant="body2">
+                                        <strong>{activity.user}</strong>{" "}
+                                        <span style={{ color: "#666" }}>{activity.action}</span>{" "}
+                                        <strong style={{ color: "#000000" }}>{activity.book}</strong>
+                                      </Typography>
+                                    </Box>
+                                    <Typography variant="caption" sx={{ color: "#999" }}>
+                                      {activity.time}
+                                    </Typography>
+                                  </Box>
+                                  {index < recentActivities.length - 1 && <Divider />}
                                 </Box>
-                                <Typography variant="caption" sx={{ color: "#999" }}>
-                                  {activity.time}
-                                </Typography>
-                              </Box>
-                              {index < recentActivities.length - 1 && <Divider />}
+                              ))
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", height: "100%" }}>
+                          <CardContent sx={{ p: 3 }}>
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000" }}>
+                                Popular Books
+                              </Typography>
+                              <Button size="small" sx={{ textTransform: "none" }}>View All</Button>
                             </Box>
-                          ))
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Grid>
 
-                  <Grid item xs={12} md={6}>
-                    <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", height: "100%" }}>
-                      <CardContent sx={{ p: 3 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000" }}>
-                            Popular Books
-                          </Typography>
-                          <Button size="small" sx={{ textTransform: "none" }}>View All</Button>
-                        </Box>
-
-                        {popularBooks.length === 0 ? (
-                          <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No popular books yet</Typography>
-                        ) : (
-                          popularBooks.map((book, index) => (
-                            <Box key={book._id}>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 1.5 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 700, color: "#ccc", minWidth: 24 }}>
-                                  {index + 1}
-                                </Typography>
-                                <Box
-                                  component="img"
-                                  src={book.coverImage || "/images/footer/book22.png"}
-                                  alt={book.title}
-                                  sx={{ width: 40, height: 55, objectFit: "contain", borderRadius: "4px" }}
-                                />
-                                <Box sx={{ flex: 1 }}>
-                                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                    {book.title}
-                                  </Typography>
-                                  <Typography variant="caption" sx={{ color: "#888" }}>
-                                    {book.author}
-                                  </Typography>
+                            {popularBooks.length === 0 ? (
+                              <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No popular books yet</Typography>
+                            ) : (
+                              popularBooks.map((book, index) => (
+                                <Box key={book._id}>
+                                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 1.5 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 700, color: "#ccc", minWidth: 24 }}>
+                                      {index + 1}
+                                    </Typography>
+                                    <Box
+                                      component="img"
+                                      src={book.coverImage || "/images/footer/book22.png"}
+                                      alt={book.title}
+                                      sx={{ width: 40, height: 55, objectFit: "contain", borderRadius: "4px" }}
+                                    />
+                                    <Box sx={{ flex: 1 }}>
+                                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                        {book.title}
+                                      </Typography>
+                                      <Typography variant="caption" sx={{ color: "#888" }}>
+                                        {book.author}
+                                      </Typography>
+                                    </Box>
+                                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#000000" }}>
+                                      {book.borrowCount} borrows
+                                    </Typography>
+                                  </Box>
+                                  {index < popularBooks.length - 1 && <Divider />}
                                 </Box>
-                                <Typography variant="body2" sx={{ fontWeight: 600, color: "#000000" }}>
-                                  {book.borrowCount} borrows
-                                </Typography>
-                              </Box>
-                              {index < popularBooks.length - 1 && <Divider />}
+                              ))
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+                          <CardContent sx={{ p: 3 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000", mb: 3 }}>
+                              Category Distribution
+                            </Typography>
+
+                            {categories.length === 0 ? (
+                              <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No category data</Typography>
+                            ) : (
+                              categories.slice(0, 6).map((cat) => (
+                                <Box key={cat._id} sx={{ mb: 2 }}>
+                                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>{cat._id}</Typography>
+                                    <Typography variant="body2" sx={{ color: "#888" }}>{cat.count.toLocaleString()} books</Typography>
+                                  </Box>
+                                  <LinearProgress
+                                    variant="determinate"
+                                    value={(cat.count / maxCategoryCount) * 100}
+                                    sx={{
+                                      height: 8,
+                                      borderRadius: 4,
+                                      bgcolor: "#f0f0f0",
+                                      "& .MuiLinearProgress-bar": {
+                                        borderRadius: 4,
+                                        bgcolor: "#000000",
+                                      },
+                                    }}
+                                  />
+                                </Box>
+                              ))
+                            )}
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    </Grid>
+                  </Box>
+
+                  <Box sx={{ width: { xs: "100%", md: 320 }, flexShrink: 0 }}>
+                    <Box sx={{ position: { md: "sticky" }, top: { md: 24 }, display: "flex", flexDirection: "column", gap: 3 }}>
+                      {notifications.length > 0 && (
+                        <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+                          <CardContent sx={{ p: 3 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                              <Badge badgeContent={notifications.filter(n => !n.isRead).length} color="error">
+                                <NotificationsIcon sx={{ color: "#000" }} />
+                              </Badge>
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000" }}>
+                                Notifications
+                              </Typography>
                             </Box>
-                          ))
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
-                      <CardContent sx={{ p: 3 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000", mb: 3 }}>
-                          Category Distribution
-                        </Typography>
-
-                        {categories.length === 0 ? (
-                          <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No category data</Typography>
-                        ) : (
-                          categories.slice(0, 6).map((cat) => (
-                            <Box key={cat._id} sx={{ mb: 2 }}>
-                              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                                <Typography variant="body2" sx={{ fontWeight: 500 }}>{cat._id}</Typography>
-                                <Typography variant="body2" sx={{ color: "#888" }}>{cat.count.toLocaleString()} books</Typography>
+                            {notifications.map((notif, i) => (
+                              <Box key={i}>
+                                <Box sx={{ py: 1.5 }}>
+                                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                                    <Chip label={notif.type || "info"} size="small" sx={{ height: 20, fontSize: "10px", bgcolor: notif.type === "success" ? "#e8f5e9" : notif.type === "error" ? "#ffebee" : notif.type === "warning" ? "#fff3e0" : "#e3f2fd", color: notif.type === "success" ? "#2e7d32" : notif.type === "error" ? "#c62828" : notif.type === "warning" ? "#e65100" : "#1565c0" }} />
+                                    {!notif.isRead && <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "#f44336" }} />}
+                                  </Box>
+                                  <Typography variant="body2" sx={{ fontWeight: 600 }}>{notif.title}</Typography>
+                                  <Typography variant="caption" sx={{ color: "#666" }}>{notif.message}</Typography>
+                                </Box>
+                                {i < notifications.length - 1 && <Divider />}
                               </Box>
-                              <LinearProgress
-                                variant="determinate"
-                                value={(cat.count / maxCategoryCount) * 100}
-                                sx={{
-                                  height: 8,
-                                  borderRadius: 4,
-                                  bgcolor: "#f0f0f0",
-                                  "& .MuiLinearProgress-bar": {
-                                    borderRadius: 4,
-                                    bgcolor: "#000000",
-                                  },
-                                }}
-                              />
-                            </Box>
-                          ))
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
-                      <CardContent sx={{ p: 3 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000", mb: 3 }}>
-                          Quick Actions
-                        </Typography>
-                        <Grid container spacing={2}>
-                          {[
-                            { icon: <BookIcon />, label: "Add New Book", color: "#000000" },
-                            { icon: <PeopleIcon />, label: "Manage Members", color: "#333333" },
-                            { icon: <EventIcon />, label: "Create Event", color: "#000000" },
-                            { icon: <LocalLibraryIcon />, label: "View Reports", color: "#4CAF50" },
-                          ].map((action, index) => (
-                            <Grid item xs={6} key={index}>
+                            ))}
+                          </CardContent>
+                        </Card>
+                      )}
+                      <Card sx={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000", mb: 3 }}>
+                            Quick Actions
+                          </Typography>
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            {[
+                              { icon: <BookIcon />, label: "Manage Books", color: "#000000", link: "/dashboard/books" },
+                              { icon: <PeopleIcon />, label: "Manage Users", color: "#333333", link: "/dashboard/users" },
+                              { icon: <EventIcon />, label: "Borrowings", color: "#FF9800", link: "/dashboard/borrowings" },
+                              { icon: <LocalLibraryIcon />, label: "Reservations", color: "#4CAF50", link: "/dashboard/reservations" },
+                              { icon: <MonetizationOnIcon />, label: "Fines", color: "#f44336", link: "/dashboard/fines" },
+                              { icon: <AddIcon />, label: "Add New Book", color: "#000000", link: "/dashboard/books" },
+                            ].map((action, index) => (
                               <Button
                                 fullWidth
                                 variant="outlined"
                                 startIcon={action.icon}
                                 endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
+                                onClick={() => router.push(action.link)}
+                                key={index}
                                 sx={{
-                                  py: 2,
+                                  py: 1.5,
                                   borderRadius: "12px",
                                   borderColor: action.color,
                                   color: action.color,
@@ -337,13 +384,13 @@ export default function Dashboard() {
                               >
                                 {action.label}
                               </Button>
-                            </Grid>
-                          ))}
-                        </Grid>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
+                            ))}
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Box>
+                  </Box>
+                </Box>
               </>
             )}
           </Container>

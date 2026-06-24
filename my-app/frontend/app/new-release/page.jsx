@@ -3,6 +3,7 @@ import { Box, Typography, Container, Grid, Card, CardContent, Rating, Button, Ch
 import { styled } from "@mui/material/styles";
 import HomeLayout from "../layouts/HomeLayout/layout";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
+import { useRouter } from "next/navigation";
 
 const NewReleaseBox = styled(Box)(({ theme }) => ({
   "& .newReleaseBox": {
@@ -10,7 +11,7 @@ const NewReleaseBox = styled(Box)(({ theme }) => ({
     minHeight: "calc(100vh - 300px)",
   },
   "& .heroSection": {
-    background: "linear-gradient(135deg, #173F5F 0%, #393280 100%)",
+    background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
     color: "#fff",
     padding: "60px 0",
     textAlign: "center",
@@ -40,6 +41,8 @@ const newReleases = [
 ];
 
 export default function NewRelease() {
+  const router = useRouter();
+
   return (
     <HomeLayout>
       <NewReleaseBox>
@@ -71,7 +74,7 @@ export default function NewRelease() {
                           position: "absolute",
                           top: 12,
                           right: 12,
-                          bgcolor: book.badge === "Trending" ? "#ED553B" : book.badge === "Popular" ? "#393280" : "#4CAF50",
+                          bgcolor: book.badge === "Trending" ? "#0EA5E9" : book.badge === "Popular" ? "#1E293B" : "#10B981",
                           color: "#fff",
                           fontWeight: 600,
                         }}
@@ -90,7 +93,7 @@ export default function NewRelease() {
                       />
                       <Typography
                         variant="subtitle1"
-                        sx={{ fontWeight: 700, color: "#173F5F", mb: 0.5 }}
+                        sx={{ fontWeight: 700, color: "#1E293B", mb: 0.5 }}
                       >
                         {book.title}
                       </Typography>
@@ -99,17 +102,18 @@ export default function NewRelease() {
                       </Typography>
                       <Rating value={book.rating} readOnly size="small" sx={{ color: "#ffb400", mb: 1 }} />
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, color: "#ED553B" }}>
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: "#0EA5E9" }}>
                           {book.price}
                         </Typography>
                         <Button
                           variant="contained"
                           size="small"
+                          onClick={() => router.push(`/books?search=${encodeURIComponent(book.title)}`)}
                           sx={{
-                            bgcolor: "#393280",
-                            borderRadius: "8px",
+                            bgcolor: "#1E293B",
+                            borderRadius: "10px",
                             textTransform: "none",
-                            "&:hover": { bgcolor: "#2a2560" },
+                            "&:hover": { bgcolor: "#1E2A5A" },
                           }}
                         >
                           Reserve
@@ -129,12 +133,12 @@ export default function NewRelease() {
                 variant="contained"
                 size="large"
                 sx={{
-                  bgcolor: "#ED553B",
-                  borderRadius: "8px",
+                  bgcolor: "#1E293B",
+                  borderRadius: "12px",
                   px: 5,
                   py: 1.5,
                   fontSize: "16px",
-                  "&:hover": { bgcolor: "#d94a32" },
+                  "&:hover": { bgcolor: "#1E2A5A" },
                 }}
               >
                 View All New Releases
@@ -142,6 +146,7 @@ export default function NewRelease() {
             </Box>
           </Container>
         </Box>
+
       </NewReleaseBox>
     </HomeLayout>
   );

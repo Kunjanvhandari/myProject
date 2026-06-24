@@ -115,8 +115,8 @@ export default function PrivacyPolicy() {
             <Typography variant="body2">
               If you have questions about this Privacy Policy, please contact us at:
               <br />Email: privacy@librivista.com
-              <br />Phone: +977-01-4256789
-              <br />Address: Durbar Marg, Kathmandu, Nepal
+              <br />Phone: +977-9763942189 / +977-9749891918
+              <br />Address: Bidauri, Satyawati-6, Gulmi, Lumbini Province, Nepal
             </Typography>
           </Container>
         </Box>

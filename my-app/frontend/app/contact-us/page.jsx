@@ -1,11 +1,13 @@
 "use client";
-import { Box, Typography, Container, Grid, Card, CardContent, TextField, Button } from "@mui/material";
+import { useState } from "react";
+import { Box, Typography, Container, Grid, Card, CardContent, TextField, Button, Snackbar, Alert, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HomeLayout from "../layouts/HomeLayout/layout";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { apiFetch } from "@/src/lib/api";
 
 const ContactUsBox = styled(Box)(({ theme }) => ({
   "& .contactBox": {
@@ -47,6 +49,49 @@ const ContactUsBox = styled(Box)(({ theme }) => ({
 }));
 
 export default function ContactUs() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [sending, setSending] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.firstName || !formData.email || !formData.message) {
+      setSnackbar({ open: true, message: "Please fill in all required fields", severity: "error" });
+      return;
+    }
+
+    setSending(true);
+    try {
+      const res = await apiFetch("/contact", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSnackbar({ open: true, message: "Message sent successfully! We will get back to you soon.", severity: "success" });
+        setFormData({ firstName: "", lastName: "", email: "", phone: "", subject: "", message: "" });
+      } else {
+        setSnackbar({ open: true, message: data.message || "Failed to send message", severity: "error" });
+      }
+    } catch (error) {
+      console.error("Contact form error:", error);
+      setSnackbar({ open: true, message: "Failed to send message. Please try again.", severity: "error" });
+    } finally {
+      setSending(false);
+    }
+  };
   return (
     <HomeLayout>
       <ContactUsBox>
@@ -73,8 +118,8 @@ export default function ContactUs() {
                       Address
                     </Typography>
                     <Typography variant="body2" sx={{ color: "#666" }}>
-                      Durbar Marg, Kathmandu<br />
-                      Bagmati Province, Nepal
+                      Bidauri, Satyawati-6<br />
+                      Gulmi, Lumbini Province, Nepal
                     </Typography>
                   </CardContent>
                 </Card>
@@ -86,10 +131,11 @@ export default function ContactUs() {
                     <Typography variant="h6" sx={{ fontWeight: 700, color: "#173F5F", mb: 1 }}>
                       Phone
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#666" }}>
-                      +977-01-4256789<br />
-                      +977 9743962189
-                    </Typography>
+                      <Typography variant="body2" sx={{ color: "#666" }}>
+                        +977-9763942189<br />
+                        +977-9749891918<br />
+                        +977-9768337162
+                      </Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -131,28 +177,72 @@ export default function ContactUs() {
                 <Typography variant="body1" sx={{ color: "#666", mb: 4 }}>
                   Fill out the form below and our team will get back to you within 24 hours.
                 </Typography>
-                <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="First Name" variant="outlined" />
+                      <TextField
+                        fullWidth
+                        label="First Name"
+                        variant="outlined"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                      />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <TextField fullWidth label="Last Name" variant="outlined" />
+                      <TextField
+                        fullWidth
+                        label="Last Name"
+                        variant="outlined"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                      />
                     </Grid>
                   </Grid>
-                  <TextField fullWidth label="Email Address" variant="outlined" type="email" />
-                  <TextField fullWidth label="Phone Number" variant="outlined" />
-                  <TextField fullWidth label="Subject" variant="outlined" />
+                  <TextField
+                    fullWidth
+                    label="Email Address"
+                    variant="outlined"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                  <TextField
+                    fullWidth
+                    label="Phone Number"
+                    variant="outlined"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Subject"
+                    variant="outlined"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                  />
                   <TextField
                     fullWidth
                     label="Your Message"
                     variant="outlined"
                     multiline
                     rows={5}
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
                   />
                   <Button
+                    type="submit"
                     variant="contained"
                     size="large"
+                    disabled={sending}
                     sx={{
                       bgcolor: "#ED553B",
                       borderRadius: "8px",
@@ -163,7 +253,7 @@ export default function ContactUs() {
                       "&:hover": { bgcolor: "#d94a32" },
                     }}
                   >
-                    Send Message
+                    {sending ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Send Message"}
                   </Button>
                 </Box>
               </Grid>
@@ -173,8 +263,8 @@ export default function ContactUs() {
                   Find Us on Map
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#666", mb: 4 }}>
-                  Visit our library at the heart of Kathmandu. We are conveniently located
-                  near major landmarks and easily accessible by public transportation.
+                  Visit our library in Bidauri, Gulmi. We are conveniently located
+                  in Satyawati-6, Lumbini Province and easily accessible by public transportation.
                 </Typography>
                 <Box
                   sx={{
@@ -225,7 +315,7 @@ export default function ContactUs() {
                       Do you offer home delivery?
                     </Typography>
                     <Typography variant="body2" sx={{ color: "#666" }}>
-                      Yes, we offer book delivery within Kathmandu valley for premium members.
+                      Yes, we offer book delivery within Gulmi and surrounding areas for premium members.
                     </Typography>
                   </Box>
                 </Box>
@@ -233,6 +323,17 @@ export default function ContactUs() {
             </Grid>
           </Container>
         </Box>
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert severity={snackbar.severity} sx={{ width: "100%" }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </ContactUsBox>
     </HomeLayout>
   );

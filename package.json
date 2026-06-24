@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd my-app/frontend && npm run dev",
     "dev:backend": "cd my-app/backend && npm run dev",
-    "dev:frontend": "cd my-app/frontend && npm run dev"
+    "build": "cd my-app/frontend && npm run build",
+    "start": "cd my-app/frontend && npm run start"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

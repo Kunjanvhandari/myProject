@@ -3,281 +3,187 @@ import { useState, useEffect } from "react";
 import { Box, Typography, Container, Grid, Card, CardContent, Rating, Button, TextField, InputAdornment, Chip, CircularProgress, Pagination, Snackbar, Alert } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HomeLayout from "../layouts/HomeLayout/layout";
-import { useAuth } from "@/context/AuthContext";
-import { apiFetch } from "@/src/lib/api";
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { useRouter } from "next/navigation";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-const BooksBox = styled(Box)(({ theme }) => ({
-  "& .booksBox": {
-    padding: "60px 0",
-    minHeight: "calc(100vh - 300px)",
+const GlassCard = styled(Card)({
+  borderRadius: "16px",
+  background: "#fff",
+  boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
+  transition: "all 0.3s ease",
+  cursor: "pointer",
+  "&:hover": {
+    transform: "translateY(-5px)",
+    boxShadow: "0 12px 40px rgba(0,0,0,0.1)",
   },
-  "& .heroSection": {
-    background: "#000000",
-    color: "#fff",
-    padding: "60px 0",
-    textAlign: "center",
-    borderRadius: "0 0 50px 50px",
-    marginBottom: "40px",
-  },
-  "& .bookCard": {
-    borderRadius: "16px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-    "&:hover": {
-      transform: "translateY(-5px)",
-      boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-    },
-  },
-  "& .categoryChip": {
-    cursor: "pointer",
-    borderRadius: "20px",
-    padding: "8px 16px",
-    "&.active": {
-      bgcolor: "#000000",
-      color: "#fff",
-    },
-  },
-}));
+});
 
-const categories = ["All", "Fiction", "Non-Fiction", "Academic", "Science", "History", "Children", "Self-Help", "Business", "Technology", "Biography", "Philosophy"];
+const categories = ["All", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"];
 
-export default function Books() {
-  const { isAuthenticated } = useAuth();
+function BooksContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
+  useEffect(() => { fetchBooks(); }, [page, selectedCategory, searchQuery]);
+
   useEffect(() => {
-    fetchBooks();
-  }, [page, selectedCategory]);
+    const urlSearch = searchParams.get("search");
+    if (urlSearch) { setSearchQuery(urlSearch); setPage(1); setSelectedCategory("All"); }
+  }, [searchParams.get("search")]);
 
   const fetchBooks = async () => {
     setLoading(true);
     try {
-      let url = `/api/books?page=${page}&limit=12`;
-      if (selectedCategory !== "All") {
-        url += `&category=${selectedCategory}`;
-      }
-      if (searchQuery) {
-        url += `&search=${searchQuery}`;
-      }
-
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.success) {
-        setBooks(data.books);
-        setTotalPages(data.pagination.pages);
-      }
-    } catch (error) {
-      console.error("Failed to fetch books:", error);
-    } finally {
-      setLoading(false);
-    }
+      const effectiveSearch = searchQuery || searchParams.get("search") || "";
+      let localUrl = `/api/books?page=${page}&limit=24`;
+      if (effectiveSearch) localUrl += `&search=${encodeURIComponent(effectiveSearch)}`;
+      if (selectedCategory !== "All") localUrl += `&category=${selectedCategory}`;
+      const localRes = await fetch(localUrl);
+      const localData = await localRes.json();
+      if (localData.success && localData.books?.length > 0) {
+        setBooks(localData.books.map((b) => ({ ...b, id: b._id })));
+        setTotalPages(localData.pagination.pages);
+      } else { setBooks([]); setTotalPages(1); }
+    } catch { setBooks([]); setTotalPages(1); }
+    finally { setLoading(false); }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setPage(1);
-    fetchBooks();
-  };
-
-  const handleReserve = async (bookId) => {
-    if (!isAuthenticated) {
-      router.push("/auth/login");
-      return;
-    }
-
-    try {
-      const res = await apiFetch("/api/reservations", {
-        method: "POST",
-        body: JSON.stringify({ bookId }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setSnackbar({ open: true, message: "Book reserved successfully!", severity: "success" });
-      } else {
-        setSnackbar({ open: true, message: data.message || "Failed to reserve book", severity: "error" });
-      }
-    } catch (error) {
-      setSnackbar({ open: true, message: "Failed to reserve book", severity: "error" });
-    }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleSearch = (e) => { e.preventDefault(); setPage(1); };
 
   return (
     <HomeLayout>
-      <BooksBox>
-        <Box className="heroSection">
-          <Container maxWidth="lg">
-            <Typography variant="h2" sx={{ fontWeight: 800, mb: 2, color: "white" }}>
+      <Box>
+        {/* HERO */}
+        <Box sx={{ background: "linear-gradient(135deg, #0F1A2E 0%, #1B3A5C 100%)", py: { xs: 6, md: 8 }, textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <Box sx={{ position: "absolute", top: "-50%", right: "-10%", width: 400, height: 400, borderRadius: "50%", background: "rgba(212,168,75,0.06)" }} />
+          <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+            <LibraryBooksIcon sx={{ fontSize: 48, color: "#D4A84B", mb: 2 }} />
+            <Typography variant="h2" sx={{ fontWeight: 800, color: "#fff", mb: 2 }}>
               Explore Our Library
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 400, maxWidth: "700px", margin: "0 auto", opacity: 0.9, color: "white" }}>
-              Browse through our extensive collection of 50,000+ books across all genres.
+            <Typography sx={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", maxWidth: "600px", mx: "auto" }}>
+              Browse CDC Nepal textbooks from Class 1 to Class 12 — all free and open.
             </Typography>
           </Container>
         </Box>
 
-        <Box className="booksBox">
-          <Container maxWidth="lg">
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4, flexWrap: "wrap", gap: 2 }}>
-              <form onSubmit={handleSearch} style={{ minWidth: "100%", display: "flex", gap: 2 }}>
-                <TextField
-                  placeholder="Search books, authors, ISBN..."
-                  variant="outlined"
-                  fullWidth
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <Button type="submit" variant="contained" sx={{ borderRadius: "8px", bgcolor: "#000000", px: 3 }}>
-                  Search
-                </Button>
-              </form>
-              <Button
+        <Container maxWidth="lg" sx={{ py: 5 }}>
+          {/* Search & Filters */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, mb: 5 }}>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <TextField
+                placeholder="Search books, authors..."
                 variant="outlined"
-                startIcon={<FilterListIcon />}
-                sx={{ borderRadius: "20px", px: 3 }}
-              >
-                Filters
+                sx={{ flex: 1, minWidth: "280px" }}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#bbb" }} /></InputAdornment>,
+                  sx: { borderRadius: "12px", bgcolor: "#fff", "& fieldset": { borderColor: "#E8E8E8" } },
+                }}
+              />
+              <Button type="submit" variant="contained" onClick={handleSearch} sx={{ borderRadius: "10px", px: 3 }}>
+                Search
               </Button>
             </Box>
-
-            <Box sx={{ display: "flex", gap: 2, mb: 4, flexWrap: "wrap", justifyContent: "center" }}>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               {categories.map((cat) => (
                 <Chip
                   key={cat}
                   label={cat}
-                  className={`categoryChip ${selectedCategory === cat ? "active" : ""}`}
-                  variant="outlined"
-                  onClick={() => {
-                    setSelectedCategory(cat);
-                    setPage(1);
+                  onClick={() => { setSelectedCategory(cat); setPage(1); setSearchQuery(""); if (searchParams.get("search")) router.push("/books"); }}
+                  sx={{
+                    borderRadius: "10px",
+                    fontWeight: selectedCategory === cat ? 700 : 500,
+                    bgcolor: selectedCategory === cat ? "#1B3A5C" : "transparent",
+                    color: selectedCategory === cat ? "#fff" : "#5A5A7A",
+                    border: selectedCategory === cat ? "none" : "1px solid #E0E0E0",
+                    "&:hover": { bgcolor: selectedCategory === cat ? "#1B3A5C" : "#F5F5F5" },
                   }}
                 />
               ))}
             </Box>
+          </Box>
 
-            {loading ? (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-                <CircularProgress />
-              </Box>
-            ) : books.length === 0 ? (
-              <Box sx={{ textAlign: "center", py: 8 }}>
-                <Typography variant="h6" sx={{ color: "#888" }}>No books found</Typography>
-                <Typography sx={{ color: "#666" }}>Try adjusting your search or filters</Typography>
-              </Box>
-            ) : (
-              <Grid container spacing={3}>
-                {books.map((book) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={book._id}>
-                    <Card className="bookCard">
-                      <CardContent sx={{ p: 3 }}>
-                        <Box
-                          component="img"
-                          src={book.coverImage || "/images/footer/book22.png"}
-                          alt={book.title}
-                          sx={{
-                            width: "100%",
-                            height: "220px",
-                            objectFit: "contain",
-                            mb: 2,
-                            borderRadius: 1,
-                          }}
-                        />
-                        {book.badge && (
-                          <Chip label={book.badge} size="small" sx={{ mb: 1, bgcolor: "#000000", color: "#fff" }} />
-                        )}
-                        <Chip label={book.category} size="small" sx={{ mb: 1, ml: 1, bgcolor: "#f0f0f0" }} />
-                        <Typography
-                          variant="subtitle1"
-                          sx={{ fontWeight: 700, color: "#000000", mb: 0.5 }}
-                        >
-                          {book.title}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: "#999", display: "block", mb: 1 }}>
-                          by {book.author}
-                        </Typography>
-                        <Rating value={book.rating || 0} readOnly size="small" sx={{ color: "#ffb400", mb: 1 }} />
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 700, color: "#000000" }}>
-                            Rs. {book.price}
-                          </Typography>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            disabled={book.availableCopies <= 0}
-                            onClick={() => handleReserve(book._id)}
-                            sx={{
-                              bgcolor: book.availableCopies > 0 ? "#000000" : "#ccc",
-                              borderRadius: "8px",
-                              textTransform: "none",
-                              "&:hover": { bgcolor: book.availableCopies > 0 ? "#333333" : "#ccc" },
-                            }}
-                          >
-                            {book.availableCopies > 0 ? "Reserve" : "Unavailable"}
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
+          {/* Books Grid */}
+          {loading ? (
+            <Box sx={{ textAlign: "center", py: 10 }}><CircularProgress /></Box>
+          ) : books.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 10 }}>
+              <Typography variant="h6" sx={{ color: "#888", mb: 1 }}>No books found</Typography>
+              <Typography sx={{ color: "#aaa" }}>Try adjusting your search or select a different class</Typography>
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              {books.map((book) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={book._id}>
+                  <GlassCard onClick={() => router.push(`/books/${book._id}`)}>
+                    <Box sx={{ position: "relative" }}>
+                      <Box
+                        component="img"
+                        src={book.coverImage || "/images/footer/book22.png"}
+                        alt={book.title}
+                        sx={{ width: "100%", height: 220, objectFit: "contain", p: 2, bgcolor: "#FAFAFA", borderTopLeftRadius: "16px", borderTopRightRadius: "16px" }}
+                      />
+                      {book.badge && (
+                        <Chip label={book.badge} size="small" sx={{ position: "absolute", top: 12, right: 12, bgcolor: "#D4A84B", color: "#0F1A2E", fontWeight: 700, borderRadius: "6px", fontSize: "10px" }} />
+                      )}
+                    </Box>
+                    <CardContent sx={{ p: 2.5 }}>
+                      <Chip label={book.category} size="small" sx={{ mb: 1, bgcolor: "rgba(27,58,92,0.08)", color: "#1B3A5C", fontWeight: 600, borderRadius: "6px", fontSize: "10px" }} />
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1B1B2F", mb: 0.3 }}>{book.title}</Typography>
+                      <Typography variant="caption" sx={{ color: "#888", display: "block", mb: 1 }}>by {book.author}</Typography>
+                      <Rating value={book.rating || 0} readOnly size="small" sx={{ color: "#D4A84B", mb: 1.5 }} />
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Typography variant="body2" sx={{ color: "#888", fontSize: "13px" }}>{book.pages ? `${book.pages} pages` : ""}</Typography>
+                        <Button variant="contained" size="small" onClick={(e) => { e.stopPropagation(); router.push(`/books/${book._id}`); }}
+                          sx={{ borderRadius: "8px", textTransform: "none", fontSize: "12px", px: 2 }}>
+                          View Details
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </GlassCard>
+                </Grid>
+              ))}
+            </Grid>
+          )}
 
-            {totalPages > 1 && (
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
-                <Pagination
-                  count={totalPages}
-                  page={page}
-                  onChange={(e, val) => setPage(val)}
-                  color="standard"
-                  sx={{
-                    "& .MuiPaginationItem-root": {
-                      borderRadius: "8px",
-                    },
-                    "& .Mui-selected": {
-                      bgcolor: "#000000 !important",
-                      color: "#fff",
-                    },
-                  }}
-                />
-              </Box>
-            )}
-          </Container>
-        </Box>
+          {totalPages > 1 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={(e, val) => setPage(val)}
+                sx={{
+                  "& .MuiPaginationItem-root": { borderRadius: "8px" },
+                  "& .Mui-selected": { bgcolor: "#1B3A5C !important", color: "#fff", fontWeight: 700 },
+                }}
+              />
+            </Box>
+          )}
+        </Container>
+      </Box>
 
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={4000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      </BooksBox>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ borderRadius: "10px", width: "100%" }}>{snackbar.message}</Alert>
+      </Snackbar>
     </HomeLayout>
+  );
+}
+
+export default function Books() {
+  return (
+    <Suspense fallback={<Box sx={{ textAlign: "center", py: 8 }}><CircularProgress /></Box>}>
+      <BooksContent />
+    </Suspense>
   );
 }

@@ -123,7 +123,7 @@ export default function AboutUs() {
               </Typography>
               <Typography variant="body1" sx={{ color: "#555", lineHeight: 1.9, maxWidth: "900px", margin: "0 auto", textAlign: "center" }}>
                 Founded in 2015 by a group of passionate educators and technologists, LibriVista
-                started as a small community library in Kathmandu, Nepal. Recognizing the challenges
+                started as a small community library in Bidauri, Gulmi, Lumbini Province, Nepal. Recognizing the challenges
                 faced by students and readers in accessing quality educational resources, we set out
                 to create a solution that combines traditional library values with modern technology.
                 Over the years, we have grown into a comprehensive library management platform

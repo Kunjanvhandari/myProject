@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Box, Typography, Container, Grid, Card, CardContent, Avatar, Button, TextField, Divider, Chip, Tabs, Tab, CircularProgress, Alert } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { Box, Typography, Container, Grid, Card, CardContent, Avatar, Button, TextField, Divider, Chip, Tabs, Tab, CircularProgress, Alert, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import HomeLayout from "../layouts/HomeLayout/layout";
 import { useAuth } from "@/context/AuthContext";
@@ -16,7 +16,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import SecurityIcon from "@mui/icons-material/Security";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useRouter } from "next/navigation";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const AccountBox = styled(Box)(({ theme }) => ({
   "& .accountBox": {
@@ -48,8 +50,10 @@ const AccountBox = styled(Box)(({ theme }) => ({
 }));
 
 export default function Account() {
-  const { user, loading, isAuthenticated, logout } = useAuth();
+  const { user, loading, isAuthenticated, logout, refreshUser, changePassword } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fileInputRef = useRef(null);
   const [tabValue, setTabValue] = useState(0);
   const [editMode, setEditMode] = useState(false);
   const [borrowings, setBorrowings] = useState([]);
@@ -58,10 +62,41 @@ export default function Account() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [formData, setFormData] = useState({ name: "", phone: "", address: "" });
   const [updateMessage, setUpdateMessage] = useState({ show: false, success: false, text: "" });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [profileImagePreview, setProfileImagePreview] = useState("");
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const demoBorrowings = [
+    { _id: "b1", book: { title: "Atomic Habits", author: "James Clear" }, borrowDate: "2026-04-10", dueDate: "2026-04-24", status: "active" },
+    { _id: "b2", book: { title: "The Alchemist", author: "Paulo Coelho" }, borrowDate: "2026-04-05", dueDate: "2026-04-19", status: "active" },
+    { _id: "b3", book: { title: "Clean Code", author: "Robert C. Martin" }, borrowDate: "2026-03-20", dueDate: "2026-04-03", status: "returned" },
+    { _id: "b4", book: { title: "Ikigai", author: "Hector Garcia" }, borrowDate: "2026-03-15", dueDate: "2026-03-29", status: "returned" },
+    { _id: "b5", book: { title: "Deep Work", author: "Cal Newport" }, borrowDate: "2026-03-01", dueDate: "2026-03-15", status: "returned" },
+  ];
+
+  const demoReservations = [
+    { _id: "r1", book: { title: "JavaScript: The Good Parts", author: "Douglas Crockford" }, reservedOn: "2026-04-15", totalPrice: 850, status: "pending" },
+    { _id: "r2", book: { title: "Design Patterns", author: "Gang of Four" }, reservedOn: "2026-04-12", totalPrice: 1200, status: "confirmed" },
+  ];
+
+  const demoNotifications = [
+    { title: "Book Due Soon", message: "Atomic Habits is due in 3 days. Return or renew to avoid late fees." },
+    { title: "Reservation Ready", message: "Your reserved book 'Design Patterns' is ready for pickup." },
+    { title: "Welcome!", message: "Welcome to LibriVista! Explore our collection of 50,000+ books." },
+  ];
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam !== null) {
+      setTabValue(parseInt(tabParam));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push("/");
+      router.push("/login");
     }
   }, [loading, isAuthenticated, router]);
 
@@ -72,40 +107,47 @@ export default function Account() {
         phone: user.phone || "",
         address: user.address || "",
       });
+      setProfileImagePreview(user.profileImage || "");
       fetchBorrowings();
       fetchReservations();
-      setNotifications(user.notifications || []);
+      setNotifications(user.notifications || demoNotifications);
       setIsLoadingData(false);
     }
   }, [user]);
 
   const fetchBorrowings = async () => {
     try {
-      const res = await apiFetch("/api/borrowings");
+      const res = await apiFetch("/borrowings");
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.borrowings && data.borrowings.length > 0) {
         setBorrowings(data.borrowings);
+      } else {
+        setBorrowings(demoBorrowings);
       }
     } catch (error) {
       console.error("Failed to fetch borrowings:", error);
+      setBorrowings(demoBorrowings);
     }
   };
 
   const fetchReservations = async () => {
     try {
-      const res = await apiFetch("/api/reservations");
+      const res = await apiFetch("/reservations");
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.reservations && data.reservations.length > 0) {
         setReservations(data.reservations);
+      } else {
+        setReservations(demoReservations);
       }
     } catch (error) {
       console.error("Failed to fetch reservations:", error);
+      setReservations(demoReservations);
     }
   };
 
   const handleUpdateProfile = async () => {
     try {
-      const res = await apiFetch("/api/user/profile", {
+      const res = await apiFetch("/v1/user/profile", {
         method: "PUT",
         body: JSON.stringify(formData),
       });
@@ -125,6 +167,92 @@ export default function Account() {
     setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUpdateMessage({ show: true, success: false, text: "Please select an image file" });
+      setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUpdateMessage({ show: true, success: false, text: "Image size must be less than 5MB" });
+      setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+      return;
+    }
+
+    setUploadingImage(true);
+
+    const previewUrl = URL.createObjectURL(file);
+    setProfileImagePreview(previewUrl);
+
+    const formDataUpload = new FormData();
+    formDataUpload.append("profileImage", file);
+
+    try {
+      const response = await fetch("/api/user/profile/upload-image", {
+        method: "POST",
+        credentials: "include",
+        body: formDataUpload,
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setUpdateMessage({ show: true, success: true, text: "Profile picture updated successfully!" });
+        setProfileImagePreview(data.imageUrl);
+        if (refreshUser) {
+          await refreshUser();
+        }
+      } else {
+        setUpdateMessage({ show: true, success: false, text: data.message || "Failed to upload image" });
+        setProfileImagePreview(user?.profileImage || "");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      setUpdateMessage({ show: true, success: false, text: "Failed to upload image" });
+      setProfileImagePreview(user?.profileImage || "");
+    } finally {
+      setUploadingImage(false);
+    }
+
+    setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+  };
+
+  const handlePasswordChange = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setUpdateMessage({ show: true, success: false, text: "All fields are required" });
+      setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+      return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      setUpdateMessage({ show: true, success: false, text: "New password must be at least 6 characters" });
+      setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setUpdateMessage({ show: true, success: false, text: "Passwords do not match" });
+      setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+      return;
+    }
+    setChangingPassword(true);
+    const result = await changePassword(passwordForm.currentPassword, passwordForm.newPassword);
+    if (result.success) {
+      setUpdateMessage({ show: true, success: true, text: "Password changed successfully!" });
+      setPasswordDialogOpen(false);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } else {
+      setUpdateMessage({ show: true, success: false, text: result.message || "Failed to change password" });
+    }
+    setChangingPassword(false);
+    setTimeout(() => setUpdateMessage({ show: false, success: false, text: "" }), 3000);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   if (loading || !isAuthenticated) {
     return (
       <HomeLayout>
@@ -137,24 +265,56 @@ export default function Account() {
 
   const membershipExpiry = user.membershipExpiry ? new Date(user.membershipExpiry).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "N/A";
 
+  const profileImageUrl = profileImagePreview ? `${profileImagePreview}` : "";
+
   return (
     <HomeLayout>
       <AccountBox>
         <Box className="heroSection">
           <Container maxWidth="lg">
             <Box sx={{ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap" }}>
-              <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  bgcolor: "#333333",
-                  fontSize: "2.5rem",
-                  fontWeight: 700,
-                  border: "4px solid rgba(255,255,255,0.3)",
-                }}
-              >
-                {user?.name?.charAt(0) || "U"}
-              </Avatar>
+              <Box sx={{ position: "relative" }}>
+                <Avatar
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    bgcolor: "#333333",
+                    fontSize: "2.5rem",
+                    fontWeight: 700,
+                    border: "4px solid rgba(255,255,255,0.3)",
+                  }}
+                  src={profileImageUrl || undefined}
+                >
+                  {!profileImageUrl && (user?.name?.charAt(0) || "U")}
+                </Avatar>
+                <Box
+                  onClick={triggerFileInput}
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    bgcolor: "#2D5016",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    border: "2px solid #fff",
+                    "&:hover": { bgcolor: "#1A3810" },
+                  }}
+                >
+                  <PhotoCameraIcon sx={{ fontSize: 16, color: "#fff" }} />
+                </Box>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  style={{ display: "none" }}
+                />
+              </Box>
               <Box>
                 <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, color: "white" }}>
                   {user?.name}
@@ -192,6 +352,59 @@ export default function Account() {
                     <Typography variant="h6" className="sectionTitle">
                       Profile Information
                     </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+                      <Box sx={{ position: "relative" }}>
+                        <Avatar
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            bgcolor: "#333333",
+                            fontSize: "2rem",
+                            fontWeight: 700,
+                          }}
+                          src={profileImageUrl || undefined}
+                        >
+                          {!profileImageUrl && (user?.name?.charAt(0) || "U")}
+                        </Avatar>
+                        <Box
+                          onClick={triggerFileInput}
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            right: 0,
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            bgcolor: "#2D5016",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            border: "2px solid #fff",
+                            "&:hover": { bgcolor: "#1A3810" },
+                          }}
+                        >
+                          {uploadingImage ? (
+                            <CircularProgress size={14} sx={{ color: "#fff" }} />
+                          ) : (
+                            <PhotoCameraIcon sx={{ fontSize: 14, color: "#fff" }} />
+                          )}
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                          {user?.name}
+                        </Typography>
+                        <Button
+                          size="small"
+                          onClick={triggerFileInput}
+                          disabled={uploadingImage}
+                          sx={{ textTransform: "none", p: 0, minWidth: "auto", color: "#2D5016" }}
+                        >
+                          {uploadingImage ? "Uploading..." : "Change Photo"}
+                        </Button>
+                      </Box>
+                    </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
                       <PersonIcon sx={{ color: "#333333" }} />
                       <Box>
@@ -244,13 +457,13 @@ export default function Account() {
                     <Typography variant="h6" className="sectionTitle">
                       Quick Actions
                     </Typography>
-                    <Button fullWidth variant="contained" sx={{ mb: 1, borderRadius: "8px", bgcolor: "#333333", textTransform: "none" }}>
+                    <Button fullWidth variant="contained" sx={{ mb: 1, borderRadius: "8px", bgcolor: "#333333", textTransform: "none" }} onClick={() => router.push("/account?tab=3")}>
                       Renew Membership
                     </Button>
-                    <Button fullWidth variant="outlined" sx={{ mb: 1, borderRadius: "8px", textTransform: "none" }}>
+                    <Button fullWidth variant="outlined" sx={{ mb: 1, borderRadius: "8px", textTransform: "none" }} onClick={() => router.push("/account?tab=0")}>
                       Download Receipts
                     </Button>
-                    <Button fullWidth variant="outlined" sx={{ mb: 1, borderRadius: "8px", textTransform: "none" }}>
+                    <Button fullWidth variant="outlined" sx={{ mb: 1, borderRadius: "8px", textTransform: "none" }} onClick={() => router.push("/books")}>
                       Request Book
                     </Button>
                     <Button fullWidth variant="outlined" sx={{ borderRadius: "8px", textTransform: "none", borderColor: "#f44336", color: "#f44336" }} onClick={logout}>
@@ -315,6 +528,7 @@ export default function Account() {
                       <Tab label="Reservations" />
                       <Tab label="Notifications" />
                       <Tab label="Settings" />
+                      <Tab label="Fines" />
                     </Tabs>
                   </Box>
 
@@ -422,6 +636,30 @@ export default function Account() {
                     {tabValue === 2 && (
                       <Box>
                         <Typography variant="h6" className="sectionTitle" sx={{ mb: 3 }}>
+                          Notifications
+                        </Typography>
+                        {notifications.length === 0 ? (
+                          <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No new notifications</Typography>
+                        ) : (
+                          notifications.map((notif, index) => (
+                            <Box key={index}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 2 }}>
+                                <NotificationsIcon sx={{ color: "#333333" }} />
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{notif.title || "Notification"}</Typography>
+                                  <Typography variant="caption" sx={{ color: "#888" }}>{notif.message || "No message"}</Typography>
+                                </Box>
+                              </Box>
+                              {index < notifications.length - 1 && <Divider />}
+                            </Box>
+                          ))
+                        )}
+                      </Box>
+                    )}
+
+                    {tabValue === 3 && (
+                      <Box>
+                        <Typography variant="h6" className="sectionTitle" sx={{ mb: 3 }}>
                           Account Settings
                         </Typography>
                         {editMode ? (
@@ -456,7 +694,7 @@ export default function Account() {
                                 <SecurityIcon sx={{ color: "#333333" }} />
                                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Change Password</Typography>
                               </Box>
-                              <Button size="small" sx={{ textTransform: "none" }}>Update</Button>
+                              <Button size="small" sx={{ textTransform: "none" }} onClick={() => setPasswordDialogOpen(true)}>Update</Button>
                             </Box>
                             <Divider />
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 2 }}>
@@ -478,13 +716,154 @@ export default function Account() {
                         )}
                       </Box>
                     )}
+
+                    {tabValue === 4 && (
+                      <Box>
+                        <Typography variant="h6" className="sectionTitle" sx={{ mb: 3 }}>
+                          My Fines & Penalties
+                        </Typography>
+                        <FinesList />
+                      </Box>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>
             </Grid>
           </Container>
         </Box>
+        {/* Password Change Dialog */}
+        <Dialog open={passwordDialogOpen} onClose={() => setPasswordDialogOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle sx={{ fontWeight: 700 }}>Change Password</DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+              <TextField
+                fullWidth
+                label="Current Password"
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+              />
+              <TextField
+                fullWidth
+                label="New Password"
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              />
+              <TextField
+                fullWidth
+                label="Confirm New Password"
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, pt: 0 }}>
+            <Button onClick={() => setPasswordDialogOpen(false)} sx={{ textTransform: "none" }}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={handlePasswordChange}
+              disabled={changingPassword}
+              sx={{ bgcolor: "#333333", textTransform: "none" }}
+            >
+              {changingPassword ? "Changing..." : "Change Password"}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </AccountBox>
     </HomeLayout>
+  );
+}
+
+function FinesList() {
+  const [fines, setFines] = useState([]);
+  const [totalUnpaid, setTotalUnpaid] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFines();
+  }, []);
+
+  const fetchFines = async () => {
+    try {
+      const res = await fetch("/api/fines/my");
+      const data = await res.json();
+      if (data.success) {
+        setFines(data.fines);
+        setTotalUnpaid(data.totalUnpaid || 0);
+      }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const handlePayFine = async (fineId) => {
+    try {
+      const res = await fetch(`/api/fines/${fineId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ action: "pay" }),
+      });
+      const data = await res.json();
+      if (data.success) fetchFines();
+    } catch (e) { console.error(e); }
+  };
+
+  if (loading) return <Box sx={{ textAlign: "center", py: 4 }}><CircularProgress /></Box>;
+
+  return (
+    <Box>
+      {totalUnpaid > 0 && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          You have <strong>Rs. {totalUnpaid}</strong> in unpaid fines. Please pay to avoid service restrictions.
+        </Alert>
+      )}
+
+      {fines.length === 0 ? (
+        <Typography sx={{ color: "#888", textAlign: "center", py: 4 }}>No fines or penalties</Typography>
+      ) : (
+        fines.map((fine, index) => (
+          <Box key={fine._id || index}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 2, flexWrap: "wrap", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <MonetizationOnIcon sx={{ color: fine.status === "unpaid" ? "#f44336" : fine.status === "paid" ? "#4CAF50" : "#FF9800" }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    Rs. {fine.amount} - {fine.book?.title || "Unknown Book"}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "#888" }}>
+                    {fine.daysLate} day(s) late &middot; Rs. {fine.ratePerDay}/day
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Chip
+                  label={fine.status}
+                  size="small"
+                  sx={{
+                    bgcolor: fine.status === "unpaid" ? "#ffebee" : fine.status === "paid" ? "#e8f5e9" : "#fff3e0",
+                    color: fine.status === "unpaid" ? "#f44336" : fine.status === "paid" ? "#4CAF50" : "#FF9800",
+                    fontWeight: 600,
+                  }}
+                />
+                {fine.status === "unpaid" && (
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="success"
+                    onClick={() => handlePayFine(fine._id)}
+                    sx={{ textTransform: "none", borderRadius: "8px" }}
+                  >
+                    Pay Now
+                  </Button>
+                )}
+              </Box>
+            </Box>
+            {index < fines.length - 1 && <Divider />}
+          </Box>
+        ))
+      )}
+    </Box>
   );
 }

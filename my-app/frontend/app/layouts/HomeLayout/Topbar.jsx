@@ -4,15 +4,14 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Box, Container, Typography, TextField, IconButton,
-  InputAdornment, Grid, Divider, useMediaQuery, Drawer, Button, Badge
+  InputAdornment, Divider, useMediaQuery, Drawer, Button, Badge, Avatar,
+  Dialog, DialogTitle, DialogContent, DialogActions, Alert
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
-// Icons
 import SearchIcon from "@mui/icons-material/Search";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import LocalMallOutlinedIcon from "@mui/icons-material/LocalMallOutlined";
-import MenuIcon from "@mui/icons-material/Menu"; 
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import PhoneIcon from "@mui/icons-material/Phone";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -25,36 +24,102 @@ import NewReleasesIcon from "@mui/icons-material/NewReleases";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import ArticleIcon from "@mui/icons-material/Article";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import Link from "next/link";
-
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/src/lib/api";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 
-// --- Styled Components ---
-const NavItem = styled(Typography)(({ isActive }) => ({
-  fontSize: "14px",
-  fontWeight: isActive ? "700" : "500",
-  color: isActive ? "#ED553B" : "#484848",
-  cursor: "pointer",
-  padding: "10px 20px",
-  transition: "0.3s",
-  borderBottom: isActive ? "2px solid #ED553B" : "2px solid transparent",
-  "&:hover": { color: "#ED553B" },
+const StyledHeader = styled(Box)(({ theme }) => ({
+  position: "sticky",
+  top: 0,
+  zIndex: 1000,
+  background: "#fff",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+  "& .topBar": {
+    background: "#1E293B",
+    padding: "6px 0",
+    "& .topBarInner": {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    "& .contactInfo": {
+      display: "flex",
+      alignItems: "center",
+      gap: "16px",
+      color: "rgba(255,255,255,0.85)",
+      fontSize: "13px",
+    },
+    "& .socialLinks": {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      "& a": {
+        color: "rgba(255,255,255,0.7)",
+        transition: "color 0.2s",
+        display: "flex",
+        "&:hover": { color: "#fff" },
+      },
+    },
+  },
+  "& .mainNav": {
+    padding: "12px 0",
+    "& .navInner": {
+      display: "flex",
+      alignItems: "center",
+      gap: "16px",
+    },
+    "& .navLinks": {
+      display: "flex",
+      alignItems: "center",
+      gap: "4px",
+    },
+  },
 }));
 
-const MobileMenuItem = styled(Box)(({ isActive }) => ({
+const NavLink = styled(Link)(({ isactive }) => ({
+  fontSize: "14px",
+  fontWeight: isactive === "true" ? 600 : 500,
+  color: isactive === "true" ? "#1E293B" : "#5A5A7A",
+  textDecoration: "none",
+  padding: "8px 16px",
+  borderRadius: "8px",
+  transition: "all 0.2s ease",
+  position: "relative",
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    bottom: "2px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: isactive === "true" ? "60%" : "0",
+    height: "2px",
+    background: "#0EA5E9",
+    borderRadius: "2px",
+    transition: "width 0.3s ease",
+  },
+  "&:hover": {
+    color: "#1E293B",
+    background: "rgba(27, 58, 92, 0.04)",
+    "&::after": { width: "60%" },
+  },
+}));
+
+const MobileNavItem = styled(Box)(({ isactive }) => ({
   display: "flex",
   alignItems: "center",
   gap: "16px",
   padding: "14px 24px",
   cursor: "pointer",
-  transition: "0.2s",
-  backgroundColor: isActive ? "#FFF3F0" : "transparent",
-  borderLeft: isActive ? "4px solid #ED553B" : "4px solid transparent",
+  transition: "all 0.2s ease",
+  background: isactive === "true" ? "rgba(27, 58, 92, 0.06)" : "transparent",
+  borderLeft: isactive === "true" ? "3px solid #0EA5E9" : "3px solid transparent",
   "&:hover": {
-    backgroundColor: isActive ? "#FFF3F0" : "#F9F9F9",
+    background: "rgba(27, 58, 92, 0.04)",
   },
 }));
 
@@ -64,26 +129,102 @@ export default function BookStoreHeader() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const isResponsiveMode = useMediaQuery("(max-width:900px)");
-  const hideLabels = useMediaQuery("(max-width:1150px)");
-
-  const { user, isAuthenticated, logout } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+  const [drawerSearchQuery, setDrawerSearchQuery] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+  const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminLoginError, setAdminLoginError] = useState("");
+  const [adminLoggingIn, setAdminLoggingIn] = useState(false);
+  const [pendingNotifications, setPendingNotifications] = useState(0);
+  const isMobile = useMediaQuery("(max-width:900px)");
+  const hideLabels = useMediaQuery("(max-width:1100px)");
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchCartCount();
-    } else {
-      setCartCount(0);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const handleMobileSearch = (e) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      setMobileSearchOpen(false);
+      router.push(`/books?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+    }
+  };
+
+  const handleDrawerSearch = (e) => {
+    e.preventDefault();
+    if (drawerSearchQuery.trim()) {
+      setDrawerOpen(false);
+      router.push(`/books?search=${encodeURIComponent(drawerSearchQuery.trim())}`);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) fetchCartCount();
+    else setCartCount(0);
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAdmin) fetchPendingNotifications();
+  }, [isAdmin]);
+
+  const fetchPendingNotifications = async () => {
+    try {
+      const res = await apiFetch("/admin/notifications");
+      const data = await res.json();
+      if (data.success) {
+        setPendingNotifications(data.notifications.totalPending);
+      }
+    } catch {
+      console.error("Failed to fetch notifications");
+    }
+  };
+
+  const handleAdminLogin = async () => {
+    if (!adminPassword.trim()) {
+      setAdminLoginError("Please enter the admin password");
+      return;
+    }
+    setAdminLoggingIn(true);
+    setAdminLoginError("");
+    try {
+      const res = await apiFetch("/auth/admin-login", {
+        method: "POST",
+        body: JSON.stringify({ password: adminPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAdminDialogOpen(false);
+        setAdminPassword("");
+        setAdminLoginError("");
+        window.location.href = "/dashboard";
+      } else {
+        setAdminLoginError(data.message || "Invalid password");
+      }
+    } catch {
+      setAdminLoginError("Login failed. Check server connection.");
+    } finally {
+      setAdminLoggingIn(false);
+    }
+  };
 
   const fetchCartCount = async () => {
     try {
-      const res = await apiFetch("/api/reservations?status=pending");
+      const res = await apiFetch("/reservations?status=pending");
       const data = await res.json();
-      if (data.success) {
-        setCartCount(data.reservations.length);
-      }
+      if (data.success) setCartCount(data.reservations.length);
     } catch (error) {
       console.error("Failed to fetch cart count:", error);
     }
@@ -91,22 +232,21 @@ export default function BookStoreHeader() {
 
   const menuItems = [
     { label: "HOME", href: "/", icon: <HomeIcon /> },
-    { label: "ABOUT US", href: "/about-us", icon: <InfoIcon /> },
     { label: "BOOKS", href: "/books", icon: <LibraryBooksIcon /> },
     { label: "NEW RELEASE", href: "/new-release", icon: <NewReleasesIcon /> },
-    { label: "CONTACT US", href: "/contact-us", icon: <ContactMailIcon /> },
+    { label: "ABOUT US", href: "/about-us", icon: <InfoIcon /> },
+    { label: "CONTACT", href: "/contact-us", icon: <ContactMailIcon /> },
     { label: "BLOG", href: "/blog", icon: <ArticleIcon /> },
   ];
 
   const iconMenuItems = isAuthenticated
     ? [
-        { label: user?.name || "My Account", href: "/account", icon: <AccountCircleIcon />, action: null },
-        { label: "CART", href: "/cart", icon: <ShoppingCartIcon />, badge: cartCount, action: null },
+        { label: user?.name || "My Account", href: "/account", icon: <AccountCircleIcon /> },
+        ...(isAdmin ? [{ label: "Dashboard", href: "/dashboard", icon: <DashboardIcon /> }] : []),
         { label: "Sign Out", href: null, icon: <ExitToAppIcon />, action: () => { logout(); setDrawerOpen(false); } },
       ]
     : [
-        { label: "Login / Sign Up", href: "/auth/login", icon: <AccountCircleIcon />, action: null },
-        { label: "CART", href: "/cart", icon: <ShoppingCartIcon />, badge: cartCount, action: null },
+        { label: "Login / Sign Up", href: "/login", icon: <AccountCircleIcon /> },
       ];
 
   const isActive = (href) => {
@@ -122,9 +262,8 @@ export default function BookStoreHeader() {
 
   const DrawerContent = () => (
     <Box sx={{ width: 300, height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Drawer Header */}
       <Box sx={{
-        background: "linear-gradient(135deg, #ED553B 0%, #d94a32 100%)",
+        background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
         p: 3,
         display: "flex",
         justifyContent: "space-between",
@@ -133,20 +272,12 @@ export default function BookStoreHeader() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           {isAuthenticated ? (
             <>
-              <Box sx={{
-                width: 45,
-                height: 45,
-                borderRadius: "50%",
-                bgcolor: "#d94a32",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#fff",
-              }}>
-                {user?.name?.charAt(0) || "U"}
-              </Box>
+              <Avatar
+                sx={{ width: 44, height: 44, bgcolor: "#0EA5E9", fontSize: "18px", fontWeight: 700 }}
+                src={user?.profileImage || undefined}
+              >
+                {!user?.profileImage && (user?.name?.charAt(0) || "U")}
+              </Avatar>
               <Box>
                 <Typography variant="subtitle2" sx={{ color: "#fff", fontWeight: 700 }}>
                   {user?.name || "User"}
@@ -158,21 +289,12 @@ export default function BookStoreHeader() {
             </>
           ) : (
             <>
-              <Box sx={{
-                width: 45,
-                height: 45,
-                borderRadius: "50%",
-                overflow: "hidden",
-                position: "relative",
-              }}>
-                <Image
-                  src="/images/footer/book22.png"
-                  alt="Logo"
-                  fill
-                  style={{ objectFit: "cover" }}
-                />
-              </Box>
-              <Typography variant="h6" sx={{ color: "#fff", fontWeight: 700 }}>
+              <Avatar
+                sx={{ width: 44, height: 44, bgcolor: "#0EA5E9" }}
+              >
+                <LibraryBooksIcon sx={{ color: "#1E293B" }} />
+              </Avatar>
+              <Typography variant="h6" sx={{ color: "#fff", fontWeight: 700, fontSize: "18px" }}>
                 LibriVista
               </Typography>
             </>
@@ -183,135 +305,133 @@ export default function BookStoreHeader() {
         </IconButton>
       </Box>
 
-      {/* Search Bar in Drawer */}
-      <Box sx={{ p: 2, borderBottom: "1px solid #eee" }}>
-        <TextField
-          fullWidth
-          placeholder="Search Books, Authors..."
-          size="small"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchIcon sx={{ color: "#888" }} />
-              </InputAdornment>
-            ),
-            sx: { borderRadius: "8px", bgcolor: "#F3F3F3", "& fieldset": { border: "none" } },
-          }}
-        />
+      <Box sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <Box component="form" onSubmit={handleDrawerSearch} sx={{ display: "flex", gap: 1 }}>
+          <TextField
+            fullWidth
+            placeholder="Search books, authors..."
+            size="small"
+            value={drawerSearchQuery}
+            onChange={(e) => setDrawerSearchQuery(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton type="submit" size="small">
+                    <SearchIcon sx={{ color: "#888" }} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: { borderRadius: "10px", bgcolor: "#F3F3F3", "& fieldset": { border: "none" } },
+            }}
+          />
+        </Box>
       </Box>
 
-      {/* Menu Items */}
       <Box sx={{ flex: 1, overflowY: "auto", py: 1 }}>
-        <Typography variant="caption" sx={{ px: 3, py: 1, color: "#999", fontWeight: 600, display: "block" }}>
-          MAIN MENU
+        <Typography variant="caption" sx={{ px: 3, py: 1.5, color: "#999", fontWeight: 600, letterSpacing: "1px", display: "block" }}>
+          NAVIGATION
         </Typography>
         {menuItems.map((item) => (
-          <MobileMenuItem
+          <MobileNavItem
             key={item.label}
-            isActive={isActive(item.href)}
+            isactive={isActive(item.href) ? "true" : "false"}
             onClick={() => handleMenuClick(item.href)}
           >
             {React.cloneElement(item.icon, {
-              sx: { fontSize: 20, color: isActive(item.href) ? "#ED553B" : "#888888" },
+              sx: { fontSize: 20, color: isActive(item.href) ? "#1E293B" : "#5A5A7A" },
             })}
             <Typography
               variant="body2"
               sx={{
                 fontWeight: isActive(item.href) ? 700 : 500,
-                color: isActive(item.href) ? "#ED553B" : "#333333",
+                color: isActive(item.href) ? "#1E293B" : "#5A5A7A",
               }}
             >
               {item.label}
             </Typography>
-          </MobileMenuItem>
+          </MobileNavItem>
         ))}
 
         <Divider sx={{ my: 1, mx: 2 }} />
 
-        <Typography variant="caption" sx={{ px: 3, py: 1, color: "#999", fontWeight: 600, display: "block" }}>
-          MY ACCOUNT
+        <Typography variant="caption" sx={{ px: 3, py: 1.5, color: "#999", fontWeight: 600, letterSpacing: "1px", display: "block" }}>
+          ADMIN
+        </Typography>
+        <MobileNavItem
+          isactive="false"
+          onClick={() => { setDrawerOpen(false); setAdminDialogOpen(true); }}
+        >
+          <LockOutlinedIcon sx={{ fontSize: 20, color: "#1E293B" }} />
+          <Typography variant="body2" sx={{ fontWeight: 500, color: "#333" }}>
+            Admin Panel {pendingNotifications > 0 ? `(${pendingNotifications})` : ""}
+          </Typography>
+        </MobileNavItem>
+
+        <Divider sx={{ my: 1, mx: 2 }} />
+
+        <Typography variant="caption" sx={{ px: 3, py: 1.5, color: "#999", fontWeight: 600, letterSpacing: "1px", display: "block" }}>
+          ACCOUNT
         </Typography>
         {iconMenuItems.map((item) => (
-          <MobileMenuItem
+          <MobileNavItem
             key={item.label}
-            isActive={item.href ? isActive(item.href) : false}
+            isactive="false"
             onClick={() => item.action ? item.action() : handleMenuClick(item.href)}
           >
             {React.cloneElement(item.icon, {
-              sx: { fontSize: 20, color: "#ED553B" },
+              sx: { fontSize: 20, color: "#1E293B" },
             })}
-            <Box sx={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: "#333333" }}>
-                {item.label}
-              </Typography>
-              {item.badge > 0 && (
-                <Box sx={{
-                  bgcolor: "#ED553B",
-                  color: "#fff",
-                  borderRadius: "50%",
-                  width: 22,
-                  height: 22,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
-                  fontWeight: 700,
-                }}>
-                  {item.badge}
-                </Box>
-              )}
-            </Box>
-          </MobileMenuItem>
+            <Typography variant="body2" sx={{ fontWeight: 500, color: "#333" }}>
+              {item.label}
+            </Typography>
+          </MobileNavItem>
         ))}
       </Box>
 
-      {/* Drawer Footer */}
-      <Box sx={{ p: 2, borderTop: "1px solid #eee", bgcolor: "#F9F9F9" }}>
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+      <Box sx={{ p: 2.5, borderTop: "1px solid rgba(0,0,0,0.06)", bgcolor: "#FAFAFA" }}>
+        <Box sx={{ display: "flex", gap: 2, mb: 1.5 }}>
           <FacebookIcon sx={{ fontSize: 20, color: "#1877F2", cursor: "pointer" }} />
           <InstagramIcon sx={{ fontSize: 20, color: "#E4405F", cursor: "pointer" }} />
           <TwitterIcon sx={{ fontSize: 20, color: "#1DA1F2", cursor: "pointer" }} />
         </Box>
         <Typography variant="caption" sx={{ color: "#999" }}>
-          2026 LibriVista Library. All rights reserved.
+          2026 LibriVista. All rights reserved.
         </Typography>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ width: "100%", bgcolor: "#fff" }}>
-      {/* TIER 1: TOP BAR */}
-      <Box sx={{ bgcolor: "#ED553B", py: 0.8 }}>
+    <StyledHeader sx={{ boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.06)" }}>
+      {/* TOP BAR */}
+      <Box className="topBar" sx={{ display: { xs: "none", md: "block" } }}>
         <Container maxWidth="lg">
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#fff" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <PhoneIcon sx={{ fontSize: 16 }} />
-              <Link href="tel:+977014256789" style={{ textDecoration: "none", color: "#fff" }}>
-                <Typography sx={{ fontSize: "14px", color: "white", fontWeight: 500 }}>+977-01-4256789</Typography>
+          <Box className="topBarInner">
+            <Box className="contactInfo">
+              <PhoneIcon sx={{ fontSize: 14 }} />
+              <Link href="tel:+9779763942189" style={{ textDecoration: "none", color: "rgba(255,255,255,0.85)" }}>
+                +977-9763942189
               </Link>
               {isAuthenticated && (
-                <Typography sx={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", ml: 2, display: { xs: "none", sm: "block" } }}>
+                <Typography sx={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", ml: 2 }}>
                   Welcome, {user?.name?.split(" ")[0]}!
                 </Typography>
               )}
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box className="socialLinks">
               <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                <FacebookIcon sx={{ fontSize: 18, cursor: 'pointer', color: "#fff" }} />
+                <FacebookIcon sx={{ fontSize: 16 }} />
               </Link>
               <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                <InstagramIcon sx={{ fontSize: 18, cursor: 'pointer', color: "#fff" }} />
+                <InstagramIcon sx={{ fontSize: 16 }} />
               </Link>
               <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                <TwitterIcon sx={{ fontSize: 18, cursor: 'pointer', color: "#fff" }} />
+                <TwitterIcon sx={{ fontSize: 16 }} />
               </Link>
               {isAuthenticated && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 1, cursor: "pointer" }} onClick={logout}>
-                  <ExitToAppIcon sx={{ fontSize: 16 }} />
-                  <Typography sx={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>
-                    Sign Out
-                  </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: 2, cursor: "pointer" }} onClick={logout}>
+                  <ExitToAppIcon sx={{ fontSize: 14 }} />
+                  <Typography sx={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>Sign Out</Typography>
                 </Box>
               )}
             </Box>
@@ -319,183 +439,272 @@ export default function BookStoreHeader() {
         </Container>
       </Box>
 
-      {/* TIER 2: LOGO & ACTION ICONS */}
-      <Container maxWidth="lg" sx={{ py: 2 }}>
-        <Grid container spacing={1} alignItems="center" wrap="nowrap">
-          
-          {/* HAMBURGER MENU ICON */}
-          <Grid item xs="auto">
-            <IconButton onClick={() => setDrawerOpen(true)} sx={{ p: 1 }}>
-              <MenuIcon sx={{ fontSize: 24, color: "#ED553B" }} />
-            </IconButton>
-          </Grid>
+      {/* NOTIFICATION BAR */}
+      <Box sx={{
+        background: "linear-gradient(90deg, #0EA5E9, #38BDF8, #0EA5E9)",
+        py: 0.5,
+        overflow: "hidden",
+        position: "relative",
+        whiteSpace: "nowrap",
+      }}>
+        <Box
+          sx={{
+            display: "inline-block",
+            animation: "scroll-left 25s linear infinite",
+            color: "#0F172A",
+            fontSize: "13px",
+            fontWeight: 600,
+            "& > span": { mx: 3 },
+            "@keyframes scroll-left": {
+              "0%": { transform: "translateX(100vw)" },
+              "100%": { transform: "translateX(-100%)" },
+            },
+          }}
+        >
+          <span>📚 Welcome to LibriVista - Your Digital Library!</span>
+          <span>📖 50,000+ Physical Books Available</span>
+          <span>💻 100,000+ E-Books</span>
+          {isAdmin && pendingNotifications > 0 && (
+            <span>🔔 {pendingNotifications} Pending Request{pendingNotifications !== 1 ? "s" : ""} - Check Admin Panel</span>
+          )}
+          <span>🆕 New Books Added Weekly</span>
+          <span>🚚 Free Delivery on Orders Above Rs. 1000</span>
+        </Box>
+      </Box>
 
-          {/* LOGO */}
-          <Grid item xs="auto" md={2}>
-            <Link href="/" style={{ display: "block" }}>
-              <Box sx={{ 
-                width: { xs: 45, md: 70 }, 
-                height: { xs: 45, md: 70 }, 
-                position: 'relative',
-                overflow: 'hidden',
-                borderRadius: '50%',
+      {/* MAIN NAV */}
+      <Container maxWidth="lg">
+        <Box className="mainNav">
+          <Box className="navInner">
+            {/* Hamburger */}
+            <IconButton onClick={() => setDrawerOpen(true)} sx={{ p: 0.5, display: { md: "none" } }}>
+              <MenuIcon sx={{ fontSize: 24, color: "#1E293B" }} />
+            </IconButton>
+
+            {/* Logo */}
+            <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
+              <Box sx={{
+                width: { xs: 38, md: 44 },
+                height: { xs: 38, md: 44 },
+                position: "relative",
+                overflow: "hidden",
+                borderRadius: "50%",
+                border: "2px solid #0EA5E9",
+                mr: 1.5,
               }}>
-                <Image 
+                <Image
                   src="/images/footer/book22.png"
-                  alt="LibriVista Library Logo" 
+                  alt="LibriVista"
                   fill
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: "cover" }}
                 />
               </Box>
+              <Typography sx={{
+                fontWeight: 800,
+                fontSize: { xs: "18px", md: "20px" },
+                color: "#1E293B",
+                letterSpacing: "-0.5px",
+                display: { xs: "none", sm: "block" },
+              }}>
+                Libri<span style={{ color: "#0EA5E9" }}>Vista</span>
+              </Typography>
             </Link>
-          </Grid>
 
-          {/* DESKTOP SEARCH BAR */}
-          {!isResponsiveMode && (
-            <Grid item xs sx={{ px: 4 }}>
-              <TextField
-                fullWidth placeholder="Search Books, Authors, ISBN..." size="small"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchIcon sx={{ cursor: "pointer" }} />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: "20px", bgcolor: "#F3F3F3", "& fieldset": { border: "none" } },
-                }}
-              />
-            </Grid>
-          )}
-
-          {/* ICON GROUP */}
-          <Grid item xs sx={{ display: "flex", justifyContent: "flex-end" }}>
-            {isResponsiveMode && (
-              <IconButton onClick={() => setMobileSearchOpen(!mobileSearchOpen)} sx={{ mr: 1 }}>
-                {mobileSearchOpen ? <CloseIcon /> : <SearchIcon />}
-              </IconButton>
+            {/* Desktop Search */}
+            {!isMobile && (
+              <Box sx={{ flex: 1, maxWidth: 480, mx: 3 }}>
+                <Box component="form" onSubmit={handleSearch}>
+                  <TextField
+                    fullWidth
+                    placeholder="Search books, authors..."
+                    size="small"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: "#bbb", fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                      sx: {
+                        borderRadius: "24px",
+                        bgcolor: "#F5F5F5",
+                        "& fieldset": { border: "none" },
+                        "&:hover": { bgcolor: "#F0F0F0" },
+                        height: 40,
+                      },
+                    }}
+                  />
+                </Box>
+              </Box>
             )}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                cursor: "pointer",
-                "&:hover": { color: "#ED553B" },
-              }}
-              onClick={() => router.push(isAuthenticated ? "/account" : "/auth/login")}
-            >
-              <Badge
-                overlap="circular"
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                variant="dot"
-                sx={{
-                  "& .MuiBadge-badge": {
-                    bgcolor: isAuthenticated ? "#ED553B" : "#888",
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                  }
-                }}
-              >
-                <PersonOutlineIcon />
-              </Badge>
-              {!hideLabels && (
-                <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                  {isAuthenticated ? user?.name?.split(" ")[0] || "ACCOUNT" : "ACCOUNT"}
-                </Typography>
-              )}
-            </Box>
-            
-            <Divider orientation="vertical" flexItem sx={{ height: 20, display: { xs: 'none', md: 'block' }, mx: 1 }} />
-            
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                cursor: "pointer",
-                "&:hover": { color: "#ED553B" },
-              }}
-              onClick={() => router.push("/cart")}
-            >
-              <Badge
-                badgeContent={cartCount}
-                sx={{
-                  "& .MuiBadge-badge": {
-                    bgcolor: cartCount > 0 ? "#ED553B" : "#ccc",
-                    color: "#fff",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                  }
-                }}
-              >
-                <LocalMallOutlinedIcon />
-              </Badge>
-              {!hideLabels && (
-                <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                  CART{cartCount > 0 ? ` (${cartCount})` : ""}
-                </Typography>
-              )}
-            </Box>
-          </Grid>
-        </Grid>
 
-        {/* Mobile Search Dropdown */}
-        {mobileSearchOpen && isResponsiveMode && (
-          <Box sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              placeholder="Search Books, Authors, ISBN..."
-              variant="outlined"
-              size="small"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-                sx: { borderRadius: "20px", bgcolor: "#F3F3F3", "& fieldset": { border: "none" } },
-              }}
-            />
+            {/* Desktop Nav Links */}
+            {!isMobile && (
+              <Box className="navLinks">
+                {menuItems.map((item) => (
+                  <NavLink key={item.label} href={item.href} isactive={isActive(item.href) ? "true" : "false"}>
+                    {item.label}
+                  </NavLink>
+                ))}
+              </Box>
+            )}
+
+            {/* Right Icons */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, ml: "auto" }}>
+              {isMobile && (
+                <IconButton onClick={() => setMobileSearchOpen(!mobileSearchOpen)} size="small">
+                  {mobileSearchOpen ? <CloseIcon /> : <SearchIcon />}
+                </IconButton>
+              )}
+
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 0.8, cursor: "pointer", px: 1, py: 0.5, borderRadius: "8px", "&:hover": { bgcolor: "rgba(27,58,92,0.04)" } }}
+                onClick={() => router.push(isAuthenticated ? "/account" : "/login")}
+              >
+                <Badge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  variant="dot"
+                  sx={{ "& .MuiBadge-badge": { bgcolor: isAuthenticated ? "#2D8F6F" : "#bbb", width: 8, height: 8, borderRadius: "50%" } }}
+                >
+                  {isAuthenticated && user?.profileImage ? (
+                    <Avatar sx={{ width: 28, height: 28 }} src={user.profileImage}>
+                      {user?.name?.charAt(0) || "U"}
+                    </Avatar>
+                  ) : (
+                    <PersonOutlineIcon sx={{ color: "#5A5A7A" }} />
+                  )}
+                </Badge>
+                {!hideLabels && (
+                  <Typography variant="caption" sx={{ fontWeight: 600, color: "#5A5A7A", fontSize: "12px" }}>
+                    {isAuthenticated ? (user?.name?.split(" ")[0] || "Account") : "Account"}
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Admin Button - Always Visible */}
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", px: 1, py: 0.5, borderRadius: "8px", "&:hover": { bgcolor: "rgba(27,58,92,0.04)" }, position: "relative" }}
+                onClick={() => setAdminDialogOpen(true)}
+              >
+                <Badge
+                  badgeContent={isAdmin ? pendingNotifications : 0}
+                  color="error"
+                  sx={{ "& .MuiBadge-badge": { fontSize: "9px", fontWeight: 700, minWidth: 16, height: 16 } }}
+                >
+                  <LockOutlinedIcon sx={{ fontSize: 20, color: isAdmin ? "#0EA5E9" : "#5A5A7A" }} />
+                </Badge>
+                {!hideLabels && (
+                  <Typography variant="caption" sx={{ fontWeight: 600, color: isAdmin ? "#0EA5E9" : "#5A5A7A", fontSize: "12px" }}>
+                    Admin
+                  </Typography>
+                )}
+              </Box>
+
+              {isAdmin && (
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", px: 1, py: 0.5, borderRadius: "8px", "&:hover": { bgcolor: "rgba(27,58,92,0.04)" } }}
+                  onClick={() => router.push("/dashboard")}
+                >
+                  <AdminPanelSettingsIcon sx={{ fontSize: 20, color: "#5A5A7A" }} />
+                  {!hideLabels && (
+                    <Typography variant="caption" sx={{ fontWeight: 600, color: "#5A5A7A", fontSize: "12px" }}>Dashboard</Typography>
+                  )}
+                </Box>
+              )}
+
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", px: 1, py: 0.5, borderRadius: "8px", "&:hover": { bgcolor: "rgba(27,58,92,0.04)" } }}
+                onClick={() => router.push("/cart")}
+              >
+                <Badge
+                  badgeContent={cartCount}
+                  sx={{ "& .MuiBadge-badge": { bgcolor: cartCount > 0 ? "#0EA5E9" : "#ccc", color: "#fff", fontSize: "10px", fontWeight: 700, minWidth: 16, height: 16 } }}
+                >
+                  <ShoppingCartOutlinedIcon sx={{ color: "#5A5A7A" }} />
+                </Badge>
+                {!hideLabels && (
+                  <Typography variant="caption" sx={{ fontWeight: 600, color: "#5A5A7A", fontSize: "12px" }}>
+                    Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+                  </Typography>
+                )}
+              </Box>
+            </Box>
           </Box>
-        )}
+
+          {/* Mobile Search */}
+          {mobileSearchOpen && isMobile && (
+            <Box sx={{ mt: 2 }}>
+              <Box component="form" onSubmit={handleMobileSearch} sx={{ display: "flex" }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search books, authors..."
+                  size="small"
+                  value={mobileSearchQuery}
+                  onChange={(e) => setMobileSearchQuery(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: "#bbb" }} />
+                      </InputAdornment>
+                    ),
+                    sx: { borderRadius: "24px", bgcolor: "#F5F5F5", "& fieldset": { border: "none" } },
+                  }}
+                />
+              </Box>
+            </Box>
+          )}
+        </Box>
       </Container>
 
-      <Divider />
-
-      {/* DESKTOP NAVIGATION */}
-      {!isResponsiveMode && (
-        <Box sx={{ py: 1 }}>
-          <Container maxWidth="lg">
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              {menuItems.map((item, index) => (
-                <React.Fragment key={item.label}>
-                  <Link href={item.href} style={{ textDecoration: "none" }}>
-                    <NavItem isActive={isActive(item.href)}>{item.label}</NavItem>
-                  </Link>
-                  {index < menuItems.length - 1 && <Divider orientation="vertical" flexItem sx={{ mx: 1, my: 1.5 }} />}
-                </React.Fragment>
-              ))}
-            </Box>
-          </Container>
-          <Divider />
-        </Box>
-      )}
-
-      {/* HAMBURGER DRAWER (Mobile) */}
+      {/* DRAWER */}
       <Drawer
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: 300,
-            boxSizing: 'border-box',
-          },
-        }}
+        sx={{ "& .MuiDrawer-paper": { width: 300, boxSizing: "border-box" } }}
       >
         <DrawerContent />
       </Drawer>
-    </Box>
+
+      {/* ADMIN PASSWORD DIALOG */}
+      <Dialog open={adminDialogOpen} onClose={() => { setAdminDialogOpen(false); setAdminPassword(""); setAdminLoginError(""); }} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700, textAlign: "center", pt: 3 }}>
+          <LockOutlinedIcon sx={{ fontSize: 40, color: "#1E293B", mb: 1, display: "block", mx: "auto" }} />
+          Admin Access
+        </DialogTitle>
+        <DialogContent>
+          {adminLoginError && <Alert severity="error" sx={{ mb: 2, borderRadius: "8px" }}>{adminLoginError}</Alert>}
+          <TextField
+            fullWidth
+            label="Admin Password"
+            type="password"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleAdminLogin(); }}
+            autoFocus
+            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0, justifyContent: "center", gap: 2 }}>
+          <Button
+            onClick={() => { setAdminDialogOpen(false); setAdminPassword(""); setAdminLoginError(""); }}
+            variant="outlined"
+            sx={{ borderRadius: "10px", textTransform: "none", px: 3 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleAdminLogin}
+            disabled={adminLoggingIn}
+            sx={{ borderRadius: "10px", textTransform: "none", px: 3, bgcolor: "#1E293B", "&:hover": { bgcolor: "#0F172A" } }}
+          >
+            {adminLoggingIn ? "Verifying..." : "Enter Admin"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </StyledHeader>
   );
 }

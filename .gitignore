@@ -1,1 +1,12 @@
 node_modules
+*.log
+dev_err.txt
+dev_out.txt
+dev_log.txt
+next-dev.log
+stderr.log
+stdout.log
+uploads/*
+!uploads/.gitkeep
+test-upload.*
+my-app/backend/test-upload.*

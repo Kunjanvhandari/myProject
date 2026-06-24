@@ -102,15 +102,15 @@ export default function TermsCondition() {
 
             <Typography variant="h5">9. Governing Law</Typography>
             <Typography variant="body2">
-              These Terms shall be governed by and construed in accordance with the laws of Nepal. Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of the courts of Kathmandu, Nepal.
+              These Terms shall be governed by and construed in accordance with the laws of Nepal. Any disputes arising from these Terms shall be subject to the exclusive jurisdiction of the courts of Gulmi, Nepal.
             </Typography>
 
             <Typography variant="h5">10. Contact Information</Typography>
             <Typography variant="body2">
               For questions about these Terms, contact us at:
               <br />Email: legal@librivista.com
-              <br />Phone: +977-01-4256789
-              <br />Address: Durbar Marg, Kathmandu, Nepal
+              <br />Phone: +977-9763942189 / +977-9749891918
+              <br />Address: Bidauri, Satyawati-6, Gulmi, Lumbini Province, Nepal
             </Typography>
           </Container>
         </Box>

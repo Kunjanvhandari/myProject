@@ -43,7 +43,7 @@ const faqData = [
   },
   {
     question: "Do you offer home delivery of books?",
-    answer: "Yes, premium members enjoy free home delivery within Kathmandu valley. Books are delivered within 2-3 business days. For locations outside Kathmandu, a nominal delivery charge of Rs. 100-200 applies depending on the distance. Return pickup is also available for premium members.",
+    answer: "Yes, premium members enjoy free home delivery within Gulmi and surrounding areas. Books are delivered within 2-3 business days. For locations outside Gulmi, a nominal delivery charge of Rs. 100-200 applies depending on the distance. Return pickup is also available for premium members.",
   },
   {
     question: "How can I access e-books and digital resources?",

@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
 
   const checkSession = async () => {
     try {
-      const res = await apiFetch("/api/auth/session");
+      const res = await apiFetch("/auth/session");
       const data = await res.json();
 
       if (data.success && data.user) {
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const res = await apiFetch("/api/auth/login", {
+      const res = await apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
@@ -62,7 +62,7 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      const res = await apiFetch("/api/auth/register", {
+      const res = await apiFetch("/auth/register", {
         method: "POST",
         body: JSON.stringify(userData),
       });
@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await apiFetch("/api/auth/logout", { method: "POST" });
+      await apiFetch("/auth/logout", { method: "POST" });
       setUser(null);
       router.push("/");
     } catch (error) {
@@ -92,7 +92,7 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (profileData) => {
     try {
-      const res = await apiFetch("/api/user/profile", {
+      const res = await apiFetch("/user/profile", {
         method: "PUT",
         body: JSON.stringify(profileData),
       });
@@ -110,6 +110,33 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const res = await apiFetch("/auth/change-password", {
+        method: "PUT",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      return { success: false, message: "Failed to change password" };
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const res = await apiFetch("/auth/session");
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -119,6 +146,8 @@ export function AuthProvider({ children }) {
         register,
         logout,
         updateProfile,
+        refreshUser,
+        changePassword,
         isAuthenticated: !!user,
         isAdmin: user?.role === "admin",
       }}

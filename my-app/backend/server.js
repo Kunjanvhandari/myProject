@@ -1,45 +1,58 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import authRoutes from "./routes/auth.js";
-import booksRoutes from "./routes/books.js";
-import borrowingsRoutes from "./routes/borrowings.js";
-import reservationsRoutes from "./routes/reservations.js";
-import userRoutes from "./routes/user.js";
-import statsRoutes from "./routes/stats.js";
-import seedRoutes from "./routes/seed.js";
-import { connectDB } from "./lib/db.js";
+import { connectDB } from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
+import bookRoutes from "./routes/bookRoutes.js";
+import borrowingRoutes from "./routes/borrowingRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import statsRoutes from "./routes/statsRoutes.js";
+import seedRoutes from "./routes/seedRoutes.js";
+import pustakalayaSeedRoutes from "./routes/pustakalayaSeedRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import fineRoutes from "./routes/fineRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
-  credentials: true
-}));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads/profiles", express.static(path.join(__dirname, "uploads", "profiles")));
 
-// Connect to MongoDB
-connectDB();
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/books", bookRoutes);
+app.use("/api/v1/borrowings", borrowingRoutes);
+app.use("/api/v1/reservations", reservationRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/stats", statsRoutes);
+app.use("/api/v1/seed", seedRoutes);
+app.use("/api/v1/pustakalaya-seed", pustakalayaSeedRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/fines", fineRoutes);
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/books", booksRoutes);
-app.use("/api/borrowings", borrowingsRoutes);
-app.use("/api/reservations", reservationsRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/stats", statsRoutes);
-app.use("/api/seed", seedRoutes);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.get("/", (req, res) => {
+  res.json({ message: "Librivista API is running" });
 });
+
+async function start() {
+  try {
+    await connectDB();
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+start();
