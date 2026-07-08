@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import Notification from "../models/Notification.js";
+import { emitNotification } from "../config/socket.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,9 +15,11 @@ export async function getProfile(req, res) {
       user: {
         id: req.user._id,
         name: req.user.name,
+        username: req.user.username,
         email: req.user.email,
         phone: req.user.phone,
         address: req.user.address,
+        studentId: req.user.studentId,
         membershipId: req.user.membershipId,
         membershipType: req.user.membershipType,
         membershipExpiry: req.user.membershipExpiry,
@@ -27,6 +31,7 @@ export async function getProfile(req, res) {
         wishlist: req.user.wishlist,
         notifications: req.user.notifications,
         profileImage: req.user.profileImage,
+        profileCompletion: req.user.getProfileCompletion(),
         createdAt: req.user.createdAt,
       },
     });
@@ -37,12 +42,27 @@ export async function getProfile(req, res) {
 
 export async function updateProfile(req, res) {
   try {
-    const { name, phone, address } = req.body;
+    const { name, username, email, phone, address, studentId } = req.body;
 
     const updateData = {};
     if (name) updateData.name = name;
+    if (username !== undefined) {
+      const existing = await User.findOne({ username: username.toLowerCase().trim(), _id: { $ne: req.user._id } });
+      if (existing) {
+        return res.status(400).json({ success: false, message: "Username already taken" });
+      }
+      updateData.username = username.toLowerCase().trim();
+    }
+    if (email !== undefined) {
+      const existingEmail = await User.findOne({ email: email.toLowerCase().trim(), _id: { $ne: req.user._id } });
+      if (existingEmail) {
+        return res.status(400).json({ success: false, message: "Email already in use" });
+      }
+      updateData.email = email.toLowerCase().trim();
+    }
     if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
+    if (studentId !== undefined) updateData.studentId = studentId;
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -50,7 +70,18 @@ export async function updateProfile(req, res) {
       { new: true, runValidators: true }
     ).select("-password");
 
-    res.json({ success: true, user: updatedUser });
+    const notif = new Notification({
+      title: "Profile Updated",
+      message: `${updatedUser.name} updated their profile.`,
+      type: "info",
+      action: "profile_updated",
+      relatedUser: updatedUser._id,
+      targetRole: "admin",
+    });
+    await notif.save();
+    await emitNotification(notif);
+
+    res.json({ success: true, user: { ...updatedUser.toObject(), profileCompletion: updatedUser.getProfileCompletion() } });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to update profile", error: error.message });
   }

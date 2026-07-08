@@ -1,7 +1,9 @@
 import { Inter, Playfair_Display, Poppins } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import ThemeRegistry from "./ThemeRegistry";
+import ToastNotifications from "./components/ToastNotifications";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -18,7 +20,10 @@ export default function RootLayout({ children }) {
       <body>
         <ThemeRegistry>
           <AuthProvider>
-            {children}
+            <NotificationProvider>
+              {children}
+              <ToastNotifications />
+            </NotificationProvider>
           </AuthProvider>
         </ThemeRegistry>
       </body>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Borrowing from "@/lib/models/Borrowing.js";
 import Book from "@/lib/models/Book.js";
 import User from "@/lib/models/User.js";
+import Notification from "@/lib/models/Notification.js";
 import { getUserFromToken } from "@/lib/auth.js";
 import { connectDB } from "@/lib/db.js";
 
@@ -77,6 +78,16 @@ export async function POST(request) {
     userData.booksBorrowed += 1;
     userData.currentlyBorrowed += 1;
     await userData.save();
+
+    await Notification.create({
+      title: "Book Borrowed",
+      message: `${userData.name} borrowed "${book.title}"`,
+      type: "info",
+      action: "book_borrowed",
+      relatedUser: user._id,
+      relatedBook: bookId,
+      targetRole: "admin",
+    });
 
     return NextResponse.json({ success: true, borrowing }, { status: 201 });
   } catch (error) {

@@ -1,6 +1,9 @@
 import Reservation from "../models/Reservation.js";
 import User from "../models/User.js";
 import Book from "../models/Book.js";
+import Notification from "../models/Notification.js";
+import { emitNotification } from "../config/socket.js";
+import { sendReservationNotification } from "../config/email.js";
 
 export async function getReservations(req, res) {
   try {
@@ -57,17 +60,19 @@ export async function createReservation(req, res) {
 
     await User.findByIdAndUpdate(req.user._id, { $inc: { reservations: 1 } });
 
-    const admins = await User.find({ role: "admin" });
-    const adminNotification = {
+    const bookNotif = new Notification({
       title: "New Reservation",
       message: `${req.user.name} reserved "${book.title}"`,
       type: "info",
-      createdAt: new Date(),
-    };
-    for (const admin of admins) {
-      admin.notifications.push(adminNotification);
-      await admin.save();
-    }
+      action: "book_reserved",
+      relatedUser: req.user._id,
+      relatedBook: bookId,
+      targetRole: "admin",
+    });
+    await bookNotif.save();
+    await emitNotification(bookNotif);
+
+    sendReservationNotification(req.user, book, reservation);
 
     res.status(201).json({ success: true, reservation });
   } catch (error) {
@@ -118,6 +123,18 @@ export async function deleteReservation(req, res) {
     await Reservation.findByIdAndDelete(req.params.id);
 
     await User.findByIdAndUpdate(req.user._id, { $inc: { reservations: -1 } });
+
+    const cancelNotif = new Notification({
+      title: "Reservation Cancelled",
+      message: `${req.user.name} cancelled reservation for "${reservation.book?.title || "a book"}"`,
+      type: "warning",
+      action: "reservation_cancelled",
+      relatedUser: req.user._id,
+      relatedBook: reservation.book?._id,
+      targetRole: "admin",
+    });
+    await cancelNotif.save();
+    await emitNotification(cancelNotif);
 
     res.json({ success: true, message: "Reservation cancelled successfully" });
   } catch (error) {

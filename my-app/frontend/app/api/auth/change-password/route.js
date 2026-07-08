@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import User from "@/lib/models/User.js";
+import Notification from "@/lib/models/Notification.js";
 import { getUserFromToken } from "@/lib/auth.js";
 import { connectDB } from "@/lib/db.js";
 
@@ -34,6 +35,15 @@ export async function PUT(request) {
 
     userData.password = newPassword;
     await userData.save();
+
+    await Notification.create({
+      title: "Password Changed",
+      message: `${userData.name} changed their password.`,
+      type: "info",
+      action: "password_changed",
+      relatedUser: userData._id,
+      targetRole: "admin",
+    });
 
     return NextResponse.json({ success: true, message: "Password changed successfully" });
   } catch (error) {

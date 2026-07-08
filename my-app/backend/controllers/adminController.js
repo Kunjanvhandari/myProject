@@ -9,6 +9,7 @@ export async function getAllUsers(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const search = req.query.search || "";
+    const status = req.query.status || "";
     const skip = (page - 1) * limit;
 
     let query = {};
@@ -17,10 +18,16 @@ export async function getAllUsers(req, res) {
         $or: [
           { name: { $regex: search, $options: "i" } },
           { email: { $regex: search, $options: "i" } },
+          { username: { $regex: search, $options: "i" } },
           { membershipId: { $regex: search, $options: "i" } },
+          { studentId: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
         ],
       };
     }
+
+    if (status === "active") query.isActive = true;
+    if (status === "suspended") query.isActive = false;
 
     const users = await User.find(query)
       .select("-password")
@@ -234,5 +241,60 @@ export async function deleteReservation(req, res) {
     res.json({ success: true, message: "Reservation cancelled successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to cancel reservation", error: error.message });
+  }
+}
+
+export async function suspendUser(req, res) {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true }).select("-password");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, message: "User suspended", user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to suspend user", error: error.message });
+  }
+}
+
+export async function activateUser(req, res) {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { isActive: true }, { new: true }).select("-password");
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, message: "User activated", user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to activate user", error: error.message });
+  }
+}
+
+export async function getUserBorrowings(req, res) {
+  try {
+    const borrowings = await Borrowing.find({ user: req.params.id })
+      .populate("book", "title author coverImage category isbn")
+      .sort({ createdAt: -1 });
+    res.json({ success: true, borrowings });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch user borrowings", error: error.message });
+  }
+}
+
+export async function getUserReservations(req, res) {
+  try {
+    const reservations = await Reservation.find({ user: req.params.id })
+      .populate("book", "title author coverImage category price")
+      .sort({ createdAt: -1 });
+    res.json({ success: true, reservations });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch user reservations", error: error.message });
+  }
+}
+
+export async function getUserFines(req, res) {
+  try {
+    const fines = await Fine.find({ user: req.params.id })
+      .populate("book", "title author isbn")
+      .populate("borrowing", "borrowDate dueDate returnDate")
+      .sort({ createdAt: -1 });
+    const totalUnpaid = fines.filter(f => f.status === "unpaid").reduce((sum, f) => sum + f.amount, 0);
+    res.json({ success: true, fines, totalUnpaid });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch user fines", error: error.message });
   }
 }

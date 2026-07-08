@@ -3,6 +3,7 @@ import Borrowing from "@/lib/models/Borrowing.js";
 import Book from "@/lib/models/Book.js";
 import User from "@/lib/models/User.js";
 import Fine from "@/lib/models/Fine.js";
+import Notification from "@/lib/models/Notification.js";
 import { getUserFromToken } from "@/lib/auth.js";
 import { connectDB } from "@/lib/db.js";
 
@@ -44,6 +45,8 @@ export async function PUT(request) {
     userData.currentlyBorrowed = Math.max(0, userData.currentlyBorrowed - 1);
     await userData.save();
 
+    const bookTitle = book.title;
+
     if (borrowing.lateFee > 0) {
       const daysLate = Math.ceil((returnDate - borrowing.dueDate) / (1000 * 60 * 60 * 24));
       await Fine.create({
@@ -56,7 +59,38 @@ export async function PUT(request) {
         status: "unpaid",
         notes: `Late return by ${daysLate} day(s) at Rs.10/day`,
       });
+
+      await Notification.create({
+        title: "Fine Generated",
+        message: `${userData.name} has a late fee of Rs.${borrowing.lateFee} for "${bookTitle}"`,
+        type: "warning",
+        action: "fine_generated",
+        relatedUser: borrowing.user,
+        relatedBook: borrowing.book._id,
+        targetRole: "admin",
+      });
+
+      await Notification.create({
+        user: borrowing.user,
+        title: "Late Return Fine",
+        message: `You have been fined Rs.${borrowing.lateFee} for late return of "${bookTitle}" (${daysLate} days late)`,
+        type: "error",
+        action: "fine_generated",
+        relatedUser: borrowing.user,
+        relatedBook: borrowing.book._id,
+        targetRole: "user",
+      });
     }
+
+    await Notification.create({
+      title: "Book Returned",
+      message: `${userData.name} returned "${bookTitle}" (processed by admin)`,
+      type: "success",
+      action: "book_returned",
+      relatedUser: borrowing.user,
+      relatedBook: borrowing.book._id,
+      targetRole: "admin",
+    });
 
     const populated = await Borrowing.findById(borrowing._id)
       .populate("user", "name email")

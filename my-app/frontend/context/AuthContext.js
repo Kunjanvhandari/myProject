@@ -40,11 +40,19 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (emailOrPhone, password) => {
     try {
+      const isPhone = /^[\d\s\-\+\(\)]{7,}$/.test(emailOrPhone);
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone);
+      const body = isPhone
+        ? { phone: emailOrPhone, password }
+        : isEmail
+          ? { email: emailOrPhone, password }
+          : { username: emailOrPhone, password };
+
       const res = await apiFetch("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -56,7 +64,7 @@ export function AuthProvider({ children }) {
 
       return { success: false, message: data.message };
     } catch (error) {
-      return { success: false, message: "Login failed" };
+      return { success: false, message: "Login failed. Check server connection." };
     }
   };
 
@@ -80,6 +88,11 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const socialLogin = async (provider) => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api/v1";
+    window.location.href = `${backendUrl}/auth/${provider}`;
+  };
+
   const logout = async () => {
     try {
       await apiFetch("/auth/logout", { method: "POST" });
@@ -100,7 +113,7 @@ export function AuthProvider({ children }) {
       const data = await res.json();
 
       if (data.success) {
-        setUser(data.user);
+        setUser((prev) => ({ ...prev, ...data.user, profileCompletion: data.user?.profileCompletion || prev?.profileCompletion }));
         return { success: true };
       }
 
@@ -144,6 +157,7 @@ export function AuthProvider({ children }) {
         loading,
         login,
         register,
+        socialLogin,
         logout,
         updateProfile,
         refreshUser,

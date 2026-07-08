@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Box, Container, Typography, Button, TextField, InputAdornment,
   Grid, Card, CardContent, Chip, Avatar, Rating, IconButton, Paper, Divider,
@@ -29,6 +29,16 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import BookCard from "./components/BookCard";
+import { motion } from "framer-motion";
+
+const ScrollReveal = ({ children, delay = 0, direction = "up" }) => {
+  const variants = {
+    hidden: { opacity: 0, y: direction === "up" ? 30 : direction === "down" ? -30 : 0, x: direction === "left" ? -30 : direction === "right" ? 30 : 0 },
+    visible: { opacity: 1, y: 0, x: 0, transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] } },
+  };
+  return <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={variants}>{children}</motion.div>;
+};
 
 const sliderImages = [
     { id: 1, image: "/images/footer/book22.png", title: "The Psychology of Money", subtitle: "Morgan Housel" },
@@ -83,9 +93,9 @@ const teamMembers = [
 ];
 
 const SectionTitle = ({ label, title, subtitle }) => (
-  <Box sx={{ textAlign: "center", mb: 5 }}>
+  <Box sx={{ textAlign: "center", mb: 5, animation: "fadeInUp 0.6s ease" }}>
     {label && (
-      <Chip label={label} sx={{ bgcolor: "rgba(212,168,75,0.15)", color: "#0EA5E9", fontWeight: 700, mb: 2, borderRadius: "8px", px: 1 }} />
+      <Chip label={label} sx={{ bgcolor: "rgba(14,165,233,0.1)", color: "#0EA5E9", fontWeight: 700, mb: 2, borderRadius: "8px", px: 1.5 }} />
     )}
     <Typography variant="h3" sx={{ fontWeight: 800, color: "#0F172A", mb: 1.5 }}>
       {title}
@@ -128,14 +138,6 @@ export default function Home() {
   const [showCategoryBooks, setShowCategoryBooks] = useState(false);
   const [selectedTeamMember, setSelectedTeamMember] = useState(null);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [welcomeStep, setWelcomeStep] = useState(0);
-
-  useEffect(() => {
-    if (!showWelcome) return;
-    const t1 = setTimeout(() => setWelcomeStep(1), 2000);
-    const t2 = setTimeout(() => setWelcomeStep(2), 4500);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [showWelcome]);
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentSlide((p) => (p + 1) % sliderImages.length), 4000);
@@ -239,13 +241,13 @@ export default function Home() {
   };
 
   const handleReserve = async (bookId) => {
-    if (!isAuthenticated) { router.push("/login"); return; }
+    if (!isAuthenticated) { router.push("/library/auth/login"); return; }
     try {
       const res = await apiFetch("/reservations", { method: "POST", body: JSON.stringify({ bookId }) });
       const data = await res.json();
       if (data.success) {
         setSnackbar({ open: true, message: "Book reserved! Redirecting to cart...", severity: "success" });
-        setTimeout(() => router.push("/cart"), 1000);
+        setTimeout(() => router.push("/library/cart"), 1000);
       } else {
         setSnackbar({ open: true, message: data.message || "Failed to reserve", severity: "error" });
       }
@@ -255,12 +257,12 @@ export default function Home() {
   };
 
   const handleRead = (ebook) => {
-    if (!isAuthenticated) { router.push("/login"); return; }
+    if (!isAuthenticated) { router.push("/library/auth/login"); return; }
     window.open(ebook.file, "_blank");
   };
 
   const handleDownload = (ebook) => {
-    if (!isAuthenticated) { router.push("/login"); return; }
+    if (!isAuthenticated) { router.push("/library/auth/login"); return; }
     const link = document.createElement("a");
     link.href = ebook.file;
     link.download = ebook.file.split('/').pop();
@@ -276,58 +278,218 @@ export default function Home() {
       {showWelcome && (
         <Box sx={{
           position: "fixed", inset: 0, zIndex: 9999,
-          background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          transition: "opacity 0.8s"
+          overflow: "hidden auto",
         }}>
-          {welcomeStep === 0 && (
-            <Fade in={welcomeStep === 0} timeout={1000}>
-              <Box sx={{ textAlign: "center", px: 3 }}>
-                <Typography variant="h2" sx={{ fontWeight: 900, color: "#0EA5E9", fontSize: { xs: "2rem", md: "3.5rem" }, mb: 2, letterSpacing: 2 }}>
-                  WELCOME TO LIBRIVISTA
-                </Typography>
-                <Typography variant="h6" sx={{ color: "rgba(255,255,255,0.6)", fontWeight: 300 }}>
-                  Loading amazing content for you...
-                </Typography>
-              </Box>
-            </Fade>
-          )}
-          {welcomeStep === 1 && (
-            <Fade in={welcomeStep === 1} timeout={1000}>
-              <Box sx={{ textAlign: "center", px: 3 }}>
-                <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff", mb: 4, fontSize: { xs: "1.5rem", md: "2.5rem" } }}>
-                  Meet Our Developers
-                </Typography>
-                <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center" }}>
-                  <Box sx={{ textAlign: "center" }}>
-                    <Avatar src="/images/footer/kunjan.jpg.jpg" alt="Kunjan Bhandari"
-                      sx={{ width: 120, height: 120, mx: "auto", mb: 2, border: "3px solid #0EA5E9" }} />
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: "#fff" }}>Kunjan Bhandari</Typography>
-                    <Typography sx={{ color: "#0EA5E9", fontWeight: 500 }}>Web Developer</Typography>
+          <Box sx={{
+            position: "fixed", inset: 0,
+            background: "linear-gradient(135deg, #0F172A 0%, #1E293B 30%, #0F172A 60%, #1E293B 100%)",
+            backgroundSize: "400% 400%",
+            animation: "gradientShift 8s ease infinite",
+            "@keyframes gradientShift": {
+              "0%": { backgroundPosition: "0% 50%" },
+              "50%": { backgroundPosition: "100% 50%" },
+              "100%": { backgroundPosition: "0% 50%" },
+            }
+          }} />
+          <Box sx={{
+            position: "fixed", top: "-15%", right: "-5%",
+            width: 500, height: 500,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)",
+            animation: "pulse 4s ease-in-out infinite",
+            pointerEvents: "none",
+          }} />
+          <Box sx={{
+            position: "fixed", bottom: "-15%", left: "-5%",
+            width: 400, height: 400,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%)",
+            animation: "pulse 4s ease-in-out infinite 2s",
+            pointerEvents: "none",
+          }} />
+          <Box sx={{
+            position: "fixed", top: "40%", left: "10%",
+            fontSize: 48, opacity: 0.06,
+            pointerEvents: "none",
+            animation: "float1 7s ease-in-out infinite",
+            "@keyframes float1": {
+              "0%,100%": { transform: "translateY(0px) rotate(0deg)" },
+              "50%": { transform: "translateY(-25px) rotate(8deg)" },
+            },
+          }}>📚</Box>
+          <Box sx={{
+            position: "fixed", top: "20%", right: "12%",
+            fontSize: 36, opacity: 0.06,
+            pointerEvents: "none",
+            animation: "float2 9s ease-in-out infinite 1s",
+            "@keyframes float2": {
+              "0%,100%": { transform: "translateY(0px) rotate(0deg)" },
+              "50%": { transform: "translateY(-30px) rotate(-8deg)" },
+            },
+          }}>📖</Box>
+          <Box sx={{
+            position: "fixed", bottom: "25%", right: "18%",
+            fontSize: 42, opacity: 0.06,
+            pointerEvents: "none",
+            animation: "float3 8s ease-in-out infinite 2s",
+            "@keyframes float3": {
+              "0%,100%": { transform: "translateY(0px) rotate(0deg)" },
+              "50%": { transform: "translateY(-20px) rotate(12deg)" },
+            },
+          }}>📕</Box>
+
+          <Container maxWidth="md" sx={{
+            position: "relative", zIndex: 2,
+            minHeight: "100vh",
+            display: "flex", flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center", px: 3,
+          }}>
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <Fade in={true} timeout={600}>
+                <Box sx={{
+                  width: 80, height: 80,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  mb: 3,
+                  boxShadow: "0 0 50px rgba(14,165,233,0.3)",
+                }}>
+                  <AutoStoriesIcon sx={{ fontSize: 40, color: "#0F172A" }} />
+                </Box>
+              </Fade>
+
+              <Fade in={true} timeout={900}>
+                <Typography variant="h2" sx={{
+                  fontWeight: 900,
+                  fontSize: { xs: "2rem", md: "3.8rem" },
+                  color: "#fff", mb: 1.5,
+                  letterSpacing: 3,
+                }}>
+                  WELCOME TO{" "}
+                  <Box component="span" sx={{
+                    background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}>
+                    LIBRIVISTA
                   </Box>
-                  <Box sx={{ textAlign: "center" }}>
-                    <Avatar src="/images/footer/aswbin.jpg" alt="Tika B.K."
-                      sx={{ width: 120, height: 120, mx: "auto", mb: 2, border: "3px solid #0EA5E9" }} />
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: "#fff" }}>Tika B.K.</Typography>
-                    <Typography sx={{ color: "#0EA5E9", fontWeight: 500 }}>Web Developer</Typography>
+                </Typography>
+              </Fade>
+
+              <Fade in={true} timeout={1200}>
+                <Typography sx={{
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: "16px", mb: 6,
+                  maxWidth: "500px", lineHeight: 1.8,
+                }}>
+                  Your gateway to 50,000+ physical books and 100,000+ digital resources
+                </Typography>
+              </Fade>
+
+              <Fade in={true} timeout={1500}>
+                <Box>
+                  <Typography variant="h6" sx={{
+                    color: "rgba(255,255,255,0.4)",
+                    fontWeight: 500,
+                    fontSize: "14px",
+                    letterSpacing: 2,
+                    textTransform: "uppercase",
+                    mb: 3,
+                  }}>
+                    — Meet Our Developers —
+                  </Typography>
+                  <Box sx={{
+                    display: "flex", gap: { xs: 3, md: 5 },
+                    flexWrap: "wrap", justifyContent: "center",
+                    mb: 6,
+                  }}>
+                    {[
+                      { name: "Kunjan Bhandari", role: "Web Developer", image: "/images/footer/kunjan.jpg.jpg" },
+                      { name: "Tika B.K.", role: "Web Developer", image: "/images/footer/aswbin.jpg" },
+                    ].map((member, idx) => (
+                      <Box key={idx} sx={{
+                        textAlign: "center",
+                        animation: `fadeInUp 0.8s ease forwards ${2 + idx * 0.3}s`,
+                        opacity: 0,
+                      }}>
+                        <Box sx={{
+                          position: "relative",
+                          width: 120, height: 120,
+                          mx: "auto", mb: 1.5,
+                          borderRadius: "50%",
+                          p: "3px",
+                          background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+                          boxShadow: "0 0 30px rgba(14,165,233,0.25)",
+                        }}>
+                          <Box
+                            component="img"
+                            src={member.image}
+                            alt={member.name}
+                            sx={{
+                              width: "100%", height: "100%",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "2px solid #0F172A",
+                            }}
+                          />
+                        </Box>
+                        <Typography sx={{
+                          fontWeight: 700, color: "#fff",
+                          fontSize: { xs: "14px", md: "16px" },
+                        }}>
+                          {member.name}
+                        </Typography>
+                        <Typography sx={{
+                          color: "#0EA5E9",
+                          fontSize: "13px", fontWeight: 500,
+                        }}>
+                          {member.role}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
-              </Box>
-            </Fade>
-          )}
-          {welcomeStep === 2 && (
-            <Fade in={welcomeStep === 2} timeout={1000}>
-              <Box sx={{ textAlign: "center", px: 3 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: "#fff", mb: 3, fontSize: { xs: "1.3rem", md: "2rem" } }}>
-                  Ready to explore?
-                </Typography>
-                <Button variant="contained" size="large" onClick={() => setShowWelcome(false)}
-                  sx={{ borderRadius: "12px", px: 5, py: 1.5, bgcolor: "#0EA5E9", color: "#0F172A", fontWeight: 700, fontSize: "18px", "&:hover": { bgcolor: "#38BDF8" } }}>
-                  Enter LibriVista
+              </Fade>
+            </Box>
+
+            <Box sx={{ flexShrink: 0 }}>
+              <Fade in={true} timeout={1800}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => setShowWelcome(false)}
+                  aria-label="Enter LibriVista home page"
+                  sx={{
+                    borderRadius: "50px",
+                    px: { xs: 5, md: 7 },
+                    py: 1.8,
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+                    color: "#0F172A",
+                    boxShadow: "0 0 30px rgba(14,165,233,0.35)",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    cursor: "pointer",
+                    "&:hover": {
+                      background: "linear-gradient(135deg, #38BDF8, #7DD3FC)",
+                      boxShadow: "0 0 50px rgba(14,165,233,0.5)",
+                      transform: "translateY(-3px) scale(1.02)",
+                    },
+                    "&:focus-visible": {
+                      outline: "3px solid #38BDF8",
+                      outlineOffset: "3px",
+                    },
+                    "&:active": {
+                      transform: "translateY(-1px) scale(0.98)",
+                    },
+                  }}
+                >
+                  ✨ Enter Home Page
                 </Button>
-              </Box>
-            </Fade>
-          )}
+              </Fade>
+            </Box>
+          </Container>
         </Box>
       )}
       <HomeLayout>
@@ -335,8 +497,37 @@ export default function Home() {
         {/* ===== HERO ===== */}
         <Box sx={{ position: "relative", minHeight: { xs: "80vh", md: "90vh" }, overflow: "hidden", background: "#0F172A" }}>
           {sliderImages.map((slide, i) => (
-            <Box key={slide.id} sx={{ position: "absolute", inset: 0, opacity: i === currentSlide ? 1 : 0, transition: "opacity 1s" }}>
-              <Box component="img" src={slide.image} alt="" sx={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.45)" }} />
+            <Box key={slide.id} sx={{
+              position: "absolute", inset: 0,
+              opacity: i === currentSlide ? 1 : 0,
+              transform: i === currentSlide ? "scale(1)" : "scale(1.08)",
+              transition: "opacity 1.2s ease, transform 6s ease",
+            }}>
+              <Box component="img" src={slide.image} alt=""
+                sx={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.4)" }} />
+              <Box sx={{
+                position: "absolute", bottom: { xs: 20, md: 40 }, left: { xs: 20, md: 60 },
+                color: "#fff", zIndex: 3,
+              }}>
+                <Typography variant="h4" sx={{
+                  fontWeight: 700, fontSize: { xs: "1.2rem", md: "1.8rem" },
+                  textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+                  opacity: i === currentSlide ? 1 : 0,
+                  transform: i === currentSlide ? "translateY(0)" : "translateY(10px)",
+                  transition: "all 0.8s ease 0.3s",
+                }}>
+                  {slide.title}
+                </Typography>
+                <Typography variant="body1" sx={{
+                  color: "rgba(255,255,255,0.7)",
+                  fontSize: { xs: "0.9rem", md: "1.1rem" },
+                  opacity: i === currentSlide ? 1 : 0,
+                  transform: i === currentSlide ? "translateY(0)" : "translateY(10px)",
+                  transition: "all 0.8s ease 0.5s",
+                }}>
+                  {slide.subtitle}
+                </Typography>
+              </Box>
             </Box>
           ))}
           <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(45,58,110,0.85) 50%, rgba(15,23,42,0.6) 100%)" }} />
@@ -373,7 +564,7 @@ export default function Home() {
                       ) : searchResults.length === 0 ? (
                         <Box sx={{ p: 3, textAlign: "center" }}>
                           <Typography sx={{ color: "#888", fontSize: "14px" }}>No books found for "{searchQuery}"</Typography>
-                          <Button size="small" onClick={() => router.push(`/books?search=${encodeURIComponent(searchQuery)}`)} sx={{ mt: 1, textTransform: "none" }}>View all results</Button>
+                          <Button size="small" onClick={() => router.push(`/library/books?search=${encodeURIComponent(searchQuery)}`)} sx={{ mt: 1, textTransform: "none" }}>View all results</Button>
                         </Box>
                       ) : (
                         <Box>
@@ -383,7 +574,7 @@ export default function Home() {
                             </Typography>
                           </Box>
                           {searchResults.map((book) => (
-                            <Box key={book._id} onClick={() => router.push(`/books/${book._id}`)}
+                            <Box key={book._id} onClick={() => router.push(`/library/books/${book._id}`)}
                               sx={{ display: "flex", gap: 2, p: 1.5, borderBottom: "1px solid #f5f5f5", cursor: "pointer", "&:hover": { bgcolor: "#f9f9f9" } }}>
                               <Box component="img" src={book.coverImage || "/images/footer/book22.png"} alt={book.title}
                                 sx={{ width: 44, height: 58, objectFit: "contain", borderRadius: 1, flexShrink: 0 }} />
@@ -399,7 +590,7 @@ export default function Home() {
                             </Box>
                           ))}
                           <Box sx={{ p: 1.5, textAlign: "center" }}>
-                            <Button size="small" onClick={() => router.push(`/books?search=${encodeURIComponent(searchQuery)}`)} endIcon={<ArrowForwardIcon />} sx={{ textTransform: "none", fontSize: "13px" }}>View all results</Button>
+                            <Button size="small" onClick={() => router.push(`/library/books?search=${encodeURIComponent(searchQuery)}`)} endIcon={<ArrowForwardIcon />} sx={{ textTransform: "none", fontSize: "13px" }}>View all results</Button>
                           </Box>
                         </Box>
                       )}
@@ -420,56 +611,105 @@ export default function Home() {
           </Container>
 
           {/* Slide nav */}
-          <Box sx={{ position: "absolute", bottom: 30, left: 0, right: 0, zIndex: 3, display: "flex", justifyContent: "center", alignItems: "center", gap: 1.5 }}>
+          <Box sx={{
+            position: "absolute", bottom: { xs: 16, md: 30 },
+            left: 0, right: 0, zIndex: 3,
+            display: "flex", justifyContent: "center", alignItems: "center", gap: 1,
+          }}>
             <IconButton onClick={() => setCurrentSlide((p) => (p - 1 + sliderImages.length) % sliderImages.length)}
-              sx={{ color: "#fff", bgcolor: "rgba(255,255,255,0.12)", "&:hover": { bgcolor: "rgba(255,255,255,0.2)" }, width: 32, height: 32 }}>
+              sx={{ color: "#fff", bgcolor: "rgba(255,255,255,0.1)", backdropFilter: "blur(4px)", "&:hover": { bgcolor: "rgba(255,255,255,0.2)" }, width: 32, height: 32 }}>
               <ArrowBackIosIcon sx={{ fontSize: 14 }} />
             </IconButton>
-            {sliderImages.map((_, i) => (
-              <Box key={i} onClick={() => setCurrentSlide(i)}
-                sx={{ width: i === currentSlide ? 28 : 10, height: 10, borderRadius: "5px", bgcolor: i === currentSlide ? "#0EA5E9" : "rgba(255,255,255,0.3)", cursor: "pointer", transition: "all 0.3s" }} />
-            ))}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8, mx: 1 }}>
+              {sliderImages.map((_, i) => (
+                <Box key={i} onClick={() => setCurrentSlide(i)}
+                  sx={{
+                    width: i === currentSlide ? 24 : 8, height: 8,
+                    borderRadius: "4px",
+                    bgcolor: i === currentSlide ? "#0EA5E9" : "rgba(255,255,255,0.25)",
+                    cursor: "pointer", transition: "all 0.4s ease",
+                    "&:hover": { bgcolor: i === currentSlide ? "#0EA5E9" : "rgba(255,255,255,0.5)" },
+                  }} />
+              ))}
+            </Box>
             <IconButton onClick={() => setCurrentSlide((p) => (p + 1) % sliderImages.length)}
-              sx={{ color: "#fff", bgcolor: "rgba(255,255,255,0.12)", "&:hover": { bgcolor: "rgba(255,255,255,0.2)" }, width: 32, height: 32 }}>
+              sx={{ color: "#fff", bgcolor: "rgba(255,255,255,0.1)", backdropFilter: "blur(4px)", "&:hover": { bgcolor: "rgba(255,255,255,0.2)" }, width: 32, height: 32 }}>
               <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
             </IconButton>
+            <Typography sx={{
+              position: "absolute", right: { xs: 16, md: 40 },
+              color: "rgba(255,255,255,0.4)",
+              fontSize: "13px", fontWeight: 600,
+              letterSpacing: 1,
+            }}>
+              {String(currentSlide + 1).padStart(2, "0")}/{String(sliderImages.length).padStart(2, "0")}
+            </Typography>
           </Box>
         </Box>
 
         {/* ===== STATISTICS ===== */}
-        <Box sx={{ py: { xs: 5, md: 7 }, bgcolor: "#FFFFFF" }}>
+        <ScrollReveal delay={0.1}>
+        <Box sx={{ py: { xs: 5, md: 7 }, bgcolor: "var(--bg-secondary)" }}>
           <Container maxWidth="lg">
             <Grid container spacing={3}>
               {statsData.map((stat, i) => (
                 <Grid item xs={6} md={3} key={i}>
-                  <GlassCard sx={{ textAlign: "center", py: 4, px: 2 }}>
-                    <Box sx={{ color: stat.color, mb: 1.5, display: "flex", justifyContent: "center" }}>{stat.icon}</Box>
+                  <GlassCard sx={{
+                    textAlign: "center", py: 4, px: 2,
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
+                    },
+                  }}>
+                    <Box sx={{
+                      width: 64, height: 64,
+                      borderRadius: "16px",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      mx: "auto", mb: 2,
+                      background: `linear-gradient(135deg, ${stat.color}15, ${stat.color}08)`,
+                      color: stat.color,
+                    }}>
+                      {stat.icon}
+                    </Box>
                     <Typography variant="h3" sx={{ fontWeight: 800, color: "#0F172A", mb: 0.5, fontSize: { xs: "28px", md: "36px" } }}>{stat.value}</Typography>
-                    <Typography variant="body2" sx={{ color: "#6B7280", fontSize: "14px" }}>{stat.label}</Typography>
+                    <Typography variant="body2" sx={{ color: "#6B7280", fontSize: "14px", fontWeight: 500 }}>{stat.label}</Typography>
                   </GlassCard>
                 </Grid>
               ))}
             </Grid>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== E-BOOKS ===== */}
-        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#fff" }}>
+        <ScrollReveal>
+        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "var(--bg-secondary)" }}>
           <Container maxWidth="lg">
             <SectionTitle label="Digital Library" title="E-Books Collection" subtitle="Access thousands of e-books instantly. Read on any device, anywhere." />
             <Grid container spacing={3}>
               {ebooks.map((book) => (
                 <Grid item xs={12} sm={6} md={3} key={book.id}>
-                  <GlassCard>
+                  <GlassCard sx={{
+                    animation: `fadeInUp 0.6s ease forwards ${book.id * 0.1}s`,
+                    opacity: 0,
+                  }}>
                     <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%" }}>
-                      <Box component="img" src={book.image} alt={book.title}
-                        sx={{ width: "100%", height: 180, objectFit: "contain", mb: 2, borderRadius: 1, bgcolor: "#f9f9f9" }} />
+                      <Box sx={{
+                        position: "relative",
+                        overflow: "hidden",
+                        borderRadius: 1, mb: 2,
+                        bgcolor: "var(--img-bg, #f9f9f9)",
+                        "&:hover img": { transform: "scale(1.08)" },
+                      }}>
+                        <Box component="img" src={book.image} alt={book.title}
+                          sx={{ width: "100%", height: 180, objectFit: "contain", transition: "transform 0.5s ease" }} />
+                      </Box>
                       <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
                         <Chip label={book.format} size="small" sx={{ bgcolor: "#1E293B", color: "#fff", fontSize: "10px", borderRadius: "6px" }} />
                         <Chip label={book.size} size="small" sx={{ borderRadius: "6px", fontSize: "10px" }} />
                       </Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#0F172A", mb: 0.3 }}>{book.title}</Typography>
-                      <Typography variant="caption" sx={{ color: "#888", display: "block", mb: 2 }}>by {book.author}</Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "var(--text-primary, #0F172A)", mb: 0.3 }}>{book.title}</Typography>
+                      <Typography variant="caption" sx={{ color: "var(--text-secondary, #888)", display: "block", mb: 2 }}>by {book.author}</Typography>
                       <Box sx={{ mt: "auto", display: "flex", gap: 1 }}>
                         <Button variant="contained" size="small" startIcon={<CloudDownloadIcon />} onClick={() => handleDownload(book)}
                           sx={{ flex: 1, borderRadius: "8px", textTransform: "none" }}>
@@ -490,54 +730,51 @@ export default function Home() {
             </Box>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== FEATURED BOOKS ===== */}
-        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#FFFFFF" }}>
+        <ScrollReveal>
+        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "var(--bg-secondary)" }}>
           <Container maxWidth="lg">
             <SectionTitle label="Staff Picks" title="Featured Books" subtitle="Hand-picked recommendations from our library experts." />
             <Grid container spacing={3}>
               {featuredBooks.map((book) => (
                 <Grid item xs={12} sm={6} md={3} key={book.id}>
-                  <GlassCard>
-                    <CardContent sx={{ p: 3, position: "relative" }}>
-                      <Chip label={book.badge} size="small"
-                        sx={{ position: "absolute", top: 12, right: 12, bgcolor: "#0EA5E9", color: "#0F172A", fontWeight: 700, borderRadius: "6px", fontSize: "10px" }} />
-                      <Box component="img" src={book.image} alt={book.title}
-                        sx={{ width: "100%", height: 220, objectFit: "contain", mb: 2, borderRadius: 1 }} />
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#0F172A", mb: 0.3 }}>{book.title}</Typography>
-                      <Typography variant="caption" sx={{ color: "#888", display: "block", mb: 0.8 }}>by {book.author}</Typography>
-                      <Rating value={book.rating} readOnly size="small" sx={{ color: "#0EA5E9", mb: 1.5 }} />
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Typography variant="h6" sx={{ fontWeight: 800, color: "#1E293B" }}>{book.price}</Typography>
-                        <Button variant="contained" size="small" onClick={() => router.push(`/books?search=${encodeURIComponent(book.title)}`)}
-                          sx={{ borderRadius: "8px", textTransform: "none" }}>
-                          View
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </GlassCard>
+                  <BookCard
+                    book={{ ...book, coverImage: book.image, _id: book.id }}
+                    showCategory={false}
+                    showPrice
+                    href={`/library/books?search=${encodeURIComponent(book.title)}`}
+                  />
                 </Grid>
               ))}
             </Grid>
             <Box sx={{ textAlign: "center", mt: 4 }}>
-              <Button variant="contained" endIcon={<ArrowForwardIcon />} href="/books" sx={{ borderRadius: "10px", px: 4, py: 1.3 }}>
+              <Button variant="contained" endIcon={<ArrowForwardIcon />} href="/library/books" sx={{ borderRadius: "10px", px: 4, py: 1.3 }}>
                 View All Books
               </Button>
             </Box>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== CATEGORIES ===== */}
-        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#fff" }}>
+        <ScrollReveal>
+        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "var(--bg-secondary)" }}>
           <Container maxWidth="lg">
             <SectionTitle label="Browse" title="Explore Categories" subtitle="Find your next read from our diverse collection of genres." />
             <Grid container spacing={2}>
               {categories.map((cat, i) => (
                 <Grid item xs={6} sm={4} md={3} key={i}>
                   <Card onClick={() => handleCategoryClick(cat.name)}
-                    sx={{ borderRadius: "16px", textAlign: "center", py: 3.5, px: 2, cursor: "pointer",
+                    sx={{
+                      borderRadius: "16px", textAlign: "center", py: 3.5, px: 2, cursor: "pointer",
                       transition: "all 0.3s ease", boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-                      "&:hover": { transform: "translateY(-4px)", boxShadow: "0 12px 30px rgba(27,58,92,0.15)", bgcolor: "#1E293B", "& .catIcon, & .catTitle, & .catCount": { color: "#fff !important" } } }}>
+                      animation: `fadeInUp 0.6s ease forwards ${i * 0.08}s`,
+                      opacity: 0,
+                      "&:hover": { transform: "translateY(-4px)", boxShadow: "0 12px 30px rgba(27,58,92,0.15)", bgcolor: "#1E293B", "& .catTitle, & .catCount": { color: "#fff !important" } },
+                    }}
+                  >
                     <CardContent sx={{ p: 0 }}>
                       <Typography sx={{ fontSize: "40px", mb: 1.5, lineHeight: 1 }}>{cat.emoji}</Typography>
                       <Typography className="catTitle" variant="subtitle1" sx={{ fontWeight: 700, color: "#0F172A", mb: 0.5, transition: "color 0.3s" }}>{cat.name}</Typography>
@@ -549,6 +786,7 @@ export default function Home() {
             </Grid>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== CATEGORY BOOKS ===== */}
         {showCategoryBooks && (
@@ -566,33 +804,14 @@ export default function Home() {
                 <Grid container spacing={3}>
                   {categoryBooks.map((book, idx) => (
                     <Grid item xs={12} sm={6} md={4} lg={3} key={book._id || idx}>
-                      <GlassCard>
-                        <Box component="img" src={book.coverImage || "/images/footer/book22.png"} alt={book.title}
-                          sx={{ width: "100%", height: 200, objectFit: "contain", p: 2, bgcolor: "#f9f9f9", borderTopLeftRadius: "16px", borderTopRightRadius: "16px" }} />
-                        <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.3, color: "#0F172A" }}>{book.title}</Typography>
-                          <Typography variant="caption" sx={{ color: "#888", mb: 0.8 }}>by {book.author}</Typography>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                            <Rating value={book.rating || 0} readOnly size="small" sx={{ color: "#0EA5E9" }} />
-                          </Box>
-                          <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
-                            <Chip label={book.category} size="small" sx={{ bgcolor: "#1E293B", color: "#fff", fontSize: "10px", borderRadius: "6px" }} />
-                            <Chip label={`Rs. ${book.price}`} size="small" sx={{ bgcolor: "#EF4444", color: "#fff", fontSize: "10px", borderRadius: "6px" }} />
-                          </Box>
-                          <Box sx={{ mt: "auto", display: "flex", gap: 1 }}>
-                            <Button size="small" variant="contained" fullWidth onClick={() => router.push(`/books/${book._id}`)}
-                              sx={{ borderRadius: "8px", textTransform: "none" }}>
-                              View Details
-                            </Button>
-                            {isAuthenticated && (
-                              <Button size="small" variant="outlined" fullWidth onClick={() => handleReserve(book._id)}
-                                disabled={book.availableCopies <= 0} sx={{ borderRadius: "8px", textTransform: "none" }}>
-                                Reserve
-                              </Button>
-                            )}
-                          </Box>
-                        </CardContent>
-                      </GlassCard>
+                      <BookCard
+                        book={book}
+                        onViewDetails={(id) => router.push(`/library/books/${id}`)}
+                        onReserve={handleReserve}
+                        isAuthenticated={isAuthenticated}
+                        showPrice
+                        badgeColor="#EF4444"
+                      />
                     </Grid>
                   ))}
                 </Grid>
@@ -602,6 +821,7 @@ export default function Home() {
         )}
 
         {/* ===== NEW RELEASES ===== */}
+        <ScrollReveal>
         <Box sx={{ py: { xs: 6, md: 8 }, background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)", color: "#fff" }}>
           <Container maxWidth="lg">
             <Grid container spacing={4} alignItems="center">
@@ -615,7 +835,7 @@ export default function Home() {
                   Discover the latest additions to our library. Fresh books added weekly to keep you inspired and informed.
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                  <Button variant="contained" endIcon={<ArrowForwardIcon />} href="/new-release" sx={{ borderRadius: "10px", px: 4, py: 1.3, bgcolor: "#0EA5E9", color: "#0F172A", fontWeight: 700, "&:hover": { bgcolor: "#38BDF8" } }}>
+                  <Button variant="contained" endIcon={<ArrowForwardIcon />} href="/library/new-release" sx={{ borderRadius: "10px", px: 4, py: 1.3, bgcolor: "#0EA5E9", color: "#0F172A", fontWeight: 700, "&:hover": { bgcolor: "#38BDF8" } }}>
                     See New Releases
                   </Button>
                   <Button variant="outlined" sx={{ borderRadius: "10px", px: 4, py: 1.3, borderColor: "rgba(255,255,255,0.3)", color: "#fff", "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.05)" } }}>
@@ -646,9 +866,11 @@ export default function Home() {
             </Grid>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== TEAM ===== */}
-        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#fff" }}>
+        <ScrollReveal>
+        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "var(--bg-secondary)" }}>
           <Container maxWidth="lg">
             <SectionTitle label="Our Team" title="Meet Our Developers" subtitle="The talented people behind LibriVista." />
             <Grid container spacing={3} justifyContent="center">
@@ -656,10 +878,20 @@ export default function Home() {
                 <Grid item xs={12} sm={6} md={4} key={i}>
                   <GlassCard sx={{ textAlign: "center", overflow: "visible" }}>
                     <Box sx={{ pt: 4, pb: 3, px: 3 }}>
-                      <Avatar src={member.image} alt={member.name}
-                        sx={{ width: 100, height: 100, mx: "auto", mb: 2, border: "3px solid #0EA5E9", boxShadow: "0 4px 20px rgba(212,168,75,0.3)" }}>
-                        {member.name.charAt(0)}
-                      </Avatar>
+                      <Box sx={{
+                        position: "relative", width: 104, height: 104,
+                        mx: "auto", mb: 2,
+                        borderRadius: "50%", p: "3px",
+                        background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+                        boxShadow: "0 0 25px rgba(14,165,233,0.25)",
+                        transition: "transform 0.3s ease",
+                        "&:hover": { transform: "scale(1.08)" },
+                      }}>
+                        <Avatar src={member.image} alt={member.name}
+                          sx={{ width: "100%", height: "100%", border: "2px solid #fff" }}>
+                          {member.name.charAt(0)}
+                        </Avatar>
+                      </Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#0F172A", mb: 0.3 }}>{member.name}</Typography>
                       <Typography variant="caption" sx={{ color: "#0EA5E9", fontWeight: 600, display: "block", mb: 1.5 }}>{member.role}</Typography>
                       <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
@@ -677,6 +909,7 @@ export default function Home() {
             </Grid>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* Team Member Dialog */}
         <Dialog open={!!selectedTeamMember} onClose={() => setSelectedTeamMember(null)} maxWidth="sm" fullWidth>
@@ -707,23 +940,36 @@ export default function Home() {
         </Dialog>
 
         {/* ===== TESTIMONIALS ===== */}
-        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#FFFFFF" }}>
+        <ScrollReveal>
+        <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "var(--bg-secondary)" }}>
           <Container maxWidth="lg">
             <SectionTitle label="Testimonials" title="What Our Readers Say" subtitle="Hear from our community of readers and researchers." />
             <Grid container spacing={3}>
               {testimonials.map((t, i) => (
                 <Grid item xs={12} md={4} key={i}>
-                  <GlassCard>
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                  <GlassCard sx={{
+                    animation: `fadeInUp 0.6s ease forwards ${i * 0.15}s`,
+                    opacity: 0,
+                  }}>
+                    <CardContent sx={{ p: 3, position: "relative" }}>
+                      <Typography sx={{
+                        position: "absolute", top: 8, left: 16,
+                        fontSize: "48px", lineHeight: 1,
+                        color: "rgba(14,165,233,0.1)",
+                        fontWeight: 900,
+                        fontFamily: "Georgia, serif",
+                      }}>"</Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, position: "relative", zIndex: 1 }}>
                         <Avatar sx={{ width: 48, height: 48, bgcolor: "#1E293B", color: "#fff", fontWeight: 700 }}>{t.avatar}</Avatar>
                         <Box>
                           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#0F172A" }}>{t.name}</Typography>
                           <Typography variant="caption" sx={{ color: "#888" }}>{t.role}</Typography>
                         </Box>
                       </Box>
-                      <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.7, mb: 1.5, fontStyle: "italic" }}>"{t.text}"</Typography>
-                      <Rating value={t.rating} readOnly size="small" sx={{ color: "#0EA5E9" }} />
+                      <Typography variant="body2" sx={{ color: "#6B7280", lineHeight: 1.7, mb: 1.5, fontStyle: "italic", position: "relative", zIndex: 1 }}>
+                        "{t.text}"
+                      </Typography>
+                      <Rating value={t.rating} readOnly size="small" sx={{ color: "#0EA5E9", position: "relative", zIndex: 1 }} />
                     </CardContent>
                   </GlassCard>
                 </Grid>
@@ -731,42 +977,90 @@ export default function Home() {
             </Grid>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== NEWSLETTER ===== */}
-        <Box sx={{ py: { xs: 6, md: 8 }, background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)" }}>
-          <Container maxWidth="sm" sx={{ textAlign: "center" }}>
+        <ScrollReveal>
+        <Box sx={{ py: { xs: 6, md: 8 }, background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)", position: "relative", overflow: "hidden" }}>
+          <Box sx={{
+            position: "absolute", top: "-30%", right: "-10%",
+            width: 300, height: 300,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%)",
+          }} />
+          <Box sx={{
+            position: "absolute", bottom: "-30%", left: "-10%",
+            width: 250, height: 250,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 70%)",
+          }} />
+          <Container maxWidth="sm" sx={{ textAlign: "center", position: "relative", zIndex: 1 }}>
             <Typography variant="h3" sx={{ fontWeight: 800, color: "#fff", mb: 1.5 }}>
               Stay in the Loop
             </Typography>
             <Typography sx={{ color: "rgba(255,255,255,0.7)", mb: 3, fontSize: "16px" }}>
               Get notified about new arrivals, events, and exclusive reading tips.
             </Typography>
-            <Paper sx={{ p: 0.5, pl: 2, borderRadius: "14px", display: "flex", alignItems: "center", bgcolor: "rgba(255,255,255,0.1)", backdropFilter: "blur(10px)" }}>
+            <Paper sx={{
+              p: 0.5, pl: 2, borderRadius: "14px",
+              display: "flex", alignItems: "center",
+              bgcolor: "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              maxWidth: "480px", mx: "auto",
+              transition: "box-shadow 0.3s ease",
+              "&:focus-within": {
+                boxShadow: "0 0 30px rgba(14,165,233,0.15)",
+                borderColor: "rgba(14,165,233,0.3)",
+              },
+            }}>
               <TextField fullWidth placeholder="Enter your email" variant="standard"
-                InputProps={{ disableUnderline: true, sx: { color: "#fff", "&::placeholder": { color: "rgba(255,255,255,0.5)" } } }} />
+                InputProps={{ disableUnderline: true, sx: { color: "#fff", "&::placeholder": { color: "rgba(255,255,255,0.4)" } } }} />
               <Button variant="contained" sx={{ borderRadius: "12px", px: 3, py: 1.5, bgcolor: "#0EA5E9", color: "#0F172A", fontWeight: 700, "&:hover": { bgcolor: "#38BDF8" }, whiteSpace: "nowrap" }}>
                 Subscribe
               </Button>
             </Paper>
           </Container>
         </Box>
+        </ScrollReveal>
 
         {/* ===== CTA ===== */}
-        <Box sx={{ py: { xs: 5, md: 7 }, bgcolor: "#fff", textAlign: "center" }}>
+        <ScrollReveal>
+        <Box sx={{
+          py: { xs: 5, md: 7 }, bgcolor: "var(--bg-secondary)", textAlign: "center",
+          animation: "fadeInUp 0.8s ease",
+        }}>
           <Container maxWidth="sm">
-            <FavoriteIcon sx={{ fontSize: 40, color: "#EF4444", mb: 2 }} />
+            <Box sx={{
+              width: 64, height: 64,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #FEE2E2, #FECACA)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              mx: "auto", mb: 2.5,
+              animation: "pulse 2s ease-in-out infinite",
+            }}>
+              <FavoriteIcon sx={{ fontSize: 28, color: "#EF4444" }} />
+            </Box>
             <Typography variant="h3" sx={{ fontWeight: 800, color: "#0F172A", mb: 1.5 }}>
               Ready to Start Reading?
             </Typography>
-            <Typography sx={{ color: "#6B7280", mb: 3, fontSize: "16px" }}>
+            <Typography sx={{ color: "#6B7280", mb: 3.5, fontSize: "16px" }}>
               Join thousands of readers who have discovered their next favorite book at LibriVista.
             </Typography>
-            <Button variant="contained" size="large" href="/books" sx={{ borderRadius: "12px", px: 5, py: 1.5, fontSize: "16px" }}>
+            <Button variant="contained" size="large" href="/library/books" sx={{
+              borderRadius: "50px", px: 5, py: 1.5, fontSize: "16px",
+              boxShadow: "0 4px 20px rgba(30,41,59,0.25)",
+              "&:hover": {
+                transform: "translateY(-3px)",
+                boxShadow: "0 8px 30px rgba(30,41,59,0.35)",
+              },
+            }}>
               <LibraryBooksIcon sx={{ mr: 1 }} />
               Explore Books Now
             </Button>
           </Container>
         </Box>
+        </ScrollReveal>
       </Box>
 
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>

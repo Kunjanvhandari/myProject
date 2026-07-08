@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Book from "@/lib/models/Book.js";
 import Reservation from "@/lib/models/Reservation.js";
 import User from "@/lib/models/User.js";
+import Notification from "@/lib/models/Notification.js";
 import { getUserFromToken } from "@/lib/auth.js";
 import { connectDB } from "@/lib/db.js";
 
@@ -66,6 +67,16 @@ export async function DELETE(request, { params }) {
     await Reservation.findByIdAndDelete(id);
 
     await User.findByIdAndUpdate(user._id, { $inc: { reservations: -1 } });
+
+    await Notification.create({
+      title: "Reservation Cancelled",
+      message: `${user.name} cancelled reservation for "${reservation.book?.title || "a book"}"`,
+      type: "warning",
+      action: "reservation_cancelled",
+      relatedUser: user._id,
+      relatedBook: reservation.book,
+      targetRole: "admin",
+    });
 
     return NextResponse.json({ success: true, message: "Reservation cancelled successfully" });
   } catch (error) {

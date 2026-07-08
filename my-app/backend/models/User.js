@@ -8,6 +8,13 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please provide a name"],
       maxlength: [60, "Name cannot be more than 60 characters"],
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
+    },
     email: {
       type: String,
       required: [true, "Please provide an email"],
@@ -42,6 +49,10 @@ const userSchema = new mongoose.Schema(
     membershipExpiry: {
       type: Date,
       default: null,
+    },
+    studentId: {
+      type: String,
+      default: "",
     },
     profileImage: {
       type: String,
@@ -115,6 +126,15 @@ userSchema.methods.generateMembershipId = function () {
   const year = new Date().getFullYear();
   const random = Math.floor(Math.random() * 9000 + 1000);
   this.membershipId = `LIB-${year}-${random}`;
+};
+
+userSchema.methods.getProfileCompletion = function () {
+  const fields = [
+    this.name, this.email, this.phone, this.address,
+    this.profileImage, this.studentId, this.username,
+  ];
+  const filled = fields.filter((f) => f && f.trim().length > 0).length;
+  return Math.round((filled / fields.length) * 100);
 };
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

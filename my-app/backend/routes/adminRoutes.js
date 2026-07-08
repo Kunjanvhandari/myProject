@@ -11,6 +11,11 @@ import {
   updateReservation,
   deleteReservation,
   getAdminNotifications,
+  suspendUser,
+  activateUser,
+  getUserBorrowings,
+  getUserReservations,
+  getUserFines,
 } from "../controllers/adminController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
@@ -22,6 +27,11 @@ router.get("/users", getAllUsers);
 router.get("/users/:id", getUserById);
 router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
+router.put("/users/:id/suspend", suspendUser);
+router.put("/users/:id/activate", activateUser);
+router.get("/users/:id/borrowings", getUserBorrowings);
+router.get("/users/:id/reservations", getUserReservations);
+router.get("/users/:id/fines", getUserFines);
 
 router.get("/borrowings", getAllBorrowings);
 router.put("/borrowings/:id", updateBorrowing);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Reservation from "@/lib/models/Reservation.js";
 import Book from "@/lib/models/Book.js";
 import User from "@/lib/models/User.js";
+import Notification from "@/lib/models/Notification.js";
 import { getUserFromToken } from "@/lib/auth.js";
 import { connectDB } from "@/lib/db.js";
 
@@ -83,17 +84,15 @@ export async function POST(request) {
 
     await User.findByIdAndUpdate(user._id, { $inc: { reservations: 1 } });
 
-    const admins = await User.find({ role: "admin" });
-    const adminNotification = {
+    await Notification.create({
       title: "New Reservation",
       message: `${user.name} reserved "${book.title}"`,
       type: "info",
-      createdAt: new Date(),
-    };
-    for (const admin of admins) {
-      admin.notifications.push(adminNotification);
-      await admin.save();
-    }
+      action: "book_reserved",
+      relatedUser: user._id,
+      relatedBook: bookId,
+      targetRole: "admin",
+    });
 
     return NextResponse.json({ success: true, reservation }, { status: 201 });
   } catch (error) {

@@ -18,16 +18,24 @@ export async function GET(request) {
     const search = searchParams.get("search") || "";
     const skip = (page - 1) * limit;
 
+    const statusFilter = searchParams.get("status") || "";
+
     let query = {};
     if (search) {
       query = {
         $or: [
           { name: { $regex: search, $options: "i" } },
           { email: { $regex: search, $options: "i" } },
+          { username: { $regex: search, $options: "i" } },
           { membershipId: { $regex: search, $options: "i" } },
+          { studentId: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
         ],
       };
     }
+
+    if (statusFilter === "active") query.isActive = true;
+    if (statusFilter === "suspended") query.isActive = false;
 
     const users = await User.find(query)
       .select("-password")

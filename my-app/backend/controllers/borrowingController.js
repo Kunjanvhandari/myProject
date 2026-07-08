@@ -2,6 +2,8 @@ import Borrowing from "../models/Borrowing.js";
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import Fine from "../models/Fine.js";
+import Notification from "../models/Notification.js";
+import { emitNotification } from "../config/socket.js";
 
 export async function getBorrowings(req, res) {
   try {
@@ -67,6 +69,18 @@ export async function createBorrowing(req, res) {
       .populate("book", "title author coverImage category")
       .populate("user", "name email");
 
+    const borrowNotif = new Notification({
+      title: "Book Borrowed",
+      message: `${userData.name} borrowed "${book.title}"`,
+      type: "info",
+      action: "book_borrowed",
+      relatedUser: userData._id,
+      relatedBook: book._id,
+      targetRole: "admin",
+    });
+    await borrowNotif.save();
+    await emitNotification(borrowNotif);
+
     res.status(201).json({ success: true, borrowing: populated });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to create borrowing", error: error.message });
@@ -121,7 +135,44 @@ export async function returnBook(req, res) {
         notes: `Late return by ${daysLate} day(s) at Rs.10/day`,
       });
       await fine.save();
+
+      const fineNotif = new Notification({
+        title: "Fine Generated",
+        message: `${userData.name} has a late fee of Rs.${borrowing.lateFee} for "${book.title}"`,
+        type: "warning",
+        action: "fine_generated",
+        relatedUser: userData._id,
+        relatedBook: book._id,
+        targetRole: "admin",
+      });
+      await fineNotif.save();
+      await emitNotification(fineNotif);
+
+      const userFineNotif = new Notification({
+        user: userData._id,
+        title: "Late Return Fine",
+        message: `You have been fined Rs.${borrowing.lateFee} for late return of "${book.title}" (${daysLate} days late)`,
+        type: "error",
+        action: "fine_generated",
+        relatedUser: userData._id,
+        relatedBook: book._id,
+        targetRole: "user",
+      });
+      await userFineNotif.save();
+      await emitNotification(userFineNotif);
     }
+
+    const returnNotif = new Notification({
+      title: "Book Returned",
+      message: `${userData.name} returned "${book.title}"`,
+      type: "success",
+      action: "book_returned",
+      relatedUser: userData._id,
+      relatedBook: book._id,
+      targetRole: "admin",
+    });
+    await returnNotif.save();
+    await emitNotification(returnNotif);
 
     res.json({ success: true, borrowing });
   } catch (error) {

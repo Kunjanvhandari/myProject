@@ -1,221 +1,25 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Slider,
-  CircularProgress,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Fullscreen,
-  FullscreenExit,
-  ZoomIn,
-  ZoomOut,
-} from "@mui/icons-material";
+import { Box, Typography, IconButton, Slider, CircularProgress, Tooltip } from "@mui/material";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import {
+  ChevronLeft, ChevronRight,
+  Fullscreen, FullscreenExit,
+  ZoomIn, ZoomOut,
+  DarkMode, LightMode,
+  TextIncrease, TextDecrease,
+  MenuBook,
+} from "@mui/icons-material";
 import { playPageTurnSound } from "../lib/pageTurnSound";
 
-const BookContainer = styled(Box)(({ theme }) => ({
-  width: "100%",
-  minHeight: "100vh",
-  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  userSelect: "none",
-
-  "& .reader-header": {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "12px 24px",
-    background: "rgba(0,0,0,0.5)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
-    zIndex: 10,
-  },
-
-  "& .book-stage": {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    perspective: "2500px",
-    overflow: "hidden",
-    position: "relative",
-    padding: "20px 0",
-  },
-
-  "& .book-container-3d": {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transformStyle: "preserve-3d",
-    transform: "rotateY(0deg) rotateX(2deg)",
-    transition: "transform 0.3s ease",
-  },
-
-  "& .book-spine": {
-    position: "absolute",
-    left: "-18px",
-    top: "0",
-    bottom: "0",
-    width: "18px",
-    background: "linear-gradient(90deg, #2c1810, #4a2818, #2c1810)",
-    borderRadius: "3px 0 0 3px",
-    transformOrigin: "right center",
-    zIndex: 5,
-    boxShadow: "-4px 0 15px rgba(0,0,0,0.4)",
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      top: "10%",
-      bottom: "10%",
-      left: "4px",
-      right: "4px",
-      borderLeft: "1px solid rgba(255,255,255,0.05)",
-      borderRight: "1px solid rgba(255,255,255,0.05)",
-    },
-  },
-
-  "& .book-page-edges": {
-    position: "absolute",
-    right: "-6px",
-    top: "2px",
-    bottom: "2px",
-    width: "6px",
-    background: "linear-gradient(90deg, #f5f0e8, #e8e0d0)",
-    borderRadius: "0 2px 2px 0",
-    zIndex: 3,
-    transform: "rotateY(0deg)",
-    boxShadow: "3px 0 8px rgba(0,0,0,0.15)",
-  },
-
-  "& .page-area": {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    zIndex: 4,
-    background: "#faf6f0",
-    borderRadius: "2px",
-    boxShadow: "0 4px 50px rgba(0,0,0,0.4), inset 0 0 30px rgba(0,0,0,0.03)",
-  },
-
-  "& .page-wrapper": {
-    position: "relative",
-    overflow: "hidden",
-    background: "#faf6f0",
-    transformStyle: "preserve-3d",
-    transformOrigin: "left center",
-    willChange: "transform",
-  },
-
-  "& .page-wrapper.flip-forward": {
-    animation: "flipForward 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
-    transformOrigin: "left center",
-  },
-
-  "& .page-wrapper.flip-back": {
-    animation: "flipBack 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
-    transformOrigin: "right center",
-  },
-
-  "@keyframes flipForward": {
-    "0%": {
-      transform: "rotateY(0deg) scaleX(1)",
-    },
-    "100%": {
-      transform: "rotateY(-180deg) scaleX(1)",
-    },
-  },
-
-  "@keyframes flipBack": {
-    "0%": {
-      transform: "rotateY(0deg) scaleX(1)",
-    },
-    "100%": {
-      transform: "rotateY(180deg) scaleX(1)",
-    },
-  },
-
-  "& .nav-button": {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    zIndex: 10,
-    bgcolor: "rgba(0,0,0,0.4)",
-    color: "#fff",
-    "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
-    width: 52,
-    height: 52,
-    backdropFilter: "blur(4px)",
-    border: "1px solid rgba(255,255,255,0.1)",
-  },
-
-  "& .book-shadow-left": {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: "-40px",
-    width: "80px",
-    pointerEvents: "none",
-    zIndex: 2,
-    background: "linear-gradient(to right, rgba(0,0,0,0.25), transparent)",
-  },
-
-  "& .book-shadow-right": {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    right: "-40px",
-    width: "80px",
-    pointerEvents: "none",
-    zIndex: 2,
-    background: "linear-gradient(to left, rgba(0,0,0,0.25), transparent)",
-  },
-
-  "& .book-bottom-shadow": {
-    position: "absolute",
-    bottom: "-15px",
-    left: "-10%",
-    right: "-10%",
-    height: "30px",
-    background: "radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, transparent 70%)",
-    pointerEvents: "none",
-    zIndex: 1,
-  },
-}));
-
-const PdfPage = React.memo(({ pdfUrl, pageNumber, scale, pageWidth, onLoadSuccess, onLoadError }) => (
-  <Document
-    file={pdfUrl}
-    onLoadSuccess={onLoadSuccess}
-    onLoadError={onLoadError}
-    loading={null}
-    error={null}
-    key={pageNumber}
-  >
-    <Page
-      pageNumber={pageNumber}
-      scale={scale}
-      devicePixelRatio={2}
-      renderTextLayer={false}
-      renderAnnotationLayer={false}
-      width={pageWidth}
-    />
-  </Document>
-));
+const BOOK_BG_LIGHT = "#fdfaf3";
+const BOOK_BG_DARK = "#2c2c2c";
+const PAPER_LIGHT = "#fdfaf3";
+const PAPER_DARK = "#3a3a3a";
+const TEXT_LIGHT = "#1a1a1a";
+const TEXT_DARK = "#e0e0e0";
 
 export default function PdfBookReader({ pdfUrl, title }) {
   const [numPages, setNumPages] = useState(null);
@@ -224,13 +28,19 @@ export default function PdfBookReader({ pdfUrl, title }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [flipping, setFlipping] = useState(false);
-  const [flipDir, setFlipDir] = useState(null);
-  const [stageWidth, setStageWidth] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
+  const [fontSize, setFontSize] = useState(16);
+  const [showControls, setShowControls] = useState(true);
+  const [isTwoPage, setIsTwoPage] = useState(true);
+
   const containerRef = useRef(null);
   const stageRef = useRef(null);
+  const documentRef = useRef(null);
+  const controlsTimerRef = useRef(null);
 
   const stablePdfUrl = useMemo(() => pdfUrl, [pdfUrl]);
+  const numPagesRef = useRef(null);
+  const pageNumberRef = useRef(1);
 
   useEffect(() => {
     try {
@@ -241,71 +51,86 @@ export default function PdfBookReader({ pdfUrl, title }) {
   }, []);
 
   useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setStageWidth(entry.contentRect.width);
-      }
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const onDocumentLoadSuccess = useCallback(({ numPages }) => {
-    setNumPages(numPages);
-    setLoading(false);
-  }, []);
-
-  const onDocumentLoadError = useCallback((err) => {
-    console.error("PDF load error:", err?.message || err);
-    setLoading(false);
-    setError("Failed to load the PDF. The file may be unavailable, corrupted, or blocked by the browser.");
+    const checkWidth = () => {
+      setIsTwoPage(window.innerWidth >= 900);
+    };
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (loading) {
-        setLoading(false);
-        setError("PDF loading timed out. The file may be too large or the server may be unavailable.");
-      }
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, [loading]);
+    const saved = localStorage.getItem("bookReader_darkMode");
+    if (saved === "true") setDarkMode(true);
+    const savedFont = localStorage.getItem("bookReader_fontSize");
+    if (savedFont) setFontSize(parseInt(savedFont, 10));
+  }, []);
 
-  const goToPage = useCallback(
-    (page) => {
-      if (flipping) return;
-      const target = Math.max(1, Math.min(page, numPages || 1));
-      if (target === pageNumber) return;
-      const dir = target > pageNumber ? "forward" : "back";
-      setFlipDir(dir);
-      setFlipping(true);
-      setTimeout(() => {
-        setPageNumber(target);
-        setFlipping(false);
-        setFlipDir(null);
-      }, 350);
-    },
-    [pageNumber, numPages, flipping]
-  );
+  useEffect(() => {
+    localStorage.setItem("bookReader_darkMode", darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem("bookReader_fontSize", fontSize.toString());
+  }, [fontSize]);
+
+  const onDocumentLoadSuccess = useCallback(({ numPages: pages }) => {
+    numPagesRef.current = pages;
+    setNumPages(pages);
+    setLoading(false);
+
+    const saved = localStorage.getItem(`book_pos_${stablePdfUrl}`);
+    if (saved) {
+      const pos = parseInt(saved, 10);
+      if (pos >= 1 && pos <= pages) {
+        setPageNumber(pos);
+        pageNumberRef.current = pos;
+      }
+    }
+  }, [stablePdfUrl]);
+
+  const onDocumentLoadError = useCallback((err) => {
+    console.error("PDF load error:", err);
+    setLoading(false);
+    setError("Failed to load the PDF. The file may be unavailable or corrupted.");
+  }, []);
+
+  const savePosition = useCallback((page) => {
+    try {
+      localStorage.setItem(`book_pos_${stablePdfUrl}`, page.toString());
+    } catch (e) { /* ignore */ }
+  }, [stablePdfUrl]);
+
+  const goToPage = useCallback((page) => {
+    if (!numPagesRef.current) return;
+    const target = Math.max(1, Math.min(page, numPagesRef.current));
+    if (target === pageNumberRef.current) return;
+    setPageNumber(target);
+    pageNumberRef.current = target;
+    savePosition(target);
+  }, [savePosition]);
 
   const nextPage = useCallback(() => {
-    if (pageNumber >= (numPages || 1)) return;
+    if (!numPagesRef.current || pageNumberRef.current >= numPagesRef.current) return;
     playPageTurnSound();
-    goToPage(pageNumber + 1);
-  }, [pageNumber, numPages, goToPage]);
+    goToPage(pageNumberRef.current + 1);
+  }, [goToPage]);
 
   const prevPage = useCallback(() => {
-    if (pageNumber <= 1) return;
+    if (pageNumberRef.current <= 1) return;
     playPageTurnSound();
-    goToPage(pageNumber - 1);
-  }, [pageNumber, goToPage]);
+    goToPage(pageNumberRef.current - 1);
+  }, [goToPage]);
 
-  const zoomIn = () => setScale((s) => Math.min(s + 0.2, 3));
-  const zoomOut = () => setScale((s) => Math.max(s - 0.2, 0.4));
+  const zoomIn = useCallback(() => setScale((s) => Math.min(s + 0.2, 3)), []);
+  const zoomOut = useCallback(() => setScale((s) => Math.max(s - 0.2, 0.4)), []);
 
-  const toggleFullscreen = async () => {
+  const fontSizeUp = useCallback(() => setFontSize((s) => Math.min(s + 2, 32)), []);
+  const fontSizeDown = useCallback(() => setFontSize((s) => Math.max(s - 2, 10)), []);
+
+  const toggleDarkMode = useCallback(() => setDarkMode((d) => !d), []);
+
+  const toggleFullscreen = useCallback(async () => {
     if (!document.fullscreenElement) {
       await document.documentElement.requestFullscreen();
       setIsFullscreen(true);
@@ -313,11 +138,11 @@ export default function PdfBookReader({ pdfUrl, title }) {
       await document.exitFullscreen();
       setIsFullscreen(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
         nextPage();
       } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
@@ -329,202 +154,358 @@ export default function PdfBookReader({ pdfUrl, title }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [nextPage, prevPage]);
 
-  const handlePageClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+  const handleStageClick = useCallback((e) => {
+    if (!stageRef.current) return;
+    const rect = stageRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     if (x > rect.width * 0.5) {
       nextPage();
     } else {
       prevPage();
     }
-  };
+  }, [nextPage, prevPage]);
 
-  const flipClass =
-    flipping && flipDir === "forward"
-      ? "flip-forward"
-      : flipping && flipDir === "back"
-      ? "flip-back"
-      : "";
+  useEffect(() => {
+    const handleMouseMove = () => {
+      setShowControls(true);
+      clearTimeout(controlsTimerRef.current);
+      controlsTimerRef.current = setTimeout(() => setShowControls(false), 2500);
+    };
+    const container = containerRef.current;
+    if (!container) return;
+    container.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      container.removeEventListener("mousemove", handleMouseMove);
+      clearTimeout(controlsTimerRef.current);
+    };
+  }, []);
 
-  const baseFitWidth = stageWidth ? Math.max(300, stageWidth - 160) : 700;
-  const pageWidth = Math.min(baseFitWidth, 2000);
+  const pageWidth = isTwoPage ? 400 : 500;
+
+  const bgColor = darkMode ? BOOK_BG_DARK : BOOK_BG_LIGHT;
+  const paperColor = darkMode ? PAPER_DARK : PAPER_LIGHT;
+  const textColor = darkMode ? TEXT_DARK : TEXT_LIGHT;
 
   return (
-    <BookContainer ref={containerRef}>
-      <Box className="reader-header">
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, minWidth: 0 }}>
+    <Box
+      ref={containerRef}
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        bgcolor: bgColor,
+        display: "flex",
+        flexDirection: "column",
+        transition: "background-color 0.3s ease",
+        position: "relative",
+      }}
+    >
+      {/* Header Controls */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          bgcolor: darkMode ? "rgba(44,44,44,0.95)" : "rgba(253,250,243,0.95)",
+          backdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+          transform: showControls ? "translateY(0)" : "translateY(-100%)",
+          transition: "transform 0.3s ease",
+          px: { xs: 2, md: 4 },
+          py: 1.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+          <MenuBook sx={{ color: darkMode ? "#aaa" : "#666", fontSize: 20 }} />
           <Typography
-            variant="subtitle1"
+            variant="subtitle2"
             sx={{
-              color: "#fff",
+              color: textColor,
               fontWeight: 600,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              maxWidth: "300px",
+              maxWidth: { xs: 120, sm: 200, md: 350 },
+              fontSize: "0.9rem",
             }}
           >
             {title}
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton onClick={zoomOut} sx={{ color: "#fff" }} size="small">
-            <ZoomOut />
-          </IconButton>
-          <Typography variant="caption" sx={{ color: "#aaa", minWidth: 40, textAlign: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Tooltip title="Zoom Out">
+            <IconButton onClick={zoomOut} size="small" sx={{ color: textColor }}>
+              <ZoomOut fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="caption" sx={{ color: textColor, minWidth: 36, textAlign: "center", fontSize: "0.75rem", opacity: 0.7 }}>
             {Math.round(scale * 100)}%
           </Typography>
-          <IconButton onClick={zoomIn} sx={{ color: "#fff" }} size="small">
-            <ZoomIn />
-          </IconButton>
+          <Tooltip title="Zoom In">
+            <IconButton onClick={zoomIn} size="small" sx={{ color: textColor }}>
+              <ZoomIn fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
-          <IconButton onClick={toggleFullscreen} sx={{ color: "#fff" }} size="small">
-            {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
-          </IconButton>
+          <Box sx={{ width: 1, height: 24, bgcolor: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", mx: 1 }} />
+
+          <Tooltip title="Decrease Font Size">
+            <IconButton onClick={fontSizeDown} size="small" sx={{ color: textColor }}>
+              <TextDecrease fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="caption" sx={{ color: textColor, minWidth: 24, textAlign: "center", fontSize: "0.75rem", opacity: 0.7 }}>
+            {fontSize}
+          </Typography>
+          <Tooltip title="Increase Font Size">
+            <IconButton onClick={fontSizeUp} size="small" sx={{ color: textColor }}>
+              <TextIncrease fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Box sx={{ width: 1, height: 24, bgcolor: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)", mx: 1 }} />
+
+          <Tooltip title={darkMode ? "Light Mode" : "Dark Mode"}>
+            <IconButton onClick={toggleDarkMode} size="small" sx={{ color: textColor }}>
+              {darkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+            <IconButton onClick={toggleFullscreen} size="small" sx={{ color: textColor }}>
+              {isFullscreen ? <FullscreenExit fontSize="small" /> : <Fullscreen fontSize="small" />}
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 
-      <Box ref={stageRef} className="book-stage">
-        <Box className="book-shadow-left" />
-        <Box className="book-shadow-right" />
-        <Box className="book-bottom-shadow" />
-
-        <Box className="book-container-3d">
-          <Box className="book-spine" />
-
-          <IconButton
-            className="nav-button"
-            onClick={prevPage}
-            disabled={pageNumber <= 1 || flipping}
-            sx={{ left: { xs: -12, md: -20 } }}
-          >
-            <ChevronLeft sx={{ fontSize: 32 }} />
-          </IconButton>
-
-          <Box
-            className="page-area"
-            onClick={handlePageClick}
-            sx={{
-              width: pageWidth,
-              mx: { xs: 4, md: 8 },
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {loading && (
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <CircularProgress sx={{ color: "#2E7D32" }} />
-                <Typography sx={{ color: "#888" }}>Loading book...</Typography>
-              </Box>
-            )}
-
-            {error ? (
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, p: 4, textAlign: "center" }}>
-                <Typography variant="h6" sx={{ color: "#ff6b6b", mb: 1 }}>
-                  Unable to Load PDF
-                </Typography>
-                <Typography sx={{ color: "#ccc", maxWidth: 400 }}>
-                  {error}
-                </Typography>
-              </Box>
-            ) : (
-              <Box className={`page-wrapper ${flipClass}`} sx={{ width: "100%" }}>
-                <PdfPage
-                  pdfUrl={stablePdfUrl}
-                  pageNumber={pageNumber}
-                  scale={scale}
-                  pageWidth={pageWidth}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  onLoadError={onDocumentLoadError}
-                />
-              </Box>
-            )}
-          </Box>
-
-          <Box className="book-page-edges" />
-
-          <IconButton
-            className="nav-button"
-            onClick={nextPage}
-            disabled={pageNumber >= (numPages || 1) || flipping}
-            sx={{ right: { xs: -12, md: -20 } }}
-          >
-            <ChevronRight sx={{ fontSize: 32 }} />
-          </IconButton>
-        </Box>
-      </Box>
-
+      {/* Book Stage */}
       <Box
+        ref={stageRef}
+        onClick={handleStageClick}
         sx={{
-          width: "100%",
+          flex: 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 3,
-          px: 4,
-          py: 2,
-          background: "rgba(0,0,0,0.4)",
-          backdropFilter: "blur(10px)",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
+          pt: { xs: 8, md: 10 },
+          pb: 10,
+          px: 2,
+          cursor: "pointer",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <Typography variant="body2" sx={{ color: "#aaa", whiteSpace: "nowrap" }}>
-          Page {pageNumber} of {numPages || "?"}
-        </Typography>
+        {loading && (
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+            <CircularProgress sx={{ color: darkMode ? "#aaa" : "#666" }} size={40} />
+            <Typography sx={{ color: darkMode ? "#888" : "#999", fontSize: "0.9rem" }}>Loading book...</Typography>
+          </Box>
+        )}
 
-        <Box sx={{ flex: 1, maxWidth: 400 }}>
-          <Slider
-            value={pageNumber}
-            min={1}
-            max={numPages || 1}
-            onChange={(_, v) => {
-              playPageTurnSound();
-              goToPage(v);
-            }}
-            sx={{
-              color: "#fff",
-              "& .MuiSlider-thumb": { width: 14, height: 14 },
-              "& .MuiSlider-rail": { bgcolor: "rgba(255,255,255,0.2)" },
-              "& .MuiSlider-track": { bgcolor: "#fff" },
-            }}
-          />
-        </Box>
+        {error && (
+          <Box sx={{ textAlign: "center", p: 4 }}>
+            <Typography variant="h6" sx={{ color: "#ef4444", mb: 1, fontWeight: 600 }}>Unable to Load PDF</Typography>
+            <Typography sx={{ color: darkMode ? "#aaa" : "#666" }}>{error}</Typography>
+          </Box>
+        )}
 
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+        {!loading && !error && (
+          <Document
+            file={stablePdfUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={null}
+            error={null}
+          >
+            {/* Two-page spread or single page */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 0,
+                borderRadius: "4px",
+                overflow: "hidden",
+                boxShadow: darkMode
+                  ? "0 8px 60px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.3)"
+                  : "0 8px 60px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06)",
+              }}
+            >
+              {/* Left page (even) */}
+              {isTwoPage && pageNumber > 1 && (
+                <Box sx={{ position: "relative" }}>
+                  <Page
+                    pageNumber={pageNumber - 1}
+                    scale={scale}
+                    width={pageWidth}
+                    renderTextLayer={true}
+                    renderAnnotationLayer={false}
+                    loading={null}
+                  />
+                </Box>
+              )}
+
+              {/* Spine effect between pages */}
+              {isTwoPage && pageNumber > 1 && pageNumber <= numPages && (
+                <Box
+                  sx={{
+                    width: "12px",
+                    minHeight: "100%",
+                    background: darkMode
+                      ? "linear-gradient(to right, #2a2a2a, #3a3a3a, #333)"
+                      : "linear-gradient(to right, #e8e0d0, #f0e8d8, #e8e0d0)",
+                    boxShadow: darkMode
+                      ? "inset 2px 0 4px rgba(0,0,0,0.3), inset -2px 0 4px rgba(0,0,0,0.3)"
+                      : "inset 2px 0 4px rgba(0,0,0,0.05), inset -2px 0 4px rgba(0,0,0,0.05)",
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+
+              {/* Right page (current/odd) */}
+              <Box sx={{ position: "relative" }}>
+                <Page
+                  pageNumber={pageNumber}
+                  scale={scale}
+                  width={pageWidth}
+                  renderTextLayer={true}
+                  renderAnnotationLayer={false}
+                  loading={null}
+                />
+              </Box>
+            </Box>
+          </Document>
+        )}
+      </Box>
+
+      {/* Side Navigation Buttons */}
+      {!loading && !error && (
+        <>
           <IconButton
             onClick={prevPage}
-            disabled={pageNumber <= 1 || flipping}
-            sx={{ color: "#fff" }}
-            size="small"
-          >
-            <ChevronLeft />
-          </IconButton>
-          <Typography
-            variant="caption"
+            disabled={pageNumber <= 1}
             sx={{
-              color: "#fff",
-              bgcolor: "rgba(255,255,255,0.1)",
-              px: 2,
-              py: 0.5,
-              borderRadius: 1,
-              minWidth: 60,
-              textAlign: "center",
-              fontFamily: "monospace",
+              position: "fixed",
+              left: { xs: 8, md: 16 },
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 50,
+              bgcolor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+              color: textColor,
+              width: { xs: 40, md: 48 },
+              height: { xs: 40, md: 48 },
+              opacity: showControls ? 1 : 0,
+              transition: "opacity 0.3s ease, background-color 0.2s ease",
+              "&:hover": { bgcolor: darkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)" },
+              "&.Mui-disabled": { opacity: 0.2 },
             }}
           >
-            {pageNumber} / {numPages || "?"}
-          </Typography>
+            <ChevronLeft fontSize={isTwoPage ? "large" : "medium"} />
+          </IconButton>
+
           <IconButton
             onClick={nextPage}
-            disabled={pageNumber >= (numPages || 1) || flipping}
-            sx={{ color: "#fff" }}
-            size="small"
+            disabled={pageNumber >= (numPages || 1)}
+            sx={{
+              position: "fixed",
+              right: { xs: 8, md: 16 },
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 50,
+              bgcolor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+              color: textColor,
+              width: { xs: 40, md: 48 },
+              height: { xs: 40, md: 48 },
+              opacity: showControls ? 1 : 0,
+              transition: "opacity 0.3s ease, background-color 0.2s ease",
+              "&:hover": { bgcolor: darkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)" },
+              "&.Mui-disabled": { opacity: 0.2 },
+            }}
           >
-            <ChevronRight />
+            <ChevronRight fontSize={isTwoPage ? "large" : "medium"} />
           </IconButton>
+        </>
+      )}
+
+      {/* Bottom Bar */}
+      {!loading && !error && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            bgcolor: darkMode ? "rgba(44,44,44,0.95)" : "rgba(253,250,243,0.95)",
+            backdropFilter: "blur(12px)",
+            borderTop: `1px solid ${darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+            transform: showControls ? "translateY(0)" : "translateY(100%)",
+            transition: "transform 0.3s ease",
+            px: { xs: 2, md: 4 },
+            py: 1.5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={prevPage}
+              disabled={pageNumber <= 1}
+              size="small"
+              sx={{ color: textColor }}
+            >
+              <ChevronLeft />
+            </IconButton>
+
+            <Typography
+              variant="body2"
+              sx={{
+                color: textColor,
+                fontFamily: "'Georgia', serif",
+                minWidth: 80,
+                textAlign: "center",
+                fontSize: "0.85rem",
+                opacity: 0.8,
+              }}
+            >
+              {pageNumber} / {numPages || "?"}
+            </Typography>
+
+            <IconButton
+              onClick={nextPage}
+              disabled={pageNumber >= (numPages || 1)}
+              size="small"
+              sx={{ color: textColor }}
+            >
+              <ChevronRight />
+            </IconButton>
+          </Box>
+
+          <Box sx={{ flex: 1, maxWidth: 400, mx: 2 }}>
+            <Slider
+              value={pageNumber}
+              min={1}
+              max={numPages || 1}
+              onChange={(_, v) => {
+                playPageTurnSound();
+                goToPage(v);
+              }}
+              sx={{
+                color: darkMode ? "#aaa" : "#555",
+                "& .MuiSlider-thumb": { width: 14, height: 14 },
+                "& .MuiSlider-rail": { bgcolor: darkMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)" },
+                "& .MuiSlider-track": { bgcolor: darkMode ? "#aaa" : "#555" },
+              }}
+            />
+          </Box>
         </Box>
-      </Box>
-    </BookContainer>
+      )}
+    </Box>
   );
 }
