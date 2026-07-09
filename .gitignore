@@ -1,4 +1,9 @@
 node_modules
+.next
+out/
+.env*
+.env.local
+.env.production
 *.log
 dev_err.txt
 dev_out.txt
