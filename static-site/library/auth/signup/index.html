@@ -686,13 +686,19 @@
   <script src="../../../js/notifications.js"></script>
   <script>
     // Theme Toggle
+    var themeToggle = document.getElementById('themeToggle');
+
+    function updateThemeIcon(theme) {
+      var icon = themeToggle.querySelector('i');
+      icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+
     (function initTheme() {
       var savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
       updateThemeIcon(savedTheme);
     })();
 
-    var themeToggle = document.getElementById('themeToggle');
     themeToggle.addEventListener('click', function() {
       var current = document.documentElement.getAttribute('data-theme');
       var next = current === 'light' ? 'dark' : 'light';
@@ -700,11 +706,6 @@
       localStorage.setItem('theme', next);
       updateThemeIcon(next);
     });
-
-    function updateThemeIcon(theme) {
-      var icon = themeToggle.querySelector('i');
-      icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-    }
 
     // Redirect if logged in
     (function checkAuth() {
