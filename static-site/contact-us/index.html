@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - SaraswatiLibrary</title>
+  <meta name="description" content="Get in touch with SaraswatiLibrary. Reach us by phone, email, WhatsApp, or visit our location in Kathmandu.">
+  <meta property="og:title" content="Contact Us - SaraswatiLibrary">
+  <meta property="og:description" content="Reach us by phone, email, or WhatsApp. We're here to help with your library needs.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaraswatiLibrary">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .contact-info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+    .contact-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg, 16px);
+      padding: 28px 20px;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .contact-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent);
+    }
+    .contact-card:hover::before {
+      transform: scaleX(1);
+    }
+    .contact-card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: var(--accent-bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      transition: all 0.3s;
+    }
+    .contact-card-icon i {
+      font-size: 22px;
+      color: var(--accent);
+    }
+    .contact-card:hover .contact-card-icon {
+      background: var(--accent);
+    }
+    .contact-card:hover .contact-card-icon i {
+      color: #fff;
+    }
+    .contact-card h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    .contact-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .contact-card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .contact-card a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+    .contact-card-whatsapp {
+      border-color: rgba(37, 211, 102, 0.3);
+    }
+    .contact-card-whatsapp .contact-card-icon {
+      background: rgba(37, 211, 102, 0.1);
+    }
+    .contact-card-whatsapp .contact-card-icon i {
+      color: #25D366;
+    }
+    .contact-card-whatsapp:hover {
+      border-color: #25D366;
+    }
+    .contact-card-whatsapp:hover .contact-card-icon {
+      background: #25D366;
+    }
+    .contact-card-whatsapp:hover .contact-card-icon i {
+      color: #fff;
+    }
+    .contact-form-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg, 16px);
+      padding: 36px;
+      box-shadow: var(--shadow-sm);
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-label i {
+      margin-right: 4px;
+      color: var(--accent);
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.2s;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg);
+    }
+    .form-input.error {
+      border-color: #EF4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    .form-error {
+      font-size: 12px;
+      color: #EF4444;
+      margin-top: 4px;
+      display: none;
+    }
+    .form-error.visible {
+      display: block;
+    }
+    textarea.form-input {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .contact-hours-card {
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+    .contact-hours-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--text-secondary);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .contact-hours-row:last-child {
+      border-bottom: none;
+    }
+    .whatsapp-connect-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: #25D366;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      margin-top: 16px;
+    }
+    .whatsapp-connect-btn:hover {
+      background: #20bd5a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+      color: #fff;
+      text-decoration: none;
+    }
+    .contact-social-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .contact-social-link {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 16px;
+    }
+    .contact-social-link:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    @media (max-width: 1024px) {
+      .contact-info-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .contact-info-grid { grid-template-columns: 1fr; gap: 14px; }
+      .contact-form-card { padding: 24px; }
+    }
+  </style>
+</head>
+<body data-page="contact">
+  <div id="navbar"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-page">
+    <div class="container" style="position: relative; z-index: 2;">
+      <h1 class="hero-page-title">Contact Us</h1>
+      <p class="hero-page-subtitle">We would love to hear from you. Reach out anytime.</p>
+    </div>
+  </section>
+
+  <!-- Contact Info Cards -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip"><i class="fa fa-address-card" style="margin-right: 4px;"></i> GET IN TOUCH</span>
+        <h2 class="section-heading">How to Reach Us</h2>
+        <p class="section-subheading">Choose the most convenient way to connect with our team.</p>
+      </div>
+      <div class="contact-info-grid">
+        <a href="https://maps.google.com/?q=Kathmandu+Nepal" target="_blank" class="contact-card scroll-reveal" style="text-decoration: none; color: inherit;">
+          <div class="contact-card-icon"><i class="fa fa-map-marker-alt"></i></div>
+          <h4>Address</h4>
+          <p>Kathmandu, Nepal</p>
+          <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">Click to open in Google Maps</p>
+        </a>
+        <a href="tel:+9779743962189" class="contact-card scroll-reveal" style="text-decoration: none; color: inherit;">
+          <div class="contact-card-icon"><i class="fa fa-phone"></i></div>
+          <h4>Phone</h4>
+          <p>+977 9743962189</p>
+          <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">Sun - Fri: 8:00 AM - 6:00 PM</p>
+        </a>
+        <a href="mailto:kunjanvhandari9@gmail.com" class="contact-card scroll-reveal" style="text-decoration: none; color: inherit;">
+          <div class="contact-card-icon"><i class="fa fa-envelope"></i></div>
+          <h4>Email</h4>
+          <p>kunjanvhandari9@gmail.com</p>
+          <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">We reply within 24 hours</p>
+        </a>
+        <a href="https://wa.me/9779743962189" target="_blank" class="contact-card contact-card-whatsapp scroll-reveal" style="text-decoration: none; color: inherit;">
+          <div class="contact-card-icon"><i class="fa-brands fa-whatsapp"></i></div>
+          <h4>WhatsApp</h4>
+          <p>+977 9743962189</p>
+          <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">Quick response guaranteed</p>
+        </a>
+      </div>
+
+      <!-- Contact Form + Map -->
+      <div class="contact-grid">
+        <div class="contact-form-card">
+          <h3 style="margin-bottom: 6px; font-size: 1.3rem;">Send Us a Message</h3>
+          <p style="font-size: 14px; color: var(--text-tertiary); margin-bottom: 24px;">Fill out the form below and we'll get back to you shortly.</p>
+          <form id="contact-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="contact-name"><i class="fa fa-user"></i> Full Name</label>
+              <input type="text" id="contact-name" class="form-input" placeholder="Enter your full name" required>
+              <div class="form-error" id="name-error">Please enter your name</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-email"><i class="fa fa-envelope"></i> Email Address</label>
+              <input type="email" id="contact-email" class="form-input" placeholder="you@example.com" required>
+              <div class="form-error" id="email-error">Please enter a valid email</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-phone"><i class="fa fa-phone"></i> Phone (optional)</label>
+              <input type="tel" id="contact-phone" class="form-input" placeholder="+977 9XXXXXXXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-subject"><i class="fa fa-tag"></i> Subject</label>
+              <select id="contact-subject" class="form-input" required>
+                <option value="">Select a subject...</option>
+                <option value="General Inquiry">General Inquiry</option>
+                <option value="Book Request">Book Request</option>
+                <option value="Library Membership">Library Membership</option>
+                <option value="Technical Support">Technical Support</option>
+                <option value="Feedback">Feedback</option>
+                <option value="Other">Other</option>
+              </select>
+              <div class="form-error" id="subject-error">Please select a subject</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contact-message"><i class="fa fa-comment"></i> Message</label>
+              <textarea id="contact-message" class="form-input" rows="5" placeholder="Write your message here..." required></textarea>
+              <div class="form-error" id="message-error">Please enter your message</div>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-rounded" style="width: 100%; justify-content: center; padding: 14px;">
+              <i class="fa fa-paper-plane"></i> Send Message
+            </button>
+          </form>
+
+          <!-- WhatsApp Quick Connect -->
+          <div style="margin-top: 24px; padding: 20px; background: rgba(37,211,102,0.06); border: 1px solid rgba(37,211,102,0.2); border-radius: 12px; text-align: center;">
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Need an immediate response?</p>
+            <a href="https://wa.me/9779743962189?text=Hi%20SaraswatiLibrary!%20I%20have%20a%20question." target="_blank" class="whatsapp-connect-btn">
+              <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Chat on WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <div style="border-radius: 16px; overflow: hidden; height: 380px; border: 1px solid var(--border-color);">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.2!2d85.32!3d27.72!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjfCsDQzJzEyLjAiTiA4NcKwMTknMTIuMCJF!5e0!3m2!1sen!2snp!4v1"
+              width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Saraswati Library Location - Kathmandu, Nepal">
+            </iframe>
+          </div>
+
+          <!-- Library Hours -->
+          <div class="contact-hours-card">
+            <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+              <i class="fa fa-clock" style="color: var(--accent); margin-right: 6px;"></i> Library Hours
+            </h4>
+            <div class="contact-hours-row">
+              <span>Sunday - Friday</span><span style="font-weight: 500;">8:00 AM - 6:00 PM</span>
+            </div>
+            <div class="contact-hours-row">
+              <span>Saturday</span><span style="color: #EF4444; font-weight: 500;">Closed</span>
+            </div>
+          </div>
+
+          <!-- Social Links -->
+          <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px;">
+            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Follow Us</h4>
+            <div class="contact-social-links" id="contact-social-links"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/users.js"></script>
+  <script src="../js/notifications.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    // Render social links
+    (function() {
+      var socialContainer = document.getElementById('contact-social-links');
+      if (socialContainer && typeof socialLinks !== 'undefined') {
+        socialContainer.innerHTML = socialLinks.map(function(s) {
+          return '<a href="' + s.url + '" target="_blank" rel="noopener noreferrer" class="contact-social-link" title="' + s.name + '"><i class="' + s.icon + '"></i></a>';
+        }).join('');
+      }
+    })();
+
+    // Form validation and submission
+    function validateField(id, errorId, condition) {
+      var field = document.getElementById(id);
+      var error = document.getElementById(errorId);
+      if (!condition) {
+        field.classList.add('error');
+        error.classList.add('visible');
+        return false;
+      }
+      field.classList.remove('error');
+      error.classList.remove('visible');
+      return true;
+    }
+
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var valid = true;
+      valid = validateField('contact-name', 'name-error', document.getElementById('contact-name').value.trim().length >= 2) && valid;
+      valid = validateField('contact-email', 'email-error', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('contact-email').value.trim())) && valid;
+      valid = validateField('contact-subject', 'subject-error', document.getElementById('contact-subject').value !== '') && valid;
+      valid = validateField('contact-message', 'message-error', document.getElementById('contact-message').value.trim().length >= 10) && valid;
+
+      if (!valid) return;
+
+      var name = document.getElementById('contact-name').value.trim();
+      var email = document.getElementById('contact-email').value.trim();
+      var phone = document.getElementById('contact-phone').value.trim();
+      var subject = document.getElementById('contact-subject').value;
+      var message = document.getElementById('contact-message').value.trim();
+
+      // Send via WhatsApp
+      var waMsg = 'Hi SaraswatiLibrary!%0A%0A*Name:* ' + encodeURIComponent(name) + '%0A*Email:* ' + encodeURIComponent(email);
+      if (phone) waMsg += '%0A*Phone:* ' + encodeURIComponent(phone);
+      waMsg += '%0A*Subject:* ' + encodeURIComponent(subject) + '%0A*Message:* ' + encodeURIComponent(message);
+
+      window.open('https://wa.me/9779743962189?text=' + waMsg, '_blank');
+      if (typeof Notifications !== 'undefined') {
+        Notifications.add('contact_form', 'Contact Form', name + ' submitted: ' + subject);
+      }
+      showToast('Opening WhatsApp to send your message...', 'success');
+      document.getElementById('contact-form').reset();
+    });
+
+    // Clear errors on input
+    document.querySelectorAll('.form-input').forEach(function(input) {
+      input.addEventListener('input', function() {
+        this.classList.remove('error');
+        var errorEl = this.parentElement.querySelector('.form-error');
+        if (errorEl) errorEl.classList.remove('visible');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - SaraswatiLibrary</title>
+  <meta name="description" content="Manage your SaraswatiLibrary account. View borrowed books, reservations, reading history, and update your profile.">
+  <meta property="og:title" content="My Account - SaraswatiLibrary">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaraswatiLibrary">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    .account-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .account-stat-mini {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md, 12px);
+      padding: 20px;
+      text-align: center;
+      transition: all var(--transition);
+    }
+    .account-stat-mini:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .account-stat-mini .stat-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .account-stat-mini .stat-value {
+      font-size: 1.5rem;
+    }
+    .account-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .account-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      gap: 4px;
+    }
+    .account-chip-role {
+      background: rgba(139, 92, 246, 0.12);
+      color: #8B5CF6;
+    }
+    .account-chip-membership {
+      background: rgba(14, 165, 233, 0.12);
+      color: var(--accent);
+    }
+    .overview-welcome {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg, 16px);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .overview-welcome h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .overview-welcome p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md, 12px);
+      transition: all 0.2s;
+    }
+    .activity-item:hover {
+      box-shadow: var(--shadow-sm);
+    }
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .activity-icon.borrow {
+      background: rgba(14, 165, 233, 0.12);
+      color: var(--accent);
+    }
+    .activity-icon.return {
+      background: rgba(34, 197, 94, 0.12);
+      color: #16A34A;
+    }
+    .activity-icon.reserve {
+      background: rgba(234, 179, 8, 0.12);
+      color: #CA8A04;
+    }
+    .activity-icon.purchase {
+      background: rgba(139, 92, 246, 0.12);
+      color: #8B5CF6;
+    }
+    .activity-text {
+      flex: 1;
+    }
+    .activity-text strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    .activity-text span {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .borrowed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .borrowed-item {
+      display: flex;
+      gap: 18px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md, 12px);
+      transition: all 0.2s;
+    }
+    .borrowed-item:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .borrowed-img {
+      width: 70px;
+      height: 90px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: var(--img-bg);
+      flex-shrink: 0;
+    }
+    .borrowed-info {
+      flex: 1;
+    }
+    .borrowed-info h4 {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .borrowed-info .author {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .borrowed-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .borrowed-meta i {
+      margin-right: 4px;
+    }
+    .borrowed-status {
+      display: flex;
+      align-items: center;
+    }
+    .settings-form {
+      max-width: 500px;
+    }
+    .settings-form .form-group {
+      margin-bottom: 20px;
+    }
+    .settings-form label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .empty-tab-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-tertiary);
+    }
+    .empty-tab-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .empty-tab-state h3 {
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .empty-tab-state p {
+      font-size: 14px;
+    }
+    .favorites-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .account-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .favorites-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .account-stats-row {
+        grid-template-columns: 1fr;
+      }
+      .favorites-grid {
+        grid-template-columns: 1fr;
+      }
+      .borrowed-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .borrowed-meta {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body data-page="account">
+  <div id="navbar"></div>
+
+  <!-- Account Hero Section -->
+  <section class="account-hero">
+    <div class="container">
+      <div class="account-hero-inner">
+        <div class="account-avatar" id="account-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div>
+          <div class="account-name" id="account-name">Guest User</div>
+          <div class="account-email" id="account-email">Not logged in</div>
+          <div class="account-chips" id="account-chips"></div>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="account-stats-row">
+        <div class="account-stat-mini">
+          <div class="stat-icon" style="color: var(--accent);"><i class="fas fa-book-reader"></i></div>
+          <div class="stat-value" id="stat-borrowed">0</div>
+          <div class="stat-label">Currently Borrowed</div>
+        </div>
+        <div class="account-stat-mini">
+          <div class="stat-icon" style="color: #16A34A;"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-value" id="stat-returned">0</div>
+          <div class="stat-label">Books Returned</div>
+        </div>
+        <div class="account-stat-mini">
+          <div class="stat-icon" style="color: #CA8A04;"><i class="fas fa-calendar-check"></i></div>
+          <div class="stat-value" id="stat-reservations">0</div>
+          <div class="stat-label">Reservations</div>
+        </div>
+        <div class="account-stat-mini">
+          <div class="stat-icon" style="color: #8B5CF6;"><i class="fas fa-heart"></i></div>
+          <div class="stat-value" id="stat-favorites">0</div>
+          <div class="stat-label">Favorites</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabs Section -->
+  <section class="section">
+    <div class="container">
+      <div class="tabs" id="account-tabs">
+        <button class="tab active" data-tab="overview"><i class="fas fa-home"></i> Overview</button>
+        <button class="tab" data-tab="borrowed"><i class="fas fa-book"></i> Borrowed Books</button>
+        <button class="tab" data-tab="favorites"><i class="fas fa-heart"></i> Favorites</button>
+        <button class="tab" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
+      </div>
+
+      <!-- Overview Tab -->
+      <div class="tab-content" id="tab-overview">
+        <div class="overview-welcome">
+          <h3 id="welcome-text">Welcome back!</h3>
+          <p>Manage your library account, track borrowed books, and update your preferences all in one place.</p>
+        </div>
+        <h4 class="mb-4">Recent Activity</h4>
+        <div class="activity-list" id="activity-list"></div>
+      </div>
+
+      <!-- Borrowed Books Tab -->
+      <div class="tab-content" id="tab-borrowed" style="display:none;">
+        <h4 class="mb-4">Currently Borrowed Books</h4>
+        <div class="borrowed-list" id="borrowed-list"></div>
+      </div>
+
+      <!-- Favorites Tab -->
+      <div class="tab-content" id="tab-favorites" style="display:none;">
+        <h4 class="mb-4">Your Favorite Books</h4>
+        <div class="favorites-grid" id="favorites-grid"></div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="tab-settings" style="display:none;">
+        <h4 class="mb-4">Account Settings</h4>
+        <div class="settings-form">
+          <div class="form-group">
+            <label for="settings-name"><i class="fas fa-user"></i> Full Name</label>
+            <input type="text" id="settings-name" class="form-input" placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label for="settings-email"><i class="fas fa-envelope"></i> Email</label>
+            <input type="email" id="settings-email" class="form-input" placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="settings-phone"><i class="fas fa-phone"></i> Phone</label>
+            <input type="tel" id="settings-phone" class="form-input" placeholder="Enter your phone number">
+          </div>
+          <button class="btn btn-primary" id="save-settings-btn">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../../js/data.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/users.js"></script>
+  <script src="../../js/notifications.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var user = Auth.getUser();
+      if (!user) {
+        window.location.href = getBasePath() + 'library/auth/login/index.html';
+        return;
+      }
+
+      // Populate hero
+      var initials = (user.name || 'U').split(' ').map(function (w) { return w.charAt(0); }).join('').toUpperCase().substring(0, 2);
+      document.getElementById('account-avatar').textContent = initials;
+      document.getElementById('account-name').textContent = user.name || 'User';
+      document.getElementById('account-email').textContent = user.email || user.phone || 'No contact info';
+
+      var chipsHTML = '';
+      chipsHTML += '<span class="account-chip account-chip-role"><i class="fas fa-shield-alt"></i> ' + (user.role === 'admin' ? 'Admin' : 'Member') + '</span>';
+      chipsHTML += '<span class="account-chip account-chip-membership"><i class="fas fa-id-card"></i> ' + (user.membershipType || 'Standard') + '</span>';
+      document.getElementById('account-chips').innerHTML = chipsHTML;
+
+      // Populate stats
+      document.getElementById('stat-borrowed').textContent = user.currentlyBorrowed || 0;
+      document.getElementById('stat-returned').textContent = user.booksReturned || 0;
+      document.getElementById('stat-reservations').textContent = user.reservations || 0;
+
+      var favs = JSON.parse(localStorage.getItem('librivista_favorites') || '[]');
+      document.getElementById('stat-favorites').textContent = favs.length;
+
+      // Welcome text
+      document.getElementById('welcome-text').textContent = 'Welcome back, ' + (user.name || 'User') + '!';
+
+      // Activity list
+      var activityList = document.getElementById('activity-list');
+      var activities = [
+        { icon: 'borrow', fa: 'fas fa-book', text: 'Borrowed "Atomic Habits"', date: '2 days ago' },
+        { icon: 'return', fa: 'fas fa-undo', text: 'Returned "Deep Work"', date: '5 days ago' },
+        { icon: 'reserve', fa: 'fas fa-bookmark', text: 'Reserved "The Psychology of Money"', date: '1 week ago' },
+        { icon: 'purchase', fa: 'fas fa-shopping-cart', text: 'Purchased "Rich Dad Poor Dad"', date: '2 weeks ago' }
+      ];
+      activityList.innerHTML = activities.map(function (a) {
+        return '<div class="activity-item">' +
+          '<div class="activity-icon ' + a.icon + '"><i class="' + a.fa + '"></i></div>' +
+          '<div class="activity-text"><strong>' + a.text + '</strong><span>' + a.date + '</span></div>' +
+        '</div>';
+      }).join('');
+
+      // Borrowed books list
+      var borrowedBooks = [
+        { title: 'Atomic Habits', author: 'James Clear', image: 'images/footer/book19.svg', borrowed: 'Jul 08, 2026', due: 'Jul 22, 2026', status: 'Active' },
+        { title: 'The Alchemist', author: 'Paulo Coelho', image: 'images/books/book_14618737.jpg', borrowed: 'Jul 05, 2026', due: 'Jul 19, 2026', status: 'Active' }
+      ];
+      var borrowedBase = getBasePath();
+      var borrowedContainer = document.getElementById('borrowed-list');
+      if (borrowedBooks.length === 0) {
+        borrowedContainer.innerHTML = '<div class="empty-tab-state"><i class="fas fa-book-open"></i><h3>No borrowed books</h3><p>You haven\'t borrowed any books yet.</p></div>';
+      } else {
+        borrowedContainer.innerHTML = borrowedBooks.map(function (b) {
+          return '<div class="borrowed-item">' +
+            '<img src="' + borrowedBase + b.image + '" alt="' + b.title + '" class="borrowed-img">' +
+            '<div class="borrowed-info">' +
+              '<h4>' + b.title + '</h4>' +
+              '<div class="author">' + b.author + '</div>' +
+              '<div class="borrowed-meta">' +
+                '<span><i class="fas fa-calendar-plus"></i> Borrowed: ' + b.borrowed + '</span>' +
+                '<span><i class="fas fa-calendar-minus"></i> Due: ' + b.due + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="borrowed-status"><span class="chip chip-success">' + b.status + '</span></div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // Favorites grid
+      var favContainer = document.getElementById('favorites-grid');
+      if (favs.length === 0) {
+        favContainer.innerHTML = '<div class="empty-tab-state" style="grid-column: 1/-1;"><i class="fas fa-heart"></i><h3>No favorites yet</h3><p>Books you favorite will appear here.</p></div>';
+      } else {
+        var favHTML = '';
+        favs.forEach(function (favId) {
+          var book = allBooks.find(function (b) { return b._id === favId || String(b.id) === String(favId); });
+          if (book) favHTML += renderBookCard(book);
+        });
+        favContainer.innerHTML = favHTML || '<div class="empty-tab-state" style="grid-column: 1/-1;"><i class="fas fa-heart"></i><h3>No favorites yet</h3><p>Books you favorite will appear here.</p></div>';
+      }
+
+      // Settings form
+      document.getElementById('settings-name').value = user.name || '';
+      document.getElementById('settings-email').value = user.email || '';
+      document.getElementById('settings-phone').value = user.phone || '';
+
+      document.getElementById('save-settings-btn').addEventListener('click', function () {
+        user.name = document.getElementById('settings-name').value.trim();
+        user.email = document.getElementById('settings-email').value.trim();
+        user.phone = document.getElementById('settings-phone').value.trim();
+        Auth.setUser(user);
+        showToast('Settings saved successfully!', 'success');
+        setTimeout(function () { window.location.reload(); }, 800);
+      });
+
+      // Tab switching
+      var tabs = document.querySelectorAll('#account-tabs .tab');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          tabs.forEach(function (t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          var target = tab.getAttribute('data-tab');
+          document.querySelectorAll('.tab-content').forEach(function (c) { c.style.display = 'none'; });
+          document.getElementById('tab-' + target).style.display = 'block';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

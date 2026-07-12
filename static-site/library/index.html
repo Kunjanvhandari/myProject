@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library - SaraswatiLibrary</title>
+  <meta name="description" content="Explore SaraswatiLibrary's complete library. Discover curated collections, featured reads, and educational resources for Class 1-12 students.">
+  <meta property="og:title" content="Library - SaraswatiLibrary">
+  <meta property="og:description" content="Explore curated collections and educational resources for Class 1-12 students.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaraswatiLibrary">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .hero-page .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 20px;
+      border-radius: 50px;
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      position: relative;
+    }
+    .hero-page .hero-badge i {
+      font-size: 16px;
+    }
+    .library-hero-desc {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 15px;
+      max-width: 550px;
+      margin: 16px auto 0;
+      line-height: 1.7;
+      position: relative;
+    }
+    .classes-section {
+      padding: 80px 0;
+      background: var(--bg-primary);
+    }
+    .classes-section .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .classes-section .section-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover, #5a4fcf));
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .classes-section .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 12px 0;
+      line-height: 1.2;
+    }
+    .classes-section .section-subheading {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 28px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .class-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px 36px;
+      border-radius: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      text-decoration: none;
+      text-align: center;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    .class-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      border-radius: 20px 20px 0 0;
+      transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .class-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+      border-color: transparent;
+    }
+    .class-card:hover::before {
+      height: 6px;
+    }
+    .class-card:hover .class-card-icon {
+      transform: scale(1.15) rotate(-5deg);
+    }
+    .class-card:hover h3 {
+      color: var(--accent);
+    }
+    .class-card-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin-bottom: 18px;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      z-index: 1;
+    }
+    .class-card h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 6px;
+      transition: color 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .class-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 0;
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+    }
+
+    .class-card:nth-child(1) .class-card-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: #fff; }
+    .class-card:nth-child(1)::before { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+
+    .class-card:nth-child(2) .class-card-icon { background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff; }
+    .class-card:nth-child(2)::before { background: linear-gradient(135deg, #f093fb, #f5576c); }
+
+    .class-card:nth-child(3) .class-card-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #fff; }
+    .class-card:nth-child(3)::before { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .class-card:nth-child(4) .class-card-icon { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #fff; }
+    .class-card:nth-child(4)::before { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+    .class-card:nth-child(5) .class-card-icon { background: linear-gradient(135deg, #fa709a, #fee140); color: #fff; }
+    .class-card:nth-child(5)::before { background: linear-gradient(135deg, #fa709a, #fee140); }
+
+    .class-card:nth-child(6) .class-card-icon { background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: #fff; }
+    .class-card:nth-child(6)::before { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+
+    .class-card:nth-child(7) .class-card-icon { background: linear-gradient(135deg, #fccb90, #d57eeb); color: #fff; }
+    .class-card:nth-child(7)::before { background: linear-gradient(135deg, #fccb90, #d57eeb); }
+
+    .class-card:nth-child(8) .class-card-icon { background: linear-gradient(135deg, #e0c3fc, #8ec5fc); color: #fff; }
+    .class-card:nth-child(8)::before { background: linear-gradient(135deg, #e0c3fc, #8ec5fc); }
+
+    .class-card:nth-child(9) .class-card-icon { background: linear-gradient(135deg, #f5576c, #ff6a88); color: #fff; }
+    .class-card:nth-child(9)::before { background: linear-gradient(135deg, #f5576c, #ff6a88); }
+
+    .class-card:nth-child(10) .class-card-icon { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+    .class-card:nth-child(10)::before { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+    .class-card:nth-child(11) .class-card-icon { background: linear-gradient(135deg, #89f7fe, #66a6ff); color: #fff; }
+    .class-card:nth-child(11)::before { background: linear-gradient(135deg, #89f7fe, #66a6ff); }
+
+    .class-card:nth-child(12) .class-card-icon { background: linear-gradient(135deg, #fddb92, #d1fdff); color: #667eea; }
+    .class-card:nth-child(12)::before { background: linear-gradient(135deg, #fddb92, #d1fdff); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature-card .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .feature-card .feature-link:hover {
+      gap: 10px;
+    }
+    .feature-card .feature-link i {
+      font-size: 11px;
+    }
+
+    @media (max-width: 1024px) {
+      .classes-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+      }
+    }
+    @media (max-width: 768px) {
+      .classes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+      .classes-section .section-heading {
+        font-size: 32px;
+      }
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .classes-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .class-card {
+        padding: 32px 20px 28px;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body data-page="library">
+  <div id="navbar"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-page">
+    <div class="container" style="position: relative; z-index: 2;">
+      <h1 class="hero-page-title">Welcome to SaraswatiLibrary</h1>
+      <p class="hero-page-subtitle">Step into a world of endless possibilities</p>
+      <p class="library-hero-desc">Our library is more than just a building filled with books. It is a sanctuary for knowledge seekers, a haven for curious minds, and a community hub where ideas come alive. Whether you are a student, researcher, or casual reader, we have something special waiting for you.</p>
+      <div class="hero-badge">
+        <i class="fa fa-check-circle"></i>
+        Fully Furnished
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="section" style="background: var(--bg-tertiary);">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card scroll-reveal">
+          <span class="stat-icon"><i class="fas fa-book"></i></span>
+          <div class="stat-value counter" data-target="50000">50,000+</div>
+          <div class="stat-label">Physical Books</div>
+        </div>
+        <div class="stat-card scroll-reveal">
+          <span class="stat-icon"><i class="fas fa-laptop"></i></span>
+          <div class="stat-value counter" data-target="100000">100,000+</div>
+          <div class="stat-label">E-books</div>
+        </div>
+        <div class="stat-card scroll-reveal">
+          <span class="stat-icon"><i class="fas fa-users"></i></span>
+          <div class="stat-value counter" data-target="5000">5,000+</div>
+          <div class="stat-label">Daily Visitors</div>
+        </div>
+        <div class="stat-card scroll-reveal">
+          <span class="stat-icon"><i class="fas fa-star"></i></span>
+          <div class="stat-value counter" data-target="98">98%</div>
+          <div class="stat-label">Satisfaction</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Classes Section -->
+  <section class="classes-section">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip"><i class="fa fa-graduation-cap"></i> Browse by Class</span>
+        <h2 class="section-heading">Explore Resources by Class</h2>
+        <p class="section-subheading">Find curated textbooks, reference materials, and study resources tailored for every class from 1 to 12.</p>
+      </div>
+      <div class="classes-grid">
+        <a href="../library/class/index.html?class=1" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-book-reader"></i></div>
+          <h3>Class 1</h3>
+          <p>Foundation Learning</p>
+        </a>
+        <a href="../library/class/index.html?class=2" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-pen-fancy"></i></div>
+          <h3>Class 2</h3>
+          <p>Building Basics</p>
+        </a>
+        <a href="../library/class/index.html?class=3" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-lightbulb"></i></div>
+          <h3>Class 3</h3>
+          <p>Exploring Knowledge</p>
+        </a>
+        <a href="../library/class/index.html?class=4" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-compass"></i></div>
+          <h3>Class 4</h3>
+          <p>Discovery Path</p>
+        </a>
+        <a href="../library/class/index.html?class=5" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-flask"></i></div>
+          <h3>Class 5</h3>
+          <p>Science & Beyond</p>
+        </a>
+        <a href="../library/class/index.html?class=6" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-atom"></i></div>
+          <h3>Class 6</h3>
+          <p>Deep Dive Learning</p>
+        </a>
+        <a href="../library/class/index.html?class=7" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-microscope"></i></div>
+          <h3>Class 7</h3>
+          <p>Advanced Concepts</p>
+        </a>
+        <a href="../library/class/index.html?class=8" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-calculator"></i></div>
+          <h3>Class 8</h3>
+          <p>Logical Thinking</p>
+        </a>
+        <a href="../library/class/index.html?class=9" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-rocket"></i></div>
+          <h3>Class 9</h3>
+          <p>Pre-Senior Foundation</p>
+        </a>
+        <a href="../library/class/index.html?class=10" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-award"></i></div>
+          <h3>Class 10</h3>
+          <p>Board Exam Prep</p>
+        </a>
+        <a href="../library/class/index.html?class=11" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-graduation-cap"></i></div>
+          <h3>Class 11</h3>
+          <p>Stream Specialization</p>
+        </a>
+        <a href="../library/class/index.html?class=12" class="class-card">
+          <div class="class-card-icon"><i class="fa fa-trophy"></i></div>
+          <h3>Class 12</h3>
+          <p>Senior Secondary</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip"><i class="fa fa-star"></i> Our Features</span>
+        <h2 class="section-heading">Why Choose Our Library?</h2>
+        <p class="section-subheading">We offer a comprehensive range of services designed to enhance your reading and learning experience.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fas fa-book-open"></i>
+          </div>
+          <h4 class="feature-title">Vast Collection</h4>
+          <p class="feature-desc">Access over 50,000 physical books and 100,000+ e-books spanning every genre and subject imaginable.</p>
+          <a href="books/index.html" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h4 class="feature-title">Community Hub</h4>
+          <p class="feature-desc">Join book clubs, attend author talks, and connect with fellow readers in our vibrant community space.</p>
+          <a href="books/index.html" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fas fa-laptop"></i>
+          </div>
+          <h4 class="feature-title">Digital Access</h4>
+          <p class="feature-desc">Enjoy seamless digital lending with e-books, audiobooks, and online research databases available 24/7.</p>
+          <a href="books/index.html" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fas fa-book-reader"></i>
+          </div>
+          <h4 class="feature-title">Reading Programs</h4>
+          <p class="feature-desc">Participate in structured reading challenges, literacy programs, and educational workshops for all ages.</p>
+          <a href="books/index.html" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fas fa-couch"></i>
+          </div>
+          <h4 class="feature-title">Cozy Spaces</h4>
+          <p class="feature-desc">Relax in our comfortable reading lounges, quiet study areas, and modern collaborative workspaces.</p>
+          <a href="books/index.html" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fas fa-headphones"></i>
+          </div>
+          <h4 class="feature-title">Expert Guidance</h4>
+          <p class="feature-desc">Our knowledgeable librarians are always ready to help you find exactly what you need and discover new reads.</p>
+          <a href="books/index.html" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/users.js"></script>
+  <script src="../js/notifications.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

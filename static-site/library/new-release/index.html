@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Releases - SaraswatiLibrary</title>
+  <meta name="description" content="Discover the latest additions to SaraswatiLibrary's collection. Browse new releases across fiction, non-fiction, science, technology, and more.">
+  <meta property="og:title" content="New Releases - SaraswatiLibrary">
+  <meta property="og:description" content="Discover the latest additions to our growing book collection.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaraswatiLibrary">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="../../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    .hero-page-gradient {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0ea5e9 100%);
+    }
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .filter-chip {
+      padding: 8px 20px;
+      border-radius: 50px;
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .filter-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(14, 165, 233, 0.04);
+    }
+    .filter-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .nr-results-info {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .nr-results-info strong {
+      color: var(--text-primary);
+    }
+    .no-results {
+      text-align: center;
+      padding: 60px 24px;
+      grid-column: 1 / -1;
+    }
+    .no-results i {
+      font-size: 48px;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+    }
+    .no-results h3 {
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .no-results p {
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body data-page="new-release">
+  <div id="navbar"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-page hero-page-gradient">
+    <div class="container" style="position: relative; z-index: 2;">
+      <div class="section-chip" style="margin: 0 auto 12px;"><i class="fas fa-star"></i> Just Arrived</div>
+      <h1 class="hero-page-title">New Releases</h1>
+      <p class="hero-page-subtitle">Discover the latest additions to our collection, freshly curated for our readers</p>
+    </div>
+  </section>
+
+  <!-- New Releases Section -->
+  <section class="section">
+    <div class="container">
+      <!-- Filter Chips -->
+      <div class="filter-chips" id="filter-chips"></div>
+
+      <!-- Results Info -->
+      <div class="nr-results-info" id="nr-results-info"></div>
+
+      <!-- Books Grid -->
+      <div id="new-releases-grid" class="grid grid-4"></div>
+    </div>
+  </section>
+
+  <div id="footer"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../../js/data.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/users.js"></script>
+  <script src="../../js/notifications.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var container = document.getElementById('new-releases-grid');
+      var resultsInfo = document.getElementById('nr-results-info');
+      var chipsContainer = document.getElementById('filter-chips');
+
+      // Map new releases to categories using allBooks lookup
+      var booksWithCategory = newReleases.map(function (book) {
+        var match = allBooks.find(function (b) { return b.title === book.title; });
+        return {
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          image: book.image,
+          rating: book.rating,
+          badge: book.badge,
+          pdfFile: book.pdfFile || null,
+          category: match ? match.category : 'Textbooks'
+        };
+      });
+
+      // Collect unique categories
+      var catMap = {};
+      booksWithCategory.forEach(function (b) {
+        if (!catMap[b.category]) catMap[b.category] = 0;
+        catMap[b.category]++;
+      });
+      var catNames = Object.keys(catMap).sort();
+
+      // Render filter chips
+      var chipsHTML = '<button class="filter-chip active" data-category="All">All</button>';
+      catNames.forEach(function (cat) {
+        chipsHTML += '<button class="filter-chip" data-category="' + cat + '">' + cat + ' (' + catMap[cat] + ')</button>';
+      });
+      chipsContainer.innerHTML = chipsHTML;
+
+      var currentFilter = 'All';
+
+      function renderReleases(filter) {
+        var filtered = booksWithCategory;
+        if (filter !== 'All') {
+          filtered = filtered.filter(function (b) { return b.category === filter; });
+        }
+
+        if (resultsInfo) {
+          resultsInfo.innerHTML = 'Showing <strong>' + filtered.length + '</strong> new release' + (filtered.length !== 1 ? 's' : '') +
+            (filter !== 'All' ? ' in <strong>' + filter + '</strong>' : '');
+        }
+
+        if (filtered.length === 0) {
+          container.innerHTML =
+            '<div class="no-results">' +
+              '<i class="fas fa-search"></i>' +
+              '<h3>No new releases found</h3>' +
+              '<p>Try selecting a different category.</p>' +
+            '</div>';
+          return;
+        }
+
+        var html = '';
+        filtered.forEach(function (book) {
+          var base = getBasePath();
+          var starsHTML = renderStars(book.rating);
+          html +=
+            '<div class="book-card scroll-reveal" data-id="' + book.id + '">' +
+              '<div class="book-card-image-wrapper">' +
+                '<span class="book-badge">' + book.badge + '</span>' +
+                '<img src="' + base + book.image + '" alt="' + book.title + '" class="book-card-image" loading="lazy">' +
+                '<div class="book-card-overlay">' +
+                  '<button class="quick-view-btn" onclick="handleQuickView(\'' + book.id + '\')" title="Quick View"><i class="fa fa-eye"></i></button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="book-card-body">' +
+                '<h4 class="book-card-title" title="' + book.title + '">' + book.title + '</h4>' +
+                '<p class="book-card-author">' + book.author + '</p>' +
+                '<div class="book-card-rating">' +
+                  starsHTML +
+                  '<span class="rating-text">' + book.rating.toFixed(1) + '</span>' +
+                '</div>' +
+                '<div class="book-card-buttons">' +
+                  (book.pdfFile
+                    ? '<a href="../pdf/index.html?file=' + encodeURIComponent(book.pdfFile) + '" class="btn btn-sm btn-primary"><i class="fa fa-book-open"></i> Read</a>'
+                    : '<button class="btn btn-sm btn-primary" style="opacity:0.5;"><i class="fa fa-book-open"></i> Read</button>') +
+                  (book.pdfFile
+                    ? '<a href="../../' + book.pdfFile + '" class="btn btn-sm btn-outline" target="_blank"><i class="fa fa-download"></i> PDF</a>'
+                    : '<button class="btn btn-sm btn-outline" style="opacity:0.5;"><i class="fa fa-download"></i> PDF</button>') +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        });
+        container.innerHTML = html;
+        initScrollReveal();
+      }
+
+      // Reserve handler
+      window.handleReserve = function (bookId, title) {
+        if (!Auth.isAuthenticated) {
+          showToast('Please sign in to reserve books.', 'warning');
+          return;
+        }
+        showToast('"' + title + '" has been reserved!', 'success');
+      };
+
+      // Chip click handlers
+      chipsContainer.addEventListener('click', function (e) {
+        var chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        chipsContainer.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        currentFilter = chip.getAttribute('data-category');
+        renderReleases(currentFilter);
+      });
+
+      renderReleases('All');
+    });
+  </script>
+</body>
+</html>

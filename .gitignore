@@ -15,3 +15,6 @@ uploads/*
 !uploads/.gitkeep
 test-upload.*
 my-app/backend/test-upload.*
+
+# Local Netlify folder
+.netlify

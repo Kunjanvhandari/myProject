@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - SaraswatiLibrary</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    .account-page-wrapper {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+    .account-columns {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    .account-sidebar {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 28px 20px;
+      text-align: center;
+      position: sticky;
+      top: calc(var(--navbar-height) + 20px);
+      box-shadow: var(--shadow-sm);
+    }
+    .account-avatar-wrap {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 16px;
+    }
+    .account-avatar-wrap img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--border-color);
+      background: var(--bg-tertiary);
+    }
+    .account-avatar-letter {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(139,92,246,0.12));
+      border: 3px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 auto 16px;
+    }
+    .account-sidebar-name {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .account-sidebar-email {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+    .account-role-badge {
+      display: inline-block;
+      padding: 3px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .account-role-badge.admin {
+      background: rgba(139,92,246,0.12);
+      color: #8B5CF6;
+    }
+    .account-role-badge.member {
+      background: rgba(14,165,233,0.1);
+      color: var(--accent);
+    }
+    .account-sidebar-divider {
+      border: none;
+      border-top: 1px solid var(--border-color);
+      margin: 16px 0;
+    }
+    .account-nav {
+      text-align: left;
+    }
+    .account-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--transition-fast);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .account-nav-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    .account-nav-item.active {
+      background: rgba(14,165,233,0.08);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .account-nav-item i {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+    }
+    .account-nav-item.logout {
+      color: #EF4444;
+    }
+    .account-nav-item.logout:hover {
+      background: rgba(239,68,68,0.08);
+    }
+    .account-content-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      min-height: 400px;
+    }
+    .account-section {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .account-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .account-section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .account-section-title i {
+      color: var(--accent);
+    }
+    .account-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .account-info-item {
+      padding: 14px 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+    }
+    .account-info-item.full {
+      grid-column: 1 / -1;
+    }
+    .account-info-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+    .account-info-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .account-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .account-form-group {
+      margin-bottom: 4px;
+    }
+    .account-form-group.full {
+      grid-column: 1 / -1;
+    }
+    .account-form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .account-form-group label i {
+      color: var(--accent);
+      margin-right: 4px;
+      width: 14px;
+    }
+    .account-form-group input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border-strong);
+      background: var(--bg-secondary);
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+    .account-form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
+    }
+    .account-form-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .account-photo-upload-area {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      border: 2px dashed var(--border-strong);
+    }
+    .account-photo-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+    }
+    .account-photo-upload-label {
+      cursor: pointer;
+    }
+    .account-photo-input {
+      display: none;
+    }
+    .account-book-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .account-book-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      transition: all var(--transition-fast);
+    }
+    .account-book-item:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: rgba(14,165,233,0.15);
+    }
+    .account-book-thumb {
+      width: 48px;
+      height: 64px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+      padding: 4px;
+    }
+    .account-book-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .account-book-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .account-book-author {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .account-book-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .account-book-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .account-book-meta .overdue {
+      color: #EF4444;
+      font-weight: 600;
+    }
+    .account-book-actions {
+      flex-shrink: 0;
+    }
+    .account-empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-tertiary);
+    }
+    .account-empty i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+    .account-empty h4 {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .account-empty p {
+      font-size: 13px;
+      color: var(--text-tertiary);
+    }
+    .password-strength {
+      margin-top: 6px;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--border-color);
+      overflow: hidden;
+    }
+    .password-strength-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .password-strength-text {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .password-strength-text.weak { color: #EF4444; }
+    .password-strength-text.medium { color: #F59E0B; }
+    .password-strength-text.strong { color: #22C55E; }
+    .pw-input-wrap {
+      position: relative;
+    }
+    .pw-input-wrap input {
+      padding-right: 40px;
+    }
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+    }
+    .pw-toggle:hover {
+      color: var(--text-primary);
+    }
+    .settings-section {
+      margin-bottom: 28px;
+    }
+    .settings-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-section-title i {
+      color: var(--accent);
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+    }
+    .settings-row-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .settings-row-desc {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .toggle-switch {
+      width: 48px;
+      height: 26px;
+      border-radius: 13px;
+      background: var(--border-strong);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      border: none;
+      padding: 0;
+    }
+    .toggle-switch.on {
+      background: var(--accent);
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.on::after {
+      transform: translateX(22px);
+    }
+    .danger-zone {
+      border: 1.5px solid rgba(239,68,68,0.2);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      background: rgba(239,68,68,0.03);
+    }
+    .danger-zone h5 {
+      color: #EF4444;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .danger-zone p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .loading-account {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loading-spinner-acc {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: acc-spin 0.7s linear infinite;
+    }
+    @keyframes acc-spin {
+      to { transform: rotate(360deg); }
+    }
+    @media (max-width: 900px) {
+      .account-columns {
+        grid-template-columns: 1fr;
+      }
+      .account-sidebar {
+        position: static;
+      }
+      .account-info-grid {
+        grid-template-columns: 1fr;
+      }
+      .account-form-grid {
+        grid-template-columns: 1fr;
+      }
+      .account-form-group.full {
+        grid-column: 1;
+      }
+    }
+    @media (max-width: 600px) {
+      .account-page-wrapper {
+        padding: 16px 12px 40px;
+      }
+      .account-content-card {
+        padding: 20px 16px;
+      }
+      .account-book-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .account-book-thumb {
+        width: 100%;
+        height: 130px;
+      }
+      .account-book-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body data-page="account">
+
+  <div id="navbar"></div>
+
+  <div class="loading-account" id="loading-account">
+    <div class="loading-spinner-acc"></div>
+    <span style="font-size:14px;color:var(--text-secondary);font-weight:500;">Loading your account...</span>
+  </div>
+
+  <main class="account-page-wrapper" id="account-main" style="display:none;">
+    <div class="account-columns">
+      <aside class="account-sidebar" id="account-sidebar"></aside>
+      <div class="account-content-card" id="account-content"></div>
+    </div>
+  </main>
+
+  <div class="confirm-overlay" id="confirm-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:center;justify-content:center;padding:24px;">
+    <div class="confirm-dialog" id="confirm-dialog" style="background:var(--bg-secondary);border-radius:var(--radius-xl);padding:28px;max-width:400px;width:100%;box-shadow:var(--shadow-xl);text-align:center;"></div>
+  </div>
+
+  <div id="footer"></div>
+  <div id="toast-container"></div>
+
+  <input type="file" class="account-photo-input" id="photo-upload-input" accept="image/*">
+
+  <script src="../../js/data.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/users.js"></script>
+  <script src="../../js/notifications.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/main.js"></script>
+  <script>
+    (function() {
+      var user = Auth.getUser();
+      if (!user) {
+        window.location.href = getBasePath() + 'library/auth/login/index.html';
+        return;
+      }
+
+      var base = getBasePath();
+      var activeSection = 'profile';
+      var photoInput = document.getElementById('photo-upload-input');
+
+      initTheme();
+
+      function refreshUser() {
+        user = Auth.getUser();
+        if (!user) {
+          window.location.href = base + 'library/auth/login/index.html';
+          return;
+        }
+      }
+
+      function lookupBook(bookId) {
+        if (typeof allBooks === 'undefined') return null;
+        for (var i = 0; i < allBooks.length; i++) {
+          if (String(allBooks[i]._id || allBooks[i].id) === String(bookId)) {
+            return allBooks[i];
+          }
+        }
+        return null;
+      }
+
+      function fmtDate(isoStr) {
+        if (!isoStr) return 'N/A';
+        var d = new Date(isoStr);
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      function fmtDateTime(isoStr) {
+        if (!isoStr) return 'N/A';
+        var d = new Date(isoStr);
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function isOverdue(dueDate) {
+        if (!dueDate) return false;
+        return new Date(dueDate) < new Date();
+      }
+
+      function esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      /* ========== Sidebar ========== */
+      function renderSidebar() {
+        var photoHTML = user.profilePhoto
+          ? '<img src="' + esc(user.profilePhoto) + '" alt="Profile">'
+          : '<div class="account-avatar-letter">' + (user.name || user.username || 'U').charAt(0).toUpperCase() + '</div>';
+
+        var roleClass = user.role === 'admin' ? 'admin' : 'member';
+        var roleLabel = user.role === 'admin' ? 'Administrator' : 'Member';
+
+        var navItems = [
+          { id: 'profile', icon: 'fa-user', label: 'Profile' },
+          { id: 'edit', icon: 'fa-user-edit', label: 'Edit Profile' },
+          { id: 'password', icon: 'fa-key', label: 'Change Password' },
+          { id: 'borrowed', icon: 'fa-book-open', label: 'Borrowed Books' },
+          { id: 'reserved', icon: 'fa-bookmark', label: 'Reserved Books' },
+          { id: 'history', icon: 'fa-history', label: 'Reading History' },
+          { id: 'settings', icon: 'fa-cog', label: 'Settings' },
+          { id: 'logout', icon: 'fa-sign-out-alt', label: 'Logout' }
+        ];
+
+        var navHTML = '';
+        navItems.forEach(function(item) {
+          var activeClass = item.id === activeSection ? ' active' : '';
+          var logoutClass = item.id === 'logout' ? ' logout' : '';
+          navHTML += '<button class="account-nav-item' + activeClass + logoutClass + '" data-section="' + item.id + '"><i class="fa ' + item.icon + '"></i> ' + item.label + '</button>';
+        });
+
+        document.getElementById('account-sidebar').innerHTML =
+          '<div class="account-avatar-wrap">' + photoHTML + '</div>' +
+          '<div class="account-sidebar-name">' + esc(user.name || user.username || 'User') + '</div>' +
+          '<div class="account-sidebar-email">' + esc(user.email || '') + '</div>' +
+          '<span class="account-role-badge ' + roleClass + '">' + roleLabel + '</span>' +
+          '<hr class="account-sidebar-divider">' +
+          '<div class="account-nav">' + navHTML + '</div>';
+
+        document.querySelectorAll('.account-nav-item').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var section = btn.getAttribute('data-section');
+            if (section === 'logout') {
+              Auth.logout();
+              return;
+            }
+            switchSection(section);
+          });
+        });
+      }
+
+      /* ========== Section Switching ========== */
+      function switchSection(sectionId) {
+        activeSection = sectionId;
+        window.location.hash = sectionId;
+        renderSidebar();
+        renderContent();
+      }
+
+      /* ========== Content Rendering ========== */
+      function renderContent() {
+        var renderers = {
+          profile: renderProfile,
+          edit: renderEditProfile,
+          password: renderChangePassword,
+          borrowed: renderBorrowed,
+          reserved: renderReserved,
+          history: renderHistory,
+          settings: renderSettings
+        };
+
+        var container = document.getElementById('account-content');
+        var renderer = renderers[activeSection];
+        if (renderer) {
+          container.innerHTML = renderer();
+        } else {
+          container.innerHTML = '<p>Section not found.</p>';
+        }
+      }
+
+      /* ========== Section: Profile ========== */
+      function renderProfile() {
+        var loginCount = user.loginCount || 0;
+        var lastLogin = user.lastLogin || user.joinedAt;
+        return '' +
+          '<div class="account-section-title"><i class="fa fa-user"></i> Profile Information</div>' +
+          '<div class="account-info-grid">' +
+            '<div class="account-info-item"><div class="account-info-label">Full Name</div><div class="account-info-value">' + esc(user.name || '\u2014') + '</div></div>' +
+            '<div class="account-info-item"><div class="account-info-label">Username</div><div class="account-info-value">@' + esc(user.username || '\u2014') + '</div></div>' +
+            '<div class="account-info-item"><div class="account-info-label">Email Address</div><div class="account-info-value">' + esc(user.email || '\u2014') + '</div></div>' +
+            '<div class="account-info-item"><div class="account-info-label">Phone Number</div><div class="account-info-value">' + esc(user.phone || '\u2014') + '</div></div>' +
+            '<div class="account-info-item"><div class="account-info-label">Member Since</div><div class="account-info-value">' + fmtDate(user.joinedAt) + '</div></div>' +
+            '<div class="account-info-item"><div class="account-info-label">Last Login</div><div class="account-info-value">' + fmtDateTime(lastLogin) + '</div></div>' +
+            '<div class="account-info-item"><div class="account-info-label">Total Logins</div><div class="account-info-value">' + loginCount + '</div></div>' +
+          '</div>';
+      }
+
+      /* ========== Section: Edit Profile ========== */
+      function renderEditProfile() {
+        return '' +
+          '<div class="account-section-title"><i class="fa fa-user-edit"></i> Edit Profile</div>' +
+          '<form id="edit-profile-form">' +
+            '<div class="account-form-grid">' +
+              '<div class="account-form-group full account-photo-upload-area" id="photo-upload-area">' +
+                (user.profilePhoto
+                  ? '<img src="' + esc(user.profilePhoto) + '" alt="Preview" class="account-photo-preview" id="photo-preview-img">'
+                  : '<div class="account-photo-preview" id="photo-preview-placeholder" style="display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--text-tertiary);"><i class="fa fa-user"></i></div>') +
+                '<div>' +
+                  '<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Profile Photo</div>' +
+                  '<div style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px;">JPEG, PNG, GIF or WebP. Max 2MB.</div>' +
+                  '<div style="display:flex;gap:8px;">' +
+                    '<label class="btn btn-sm btn-primary account-photo-upload-label" for="photo-upload-input"><i class="fa fa-camera"></i> Upload Photo</label>' +
+                    (user.profilePhoto ? '<button type="button" class="btn btn-sm btn-danger" onclick="deletePhoto()"><i class="fa fa-trash"></i> Delete</button>' : '') +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="account-form-group"><label><i class="fa fa-user"></i> Full Name</label><input type="text" id="edit-name" value="' + esc(user.name || '') + '"></div>' +
+              '<div class="account-form-group"><label><i class="fa fa-at"></i> Username</label><input type="text" id="edit-username" value="' + esc(user.username || '') + '"></div>' +
+              '<div class="account-form-group full"><label><i class="fa fa-envelope"></i> Email</label><input type="email" id="edit-email" value="' + esc(user.email || '') + '"></div>' +
+              '<div class="account-form-group"><label><i class="fa fa-phone"></i> Phone</label><input type="tel" id="edit-phone" value="' + esc(user.phone || '') + '"></div>' +
+            '</div>' +
+            '<div id="edit-error" style="display:none;color:#EF4444;font-size:13px;margin-bottom:12px;"></div>' +
+            '<div class="account-form-actions">' +
+              '<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Save Changes</button>' +
+            '</div>' +
+          '</form>';
+      }
+
+      /* ========== Section: Change Password ========== */
+      function renderChangePassword() {
+        return '' +
+          '<div class="account-section-title"><i class="fa fa-key"></i> Change Password</div>' +
+          '<form id="password-form">' +
+            '<div class="account-form-grid">' +
+              '<div class="account-form-group full">' +
+                '<label><i class="fa fa-lock"></i> Current Password</label>' +
+                '<div class="pw-input-wrap">' +
+                  '<input type="password" id="pw-current" placeholder="Enter current password" required>' +
+                  '<button type="button" class="pw-toggle" onclick="togglePW(\'pw-current\', this)"><i class="fa fa-eye"></i></button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="account-form-group">' +
+                '<label><i class="fa fa-lock"></i> New Password</label>' +
+                '<div class="pw-input-wrap">' +
+                  '<input type="password" id="pw-new" placeholder="Min 6 characters" required minlength="6" oninput="checkPasswordStrength(this.value)">' +
+                  '<button type="button" class="pw-toggle" onclick="togglePW(\'pw-new\', this)"><i class="fa fa-eye"></i></button>' +
+                '</div>' +
+                '<div class="password-strength"><div class="password-strength-bar" id="pw-strength-bar"></div></div>' +
+                '<div class="password-strength-text" id="pw-strength-text"></div>' +
+              '</div>' +
+              '<div class="account-form-group">' +
+                '<label><i class="fa fa-lock"></i> Confirm New Password</label>' +
+                '<div class="pw-input-wrap">' +
+                  '<input type="password" id="pw-confirm" placeholder="Re-enter new password" required minlength="6">' +
+                  '<button type="button" class="pw-toggle" onclick="togglePW(\'pw-confirm\', this)"><i class="fa fa-eye"></i></button>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div id="pw-error" style="display:none;color:#EF4444;font-size:13px;margin-bottom:12px;"></div>' +
+            '<div class="account-form-actions">' +
+              '<button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Change Password</button>' +
+            '</div>' +
+          '</form>';
+      }
+
+      /* ========== Section: Borrowed Books ========== */
+      function renderBorrowed() {
+        var borrowed = user.borrowedBooks || [];
+        if (borrowed.length === 0) {
+          return '<div class="account-section-title"><i class="fa fa-book-open"></i> Borrowed Books</div>' +
+            '<div class="account-empty"><i class="fa fa-book-open"></i><h4>No Borrowed Books</h4><p>You have not borrowed any books yet.</p></div>';
+        }
+        var html = '<div class="account-section-title"><i class="fa fa-book-open"></i> Borrowed Books <span style="font-size:13px;font-weight:500;color:var(--text-tertiary);">(' + borrowed.length + ')</span></div><div class="account-book-list">';
+        borrowed.forEach(function(entry) {
+          var book = lookupBook(entry.bookId);
+          var title = book ? book.title : 'Book #' + entry.bookId;
+          var author = book ? book.author : 'Unknown';
+          var cover = book ? (book.coverImage || book.image || '') : '';
+          var coverSrc = cover ? (base + cover) : '';
+          var due = entry.dueDate;
+          var overdue = isOverdue(due);
+          html +=
+            '<div class="account-book-item">' +
+              (coverSrc ? '<img src="' + esc(coverSrc) + '" alt="' + esc(title) + '" class="account-book-thumb" onerror="this.style.display=\'none\'">' : '') +
+              '<div class="account-book-info">' +
+                '<div class="account-book-title">' + esc(title) + '</div>' +
+                '<div class="account-book-author">' + esc(author) + '</div>' +
+                '<div class="account-book-meta">' +
+                  '<span><i class="fa fa-calendar"></i> Borrowed: ' + fmtDate(entry.borrowedAt) + '</span>' +
+                  '<span class="' + (overdue ? 'overdue' : '') + '"><i class="fa fa-clock"></i> Due: ' + fmtDate(due) + (overdue ? ' (Overdue)' : '') + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="account-book-actions">' +
+                '<button class="btn btn-sm btn-primary" onclick="returnBook(\'' + entry.bookId + '\')"><i class="fa fa-undo"></i> Return</button>' +
+              '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+        return html;
+      }
+
+      /* ========== Section: Reserved Books ========== */
+      function renderReserved() {
+        var reserved = user.reservedBooks || [];
+        if (reserved.length === 0) {
+          return '<div class="account-section-title"><i class="fa fa-bookmark"></i> Reserved Books</div>' +
+            '<div class="account-empty"><i class="fa fa-bookmark"></i><h4>No Reserved Books</h4><p>You have no active reservations.</p></div>';
+        }
+        var html = '<div class="account-section-title"><i class="fa fa-bookmark"></i> Reserved Books <span style="font-size:13px;font-weight:500;color:var(--text-tertiary);">(' + reserved.length + ')</span></div><div class="account-book-list">';
+        reserved.forEach(function(entry) {
+          var book = lookupBook(entry.bookId);
+          var title = book ? book.title : 'Book #' + entry.bookId;
+          var author = book ? book.author : 'Unknown';
+          var cover = book ? (book.coverImage || book.image || '') : '';
+          var coverSrc = cover ? (base + cover) : '';
+          html +=
+            '<div class="account-book-item">' +
+              (coverSrc ? '<img src="' + esc(coverSrc) + '" alt="' + esc(title) + '" class="account-book-thumb" onerror="this.style.display=\'none\'">' : '') +
+              '<div class="account-book-info">' +
+                '<div class="account-book-title">' + esc(title) + '</div>' +
+                '<div class="account-book-author">' + esc(author) + '</div>' +
+                '<div class="account-book-meta">' +
+                  '<span><i class="fa fa-calendar"></i> Reserved: ' + fmtDate(entry.reservedAt) + '</span>' +
+                  '<span><i class="fa fa-hourglass-half"></i> Status: Pending</span>' +
+                  '<span><i class="fa fa-clock"></i> Expires: ' + fmtDate(entry.reservedAt ? new Date(new Date(entry.reservedAt).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() : null) + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="account-book-actions">' +
+                '<button class="btn btn-sm btn-danger" onclick="cancelReservation(\'' + entry.bookId + '\')"><i class="fa fa-times"></i> Cancel</button>' +
+              '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+        return html;
+      }
+
+      /* ========== Section: Reading History ========== */
+      function renderHistory() {
+        var history = user.readingHistory || [];
+        if (history.length === 0) {
+          return '<div class="account-section-title"><i class="fa fa-history"></i> Reading History</div>' +
+            '<div class="account-empty"><i class="fa fa-history"></i><h4>No Reading History</h4><p>Your reading history will appear here once you return books.</p></div>';
+        }
+        var html = '<div class="account-section-title"><i class="fa fa-history"></i> Reading History <span style="font-size:13px;font-weight:500;color:var(--text-tertiary);">(' + history.length + ')</span></div><div class="account-book-list">';
+        history.forEach(function(entry) {
+          var book = lookupBook(entry.bookId);
+          var title = book ? book.title : 'Book #' + entry.bookId;
+          var author = book ? book.author : 'Unknown';
+          var cover = book ? (book.coverImage || book.image || '') : '';
+          var coverSrc = cover ? (base + cover) : '';
+          html +=
+            '<div class="account-book-item">' +
+              (coverSrc ? '<img src="' + esc(coverSrc) + '" alt="' + esc(title) + '" class="account-book-thumb" onerror="this.style.display=\'none\'">' : '') +
+              '<div class="account-book-info">' +
+                '<div class="account-book-title">' + esc(title) + '</div>' +
+                '<div class="account-book-author">' + esc(author) + '</div>' +
+                '<div class="account-book-meta">' +
+                  '<span><i class="fa fa-calendar-check"></i> Borrowed: ' + fmtDate(entry.borrowedAt) + '</span>' +
+                  '<span><i class="fa fa-calendar-times"></i> Returned: ' + fmtDate(entry.returnedAt) + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        });
+        html += '</div>';
+        return html;
+      }
+
+      /* ========== Section: Settings ========== */
+      function renderSettings() {
+        var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        var notifPref = localStorage.getItem('sl_notif_pref') !== 'off';
+        return '' +
+          '<div class="account-section-title"><i class="fa fa-cog"></i> Settings</div>' +
+          '<div class="settings-section">' +
+            '<div class="settings-section-title"><i class="fa fa-palette"></i> Appearance</div>' +
+            '<div class="settings-row">' +
+              '<div><div class="settings-row-label">Dark Mode</div><div class="settings-row-desc">Switch between light and dark theme</div></div>' +
+              '<button class="toggle-switch' + (currentTheme === 'dark' ? ' on' : '') + '" id="theme-toggle-btn" onclick="toggleAccountTheme()"></button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="settings-section">' +
+            '<div class="settings-section-title"><i class="fa fa-bell"></i> Notifications</div>' +
+            '<div class="settings-row">' +
+              '<div><div class="settings-row-label">Push Notifications</div><div class="settings-row-desc">Receive notifications about borrowed books and reservations</div></div>' +
+              '<button class="toggle-switch' + (notifPref ? ' on' : '') + '" id="notif-toggle-btn" onclick="toggleNotifPref()"></button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="settings-section">' +
+            '<div class="settings-section-title"><i class="fa fa-exclamation-triangle" style="color:#EF4444;"></i> Danger Zone</div>' +
+            '<div class="danger-zone">' +
+              '<h5>Delete Account</h5>' +
+              '<p>Permanently delete your account and all associated data. This action cannot be undone.</p>' +
+              '<button class="btn btn-danger btn-sm" onclick="showDeleteConfirm()"><i class="fa fa-trash"></i> Delete My Account</button>' +
+            '</div>' +
+          '</div>';
+      }
+
+      /* ========== Global Functions ========== */
+
+      window.checkPasswordStrength = function(val) {
+        var bar = document.getElementById('pw-strength-bar');
+        var text = document.getElementById('pw-strength-text');
+        if (!val) { bar.style.width = '0%'; text.textContent = ''; return; }
+        var score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[a-z]/.test(val) && /[A-Z]/.test(val)) score++;
+        if (/\d/.test(val)) score++;
+        if (/[^a-zA-Z0-9]/.test(val)) score++;
+        if (score <= 1) { bar.style.width = '25%'; bar.style.background = '#EF4444'; text.textContent = 'Weak'; text.className = 'password-strength-text weak'; }
+        else if (score <= 3) { bar.style.width = '60%'; bar.style.background = '#F59E0B'; text.textContent = 'Medium'; text.className = 'password-strength-text medium'; }
+        else { bar.style.width = '100%'; bar.style.background = '#22C55E'; text.textContent = 'Strong'; text.className = 'password-strength-text strong'; }
+      };
+
+      window.togglePW = function(inputId, btn) {
+        var inp = document.getElementById(inputId);
+        if (!inp) return;
+        if (inp.type === 'password') {
+          inp.type = 'text';
+          btn.innerHTML = '<i class="fa fa-eye-slash"></i>';
+        } else {
+          inp.type = 'password';
+          btn.innerHTML = '<i class="fa fa-eye"></i>';
+        }
+      };
+
+      window.toggleAccountTheme = function() {
+        toggleTheme();
+        renderSidebar();
+        renderContent();
+      };
+
+      window.toggleNotifPref = function() {
+        var current = localStorage.getItem('sl_notif_pref');
+        if (current === 'off') {
+          localStorage.setItem('sl_notif_pref', 'on');
+        } else {
+          localStorage.setItem('sl_notif_pref', 'off');
+        }
+        renderContent();
+        showToast('Notification preference updated.', 'success');
+      };
+
+      window.deletePhoto = function() {
+        showConfirm('Delete Photo', 'Are you sure you want to remove your profile photo?', function() {
+          Auth.deleteProfilePhoto(user.id);
+          refreshUser();
+          renderSidebar();
+          renderContent();
+          showToast('Profile photo removed.', 'info');
+        });
+      };
+
+      window.returnBook = function(bookId) {
+        Users.returnBook(user.id, bookId);
+        refreshUser();
+        renderSidebar();
+        renderContent();
+        showToast('Book returned successfully!', 'success');
+      };
+
+      window.cancelReservation = function(bookId) {
+        showConfirm('Cancel Reservation', 'Are you sure you want to cancel this reservation?', function() {
+          var users = Auth.getAllUsers();
+          var idx = users.findIndex(function(u) { return u.id === user.id; });
+          if (idx >= 0) {
+            var reserved = users[idx].reservedBooks || [];
+            users[idx].reservedBooks = reserved.filter(function(r) { return String(r.bookId) !== String(bookId); });
+            Auth.saveAllUsers(users);
+          }
+          refreshUser();
+          renderSidebar();
+          renderContent();
+          showToast('Reservation cancelled.', 'info');
+        });
+      };
+
+      window.showDeleteConfirm = function() {
+        showConfirm('Delete Account', 'This will permanently delete your account, borrowed books, history, and all associated data. This cannot be undone.', function() {
+          Auth.deleteUser(user.id);
+          localStorage.removeItem('sl_session_token');
+          var keys = Object.keys(localStorage);
+          keys.forEach(function(key) {
+            if (key.indexOf('sl_sessions_') === 0) {
+              try {
+                var sess = JSON.parse(localStorage.getItem(key));
+                if (sess && sess.userId === user.id) localStorage.removeItem(key);
+              } catch (ex) {}
+            }
+          });
+          showToast('Account deleted.', 'info');
+          setTimeout(function() { window.location.href = base + 'index.html'; }, 800);
+        });
+      };
+
+      function showConfirm(title, message, onConfirm) {
+        var overlay = document.getElementById('confirm-overlay');
+        var dialog = document.getElementById('confirm-dialog');
+        overlay.style.display = 'flex';
+        dialog.innerHTML =
+          '<i class="fa fa-exclamation-triangle" style="font-size:40px;color:#EF4444;margin-bottom:12px;"></i>' +
+          '<h4 style="font-size:18px;margin-bottom:8px;">' + esc(title) + '</h4>' +
+          '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;">' + esc(message) + '</p>' +
+          '<div style="display:flex;gap:10px;justify-content:center;">' +
+            '<button class="btn btn-outlined btn-sm" onclick="closeAccountConfirm()">Cancel</button>' +
+            '<button class="btn btn-danger btn-sm" id="confirm-ok-btn"><i class="fa fa-check"></i> Confirm</button>' +
+          '</div>';
+        document.getElementById('confirm-ok-btn').addEventListener('click', function() {
+          overlay.style.display = 'none';
+          if (onConfirm) onConfirm();
+        });
+      }
+
+      window.closeAccountConfirm = function() {
+        document.getElementById('confirm-overlay').style.display = 'none';
+      };
+
+      /* ========== Event Handlers ========== */
+
+      document.addEventListener('submit', function(e) {
+        var form = e.target;
+
+        if (form.id === 'edit-profile-form') {
+          e.preventDefault();
+          var name = document.getElementById('edit-name').value.trim();
+          var username = document.getElementById('edit-username').value.trim();
+          var email = document.getElementById('edit-email').value.trim();
+          var phone = document.getElementById('edit-phone').value.trim();
+          var errorEl = document.getElementById('edit-error');
+
+          if (!name || !email || !username) {
+            if (errorEl) { errorEl.textContent = 'Name, email, and username are required.'; errorEl.style.display = 'block'; }
+            return;
+          }
+
+          showConfirm('Save Changes', 'Are you sure you want to update your profile?', function() {
+            var result = Auth.updateProfile(user.id, { name: name, email: email, username: username, phone: phone });
+            if (result.success) {
+              refreshUser();
+              renderSidebar();
+              renderContent();
+              showToast('Profile updated successfully!', 'success');
+              if (errorEl) errorEl.style.display = 'none';
+            } else {
+              if (errorEl) { errorEl.textContent = result.message || 'Update failed.'; errorEl.style.display = 'block'; }
+              showToast(result.message || 'Update failed.', 'error');
+            }
+          });
+        }
+
+        if (form.id === 'password-form') {
+          e.preventDefault();
+          var current = document.getElementById('pw-current').value;
+          var newPw = document.getElementById('pw-new').value;
+          var confirm = document.getElementById('pw-confirm').value;
+          var errorEl = document.getElementById('pw-error');
+
+          if (!current || !newPw || !confirm) {
+            if (errorEl) { errorEl.textContent = 'All fields are required.'; errorEl.style.display = 'block'; }
+            return;
+          }
+          if (newPw !== confirm) {
+            if (errorEl) { errorEl.textContent = 'New passwords do not match.'; errorEl.style.display = 'block'; }
+            return;
+          }
+          if (newPw.length < 6) {
+            if (errorEl) { errorEl.textContent = 'New password must be at least 6 characters.'; errorEl.style.display = 'block'; }
+            return;
+          }
+
+          Auth.changePassword(user.id, current, newPw).then(function(result) {
+            if (result.success) {
+              showToast('Password changed successfully!', 'success');
+              document.getElementById('password-form').reset();
+              if (errorEl) errorEl.style.display = 'none';
+              document.getElementById('pw-strength-bar').style.width = '0%';
+              document.getElementById('pw-strength-text').textContent = '';
+            } else {
+              if (errorEl) { errorEl.textContent = result.message || 'Failed to change password.'; errorEl.style.display = 'block'; }
+              showToast(result.message || 'Failed to change password.', 'error');
+            }
+          });
+        }
+      });
+
+      /* ========== Photo Upload ========== */
+      photoInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+          showToast('Image must be under 2MB.', 'error');
+          photoInput.value = '';
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          Auth.updateProfile(user.id, { profilePhoto: ev.target.result });
+          refreshUser();
+          renderSidebar();
+          renderContent();
+          showToast('Profile photo updated!', 'success');
+        };
+        reader.readAsDataURL(file);
+        photoInput.value = '';
+      });
+
+      /* ========== Close confirm on overlay click ========== */
+      document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+      });
+
+      /* ========== Hash-based navigation ========== */
+      function handleHash() {
+        var hash = window.location.hash.replace('#', '') || 'profile';
+        var validSections = ['profile', 'edit', 'password', 'borrowed', 'reserved', 'history', 'settings'];
+        if (validSections.indexOf(hash) >= 0) {
+          activeSection = hash;
+          renderSidebar();
+          renderContent();
+        }
+      }
+
+      window.addEventListener('hashchange', handleHash);
+
+      /* ========== Init ========== */
+      var hash = window.location.hash.replace('#', '');
+      if (['profile', 'edit', 'password', 'borrowed', 'reserved', 'history', 'settings'].indexOf(hash) >= 0) {
+        activeSection = hash;
+      }
+
+      renderNavbar('profile');
+      if (typeof renderFooter === 'function') renderFooter();
+      updateThemeIcon();
+
+      document.getElementById('loading-account').style.display = 'none';
+      document.getElementById('account-main').style.display = '';
+      renderSidebar();
+      renderContent();
+      initNavbarScroll();
+
+    })();
+  </script>
+</body>
+</html>

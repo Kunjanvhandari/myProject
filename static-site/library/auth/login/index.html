@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SaraswatiLibrary</title>
+  <meta name="description" content="Sign in to your SaraswatiLibrary account to access your reading history, reserved books, and personalized recommendations.">
+  <meta name="keywords" content="library login, sign in, SaraswatiLibrary, book library, online library">
+  <meta name="author" content="SaraswatiLibrary">
+  <meta property="og:title" content="Login - SaraswatiLibrary">
+  <meta property="og:description" content="Sign in to your SaraswatiLibrary account.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="../../../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../../../css/style.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1145 25%, #2d1b69 50%, #1a1145 75%, #0a0e27 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      position: relative;
+      overflow: hidden;
+      padding: 2rem 1rem;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .auth-page::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.3;
+      animation: floatParticle linear infinite;
+    }
+    .particle:nth-child(1) { width: 6px; height: 6px; background: #6366f1; top: 10%; left: 15%; animation-duration: 20s; }
+    .particle:nth-child(2) { width: 4px; height: 4px; background: #a855f7; top: 20%; left: 80%; animation-duration: 25s; animation-delay: -5s; }
+    .particle:nth-child(3) { width: 8px; height: 8px; background: #3b82f6; top: 70%; left: 10%; animation-duration: 18s; animation-delay: -10s; }
+    .particle:nth-child(4) { width: 5px; height: 5px; background: #ec4899; top: 80%; left: 70%; animation-duration: 22s; animation-delay: -3s; }
+    .particle:nth-child(5) { width: 7px; height: 7px; background: #8b5cf6; top: 40%; left: 90%; animation-duration: 28s; animation-delay: -8s; }
+    .particle:nth-child(6) { width: 4px; height: 4px; background: #06b6d4; top: 60%; left: 50%; animation-duration: 16s; animation-delay: -12s; }
+    .particle:nth-child(7) { width: 6px; height: 6px; background: #f59e0b; top: 30%; left: 40%; animation-duration: 24s; animation-delay: -7s; }
+    .particle:nth-child(8) { width: 5px; height: 5px; background: #10b981; top: 85%; left: 30%; animation-duration: 19s; animation-delay: -4s; }
+    @keyframes floatParticle {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+      25% { transform: translateY(-30px) translateX(15px) scale(1.1); opacity: 0.5; }
+      50% { transform: translateY(-10px) translateX(-10px) scale(0.9); opacity: 0.3; }
+      75% { transform: translateY(-40px) translateX(20px) scale(1.05); opacity: 0.4; }
+      100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+    }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .auth-logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      display: block;
+      filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.4));
+    }
+    .auth-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+    .auth-header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .auth-form .form-group {
+      margin-bottom: 1.15rem;
+    }
+    .auth-form label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 0.4rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .input-wrapper i.field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.85rem;
+      pointer-events: none;
+      transition: color 0.3s;
+    }
+    .input-wrapper input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    .input-wrapper input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+    .input-wrapper input:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .input-wrapper input:focus + i.field-icon,
+    .input-wrapper input:focus ~ i.field-icon {
+      color: #6366f1;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px;
+      transition: color 0.3s;
+      z-index: 2;
+    }
+    .password-toggle:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+    .remember-me input[type="checkbox"] {
+      display: none;
+    }
+    .checkmark {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    .checkmark i {
+      font-size: 0.6rem;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .remember-me input[type="checkbox"]:checked + .checkmark {
+      background: #6366f1;
+      border-color: #6366f1;
+    }
+    .remember-me input[type="checkbox"]:checked + .checkmark i {
+      opacity: 1;
+    }
+    .remember-me span {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Inter', sans-serif;
+    }
+    .forgot-link {
+      font-size: 0.8rem;
+      color: #818cf8;
+      text-decoration: none;
+      font-family: 'Inter', sans-serif;
+      transition: color 0.3s;
+    }
+    .forgot-link:hover {
+      color: #a5b4fc;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+    .btn-login:active {
+      transform: translateY(0);
+    }
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-login .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .auth-switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .auth-switch p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .auth-switch a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    .auth-switch a:hover {
+      color: #a5b4fc;
+    }
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .auth-divider span {
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Inter', sans-serif;
+    }
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .quick-links a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.3s;
+    }
+    .quick-links a:hover {
+      color: #818cf8;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      z-index: 100;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Forgot Password Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: #1e1b4b;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: color 0.3s;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .modal-close:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .modal h2 {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: 1.35rem;
+      margin-bottom: 0.35rem;
+    }
+    .modal > p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.82rem;
+      margin-bottom: 1.5rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .modal-step {
+      display: none;
+    }
+    .modal-step.active {
+      display: block;
+    }
+    .modal-step .form-group {
+      margin-bottom: 1rem;
+    }
+    .modal-step label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 0.35rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .modal-step input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      box-sizing: border-box;
+      transition: all 0.3s;
+    }
+    .modal-step input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .modal-step input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+    .modal-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+    .modal-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    /* Success Popup */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .success-overlay.active {
+      display: flex;
+    }
+    .success-popup {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      animation: successIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 25px 60px rgba(99, 102, 241, 0.3);
+    }
+    @keyframes successIn {
+      from { opacity: 0; transform: scale(0.5) translateY(40px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .success-check {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      animation: checkBounce 0.6s ease 0.2s both;
+    }
+    @keyframes checkBounce {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .success-check i {
+      font-size: 2rem;
+      color: #fff;
+      animation: checkDraw 0.4s ease 0.5s both;
+    }
+    @keyframes checkDraw {
+      from { opacity: 0; transform: scale(0.5) rotate(-45deg); }
+      to { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    .success-popup h2 {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+    .success-popup p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .confetti-container {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 2001;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      opacity: 0;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .toast {
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: toastIn 0.4s ease, toastOut 0.4s ease 3s forwards;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    .toast.success { background: rgba(34, 197, 94, 0.9); }
+    .toast.error { background: rgba(239, 68, 68, 0.9); }
+    .toast.info { background: rgba(99, 102, 241, 0.9); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 1.75rem 1.5rem; }
+      .auth-header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body data-page="login">
+  <div class="auth-page">
+    <!-- Floating Particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="../../../images/logo/book-icon.svg" alt="SaraswatiLibrary Logo" class="auth-logo">
+        <h1>Welcome Back</h1>
+        <p>Sign in to your account</p>
+      </div>
+
+      <form class="auth-form" id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Email or Username</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user field-icon"></i>
+            <input type="text" id="email" name="email" placeholder="Enter your email or username" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock field-icon"></i>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+            <button type="button" class="password-toggle" id="togglePassword" title="Show password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="remember-me">
+            <input type="checkbox" id="rememberMe">
+            <span class="checkmark"><i class="fas fa-check"></i></span>
+            <span>Remember Me</span>
+          </label>
+          <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span class="btn-text">Sign In</span>
+          <span class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        <p>Don't have an account? <a href="../signup/index.html">Sign Up</a></p>
+      </div>
+
+      <div class="auth-divider">
+        <span>or</span>
+      </div>
+
+      <div class="quick-links">
+        <a href="../../index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="../browse/index.html"><i class="fas fa-book-open"></i> Browse Library</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal">
+      <button class="modal-close" id="closeModal"><i class="fas fa-times"></i></button>
+
+      <div class="modal-step active" id="step-email">
+        <h2>Reset Password</h2>
+        <p>Enter your email address and we'll send you a reset code.</p>
+        <div class="form-group">
+          <label for="resetEmail">Email Address</label>
+          <input type="email" id="resetEmail" placeholder="Enter your email address">
+        </div>
+        <button class="modal-btn" id="sendCodeBtn">Send Reset Code</button>
+      </div>
+
+      <div class="modal-step" id="step-code">
+        <h2>Enter Code</h2>
+        <p>We sent a 6-digit code to your email. Enter it below.</p>
+        <div class="form-group">
+          <label for="resetCode">Reset Code</label>
+          <input type="text" id="resetCode" placeholder="Enter 6-digit code" maxlength="6">
+        </div>
+        <button class="modal-btn" id="verifyCodeBtn">Verify Code</button>
+      </div>
+
+      <div class="modal-step" id="step-new-password">
+        <h2>New Password</h2>
+        <p>Enter your new password below.</p>
+        <div class="form-group">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" placeholder="Enter new password">
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" placeholder="Confirm new password">
+        </div>
+        <button class="modal-btn" id="resetPasswordBtn">Reset Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-popup">
+      <div class="success-check">
+        <i class="fas fa-check"></i>
+      </div>
+      <h2>Login Successful!</h2>
+      <p id="successMessage">Welcome back!</p>
+    </div>
+  </div>
+
+  <!-- Confetti Container -->
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../../../js/data.js"></script>
+  <script src="../../../js/auth.js"></script>
+  <script src="../../../js/users.js"></script>
+  <script src="../../../js/notifications.js"></script>
+  <script>
+    // Theme Toggle
+    (function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    })();
+
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', function() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    });
+
+    function updateThemeIcon(theme) {
+      const icon = themeToggle.querySelector('i');
+      icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+
+    // Redirect if logged in
+    (function checkAuth() {
+      var user = Auth.getUser();
+      if (user) {
+        window.location.href = '../../../index.html';
+      }
+    })();
+
+    // Toast Notification System
+    function showToast(message, type) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + (type || 'info');
+      const iconMap = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+      toast.innerHTML = '<i class="fas ' + (iconMap[type] || iconMap.info) + '"></i> ' + message;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3500);
+    }
+
+    // Password Toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    togglePassword.addEventListener('click', function() {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      this.querySelector('i').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    // Login Form Submission
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const emailVal = document.getElementById('email').value.trim();
+      const passwordVal = passwordInput.value;
+
+      if (!emailVal) {
+        showToast('Please enter your email or username.', 'error');
+        document.getElementById('email').focus();
+        return;
+      }
+      if (!passwordVal) {
+        showToast('Please enter your password.', 'error');
+        passwordInput.focus();
+        return;
+      }
+
+      loginBtn.querySelector('.btn-text').style.display = 'none';
+      loginBtn.querySelector('.spinner').style.display = 'block';
+      loginBtn.disabled = true;
+
+      var rememberChecked = document.getElementById('rememberMe').checked;
+
+      Auth.login(emailVal, passwordVal, rememberChecked).then(function(result) {
+        if (result.success) {
+          var userName = result.user.name || result.user.username || 'User';
+          document.getElementById('successMessage').textContent = 'Welcome back, ' + userName + '!';
+          document.getElementById('successOverlay').classList.add('active');
+          launchConfetti();
+          setTimeout(function() {
+            window.location.href = '../../../index.html';
+          }, 2000);
+        } else {
+          showToast(result.message || 'Invalid credentials. Please try again.', 'error');
+          loginBtn.querySelector('.btn-text').style.display = 'inline';
+          loginBtn.querySelector('.spinner').style.display = 'none';
+          loginBtn.disabled = false;
+        }
+      }).catch(function() {
+        showToast('An error occurred. Please try again.', 'error');
+        loginBtn.querySelector('.btn-text').style.display = 'inline';
+        loginBtn.querySelector('.spinner').style.display = 'none';
+        loginBtn.disabled = false;
+      });
+    });
+
+    // Confetti Animation
+    function launchConfetti() {
+      var container = document.getElementById('confettiContainer');
+      container.innerHTML = '';
+      var colors = ['#6366f1', '#a855f7', '#ec4899', '#22c55e', '#f59e0b', '#3b82f6', '#ef4444'];
+      for (var i = 0; i < 50; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        piece.style.animationDelay = (Math.random() * 0.5) + 's';
+        piece.style.width = (Math.random() * 8 + 5) + 'px';
+        piece.style.height = (Math.random() * 8 + 5) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        container.appendChild(piece);
+      }
+      setTimeout(function() { container.innerHTML = ''; }, 4000);
+    }
+
+    // Forgot Password Modal
+    var forgotModal = document.getElementById('forgotModal');
+    var currentResetEmail = '';
+    var currentResetToken = '';
+
+    document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      forgotModal.classList.add('active');
+    });
+
+    document.getElementById('closeModal').addEventListener('click', function() {
+      forgotModal.classList.remove('active');
+      resetModalSteps();
+    });
+
+    forgotModal.addEventListener('click', function(e) {
+      if (e.target === forgotModal) {
+        forgotModal.classList.remove('active');
+        resetModalSteps();
+      }
+    });
+
+    function resetModalSteps() {
+      document.querySelectorAll('.modal-step').forEach(function(s) { s.classList.remove('active'); });
+      document.getElementById('step-email').classList.add('active');
+      document.getElementById('resetEmail').value = '';
+      document.getElementById('resetCode').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+    }
+
+    // Step 1: Send Reset Code
+    document.getElementById('sendCodeBtn').addEventListener('click', function() {
+      currentResetEmail = document.getElementById('resetEmail').value.trim();
+      if (!currentResetEmail) {
+        showToast('Please enter your email address.', 'error');
+        return;
+      }
+      var result = Auth.generateResetToken(currentResetEmail);
+      if (!result.success) {
+        showToast(result.message, 'error');
+        return;
+      }
+      currentResetToken = result.token;
+      showToast('Reset code sent! (Code: ' + currentResetToken + ')', 'info');
+      document.getElementById('step-email').classList.remove('active');
+      document.getElementById('step-code').classList.add('active');
+    });
+
+    // Step 2: Verify Code
+    document.getElementById('verifyCodeBtn').addEventListener('click', function() {
+      var code = document.getElementById('resetCode').value.trim();
+      if (!code) {
+        showToast('Please enter the reset code.', 'error');
+        return;
+      }
+      if (code === currentResetToken) {
+        showToast('Code verified successfully!', 'success');
+        document.getElementById('step-code').classList.remove('active');
+        document.getElementById('step-new-password').classList.add('active');
+      } else {
+        showToast('Invalid reset code. Please try again.', 'error');
+      }
+    });
+
+    // Step 3: Reset Password
+    document.getElementById('resetPasswordBtn').addEventListener('click', async function() {
+      var newPass = document.getElementById('newPassword').value;
+      var confirmPass = document.getElementById('confirmPassword').value;
+
+      if (!newPass || newPass.length < 6) {
+        showToast('Password must be at least 6 characters.', 'error');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast('Passwords do not match.', 'error');
+        return;
+      }
+
+      try {
+        var resetResult = await Auth.resetPassword(currentResetToken, newPass);
+        if (resetResult.success) {
+          showToast('Password reset successful!', 'success');
+          forgotModal.classList.remove('active');
+          resetModalSteps();
+        } else {
+          showToast(resetResult.message || 'Reset failed.', 'error');
+        }
+      } catch(ex) {
+        showToast('An error occurred.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

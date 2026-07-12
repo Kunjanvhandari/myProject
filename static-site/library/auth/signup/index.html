@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - SaraswatiLibrary</title>
+  <meta name="description" content="Create your SaraswatiLibrary account to access thousands of books, reading lists, and personalized recommendations.">
+  <meta name="keywords" content="library signup, register, create account, SaraswatiLibrary, book library">
+  <meta name="author" content="SaraswatiLibrary">
+  <meta property="og:title" content="Sign Up - SaraswatiLibrary">
+  <meta property="og:description" content="Join SaraswatiLibrary today and explore a world of books.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="../../../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../../../css/style.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1145 25%, #2d1b69 50%, #1a1145 75%, #0a0e27 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      position: relative;
+      overflow: hidden;
+      padding: 2rem 1rem;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .auth-page::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.3;
+      animation: floatParticle linear infinite;
+    }
+    .particle:nth-child(1) { width: 6px; height: 6px; background: #6366f1; top: 10%; left: 15%; animation-duration: 20s; }
+    .particle:nth-child(2) { width: 4px; height: 4px; background: #a855f7; top: 20%; left: 80%; animation-duration: 25s; animation-delay: -5s; }
+    .particle:nth-child(3) { width: 8px; height: 8px; background: #3b82f6; top: 70%; left: 10%; animation-duration: 18s; animation-delay: -10s; }
+    .particle:nth-child(4) { width: 5px; height: 5px; background: #ec4899; top: 80%; left: 70%; animation-duration: 22s; animation-delay: -3s; }
+    .particle:nth-child(5) { width: 7px; height: 7px; background: #8b5cf6; top: 40%; left: 90%; animation-duration: 28s; animation-delay: -8s; }
+    .particle:nth-child(6) { width: 4px; height: 4px; background: #06b6d4; top: 60%; left: 50%; animation-duration: 16s; animation-delay: -12s; }
+    .particle:nth-child(7) { width: 6px; height: 6px; background: #f59e0b; top: 30%; left: 40%; animation-duration: 24s; animation-delay: -7s; }
+    .particle:nth-child(8) { width: 5px; height: 5px; background: #10b981; top: 85%; left: 30%; animation-duration: 19s; animation-delay: -4s; }
+    @keyframes floatParticle {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+      25% { transform: translateY(-30px) translateX(15px) scale(1.1); opacity: 0.5; }
+      50% { transform: translateY(-10px) translateX(-10px) scale(0.9); opacity: 0.3; }
+      75% { transform: translateY(-40px) translateX(20px) scale(1.05); opacity: 0.4; }
+      100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.3; }
+    }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .auth-logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      display: block;
+      filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.4));
+    }
+    .auth-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+    .auth-header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .auth-form .form-group {
+      margin-bottom: 1rem;
+    }
+    .auth-form label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 0.35rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .input-wrapper {
+      position: relative;
+    }
+    .input-wrapper i.field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.85rem;
+      pointer-events: none;
+      transition: color 0.3s;
+    }
+    .input-wrapper input,
+    .input-wrapper select {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    .input-wrapper input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+    .input-wrapper input:focus,
+    .input-wrapper select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .input-wrapper input:focus + i.field-icon,
+    .input-wrapper input:focus ~ i.field-icon {
+      color: #6366f1;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.35);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px;
+      transition: color 0.3s;
+      z-index: 2;
+    }
+    .password-toggle:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Password Strength */
+    .password-strength {
+      margin-top: 0.5rem;
+    }
+    .strength-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      transition: all 0.4s ease;
+    }
+    .strength-fill.weak { width: 25%; background: #ef4444; }
+    .strength-fill.fair { width: 50%; background: #f97316; }
+    .strength-fill.good { width: 75%; background: #eab308; }
+    .strength-fill.strong { width: 100%; background: #22c55e; }
+    .strength-label {
+      font-size: 0.72rem;
+      margin-top: 0.25rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    .strength-label.weak { color: #ef4444; }
+    .strength-label.fair { color: #f97316; }
+    .strength-label.good { color: #eab308; }
+    .strength-label.strong { color: #22c55e; }
+
+    /* Password Requirements */
+    .password-requirements {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+    }
+    .password-requirements .req {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.35);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: color 0.3s;
+    }
+    .password-requirements .req.met {
+      color: #22c55e;
+    }
+    .password-requirements .req i {
+      font-size: 0.6rem;
+    }
+
+    /* Profile Picture Upload */
+    .profile-upload {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .profile-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .profile-preview:hover {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+    .profile-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .profile-preview img.active {
+      display: block;
+    }
+    .profile-preview i {
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.25);
+    }
+    .profile-preview:hover i {
+      color: #6366f1;
+    }
+    .profile-upload-info {
+      flex: 1;
+    }
+    .profile-upload-info p {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 0.25rem;
+    }
+    .profile-upload-info span {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.3);
+      font-family: 'Inter', sans-serif;
+    }
+    #profileInput {
+      display: none;
+    }
+
+    /* Terms */
+    .terms-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      cursor: pointer;
+      margin-bottom: 1.25rem;
+    }
+    .terms-check input[type="checkbox"] {
+      display: none;
+    }
+    .checkmark {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .checkmark i {
+      font-size: 0.6rem;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .terms-check input[type="checkbox"]:checked + .checkmark {
+      background: #6366f1;
+      border-color: #6366f1;
+    }
+    .terms-check input[type="checkbox"]:checked + .checkmark i {
+      opacity: 1;
+    }
+    .terms-check span {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.4;
+    }
+    .terms-check a {
+      color: #818cf8;
+      text-decoration: none;
+    }
+    .terms-check a:hover {
+      text-decoration: underline;
+    }
+
+    /* Create Account Button */
+    .btn-signup {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-signup:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+    .btn-signup:active {
+      transform: translateY(0);
+    }
+    .btn-signup:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-signup .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .auth-switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .auth-switch p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .auth-switch a {
+      color: #818cf8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    .auth-switch a:hover {
+      color: #a5b4fc;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      z-index: 100;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Success Popup */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .success-overlay.active {
+      display: flex;
+    }
+    .success-popup {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      animation: successIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 25px 60px rgba(99, 102, 241, 0.3);
+    }
+    @keyframes successIn {
+      from { opacity: 0; transform: scale(0.5) translateY(40px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .success-emoji {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      animation: emojiBounce 0.6s ease 0.2s both;
+    }
+    @keyframes emojiBounce {
+      0% { transform: scale(0) rotate(-20deg); }
+      50% { transform: scale(1.3) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .success-popup h2 {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+    .success-popup p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Confetti */
+    .confetti-container {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 2001;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      opacity: 0;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .toast {
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: toastIn 0.4s ease, toastOut 0.4s ease 3s forwards;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    .toast.success { background: rgba(34, 197, 94, 0.9); }
+    .toast.error { background: rgba(239, 68, 68, 0.9); }
+    .toast.info { background: rgba(99, 102, 241, 0.9); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 1.75rem 1.25rem; }
+      .auth-header h1 { font-size: 1.4rem; }
+      .profile-upload { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body data-page="signup">
+  <div class="auth-page">
+    <!-- Floating Particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="../../../images/logo/book-icon.svg" alt="SaraswatiLibrary Logo" class="auth-logo">
+        <h1>Create Account</h1>
+        <p>Join SaraswatiLibrary today</p>
+      </div>
+
+      <form class="auth-form" id="signupForm" novalidate>
+        <!-- Full Name -->
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user field-icon"></i>
+            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required autocomplete="name">
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-wrapper">
+            <i class="fas fa-at field-icon"></i>
+            <input type="text" id="username" name="username" placeholder="Choose a username" required autocomplete="username">
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-wrapper">
+            <i class="fas fa-envelope field-icon"></i>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
+          </div>
+        </div>
+
+        <!-- Phone (optional) -->
+        <div class="form-group">
+          <label for="phone">Phone Number <span style="font-weight:400;color:rgba(255,255,255,0.3);">(optional)</span></label>
+          <div class="input-wrapper">
+            <i class="fas fa-phone field-icon"></i>
+            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" autocomplete="tel">
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock field-icon"></i>
+            <input type="password" id="password" name="password" placeholder="Create a password" required autocomplete="new-password">
+            <button type="button" class="password-toggle" id="togglePassword" title="Show password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="password-strength" id="passwordStrength" style="display:none;">
+            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+            <div class="strength-label" id="strengthLabel"></div>
+          </div>
+          <div class="password-requirements" id="passwordReqs">
+            <span class="req" id="req-length"><i class="fas fa-circle"></i> 6+ characters</span>
+            <span class="req" id="req-upper"><i class="fas fa-circle"></i> Uppercase letter</span>
+            <span class="req" id="req-number"><i class="fas fa-circle"></i> Number</span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock field-icon"></i>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required autocomplete="new-password">
+            <button type="button" class="password-toggle" id="toggleConfirmPassword" title="Show password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile Picture -->
+        <div class="profile-upload" id="profileUploadArea">
+          <label class="profile-preview" id="profilePreview" title="Click to upload profile picture">
+            <i class="fas fa-camera"></i>
+            <img id="profileImage" alt="Profile preview">
+          </label>
+          <input type="file" id="profileInput" accept="image/jpeg,image/png,image/gif,image/webp">
+          <div class="profile-upload-info">
+            <p>Profile Picture <span style="font-weight:400;color:rgba(255,255,255,0.3);">(optional)</span></p>
+            <span>JPEG, PNG, GIF or WebP. Max 2MB.</span>
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <label class="terms-check" id="termsLabel">
+          <input type="checkbox" id="agreeTerms">
+          <span class="checkmark"><i class="fas fa-check"></i></span>
+          <span>I agree to the <a href="#" onclick="event.preventDefault()">Terms &amp; Conditions</a> and <a href="#" onclick="event.preventDefault()">Privacy Policy</a></span>
+        </label>
+
+        <button type="submit" class="btn-signup" id="signupBtn">
+          <span class="btn-text">Create Account</span>
+          <span class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="auth-switch">
+        <p>Already have an account? <a href="../login/index.html">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-popup">
+      <div class="success-emoji" id="successEmoji"></div>
+      <h2>Account Created Successfully!</h2>
+      <p>Welcome to SaraswatiLibrary!</p>
+    </div>
+  </div>
+
+  <!-- Confetti Container -->
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../../../js/data.js"></script>
+  <script src="../../../js/auth.js"></script>
+  <script src="../../../js/users.js"></script>
+  <script src="../../../js/notifications.js"></script>
+  <script>
+    // Theme Toggle
+    (function initTheme() {
+      var savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    })();
+
+    var themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    });
+
+    function updateThemeIcon(theme) {
+      var icon = themeToggle.querySelector('i');
+      icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    }
+
+    // Redirect if logged in
+    (function checkAuth() {
+      var user = Auth.getUser();
+      if (user) {
+        window.location.href = '../../../index.html';
+      }
+    })();
+
+    // Toast System
+    function showToast(message, type) {
+      var container = document.getElementById('toastContainer');
+      var toast = document.createElement('div');
+      toast.className = 'toast ' + (type || 'info');
+      var iconMap = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+      toast.innerHTML = '<i class="fas ' + (iconMap[type] || iconMap.info) + '"></i> ' + message;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3500);
+    }
+
+    // Password Toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      var input = document.getElementById('password');
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      this.querySelector('i').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+      var input = document.getElementById('confirmPassword');
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      this.querySelector('i').className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    // Password Strength Calculator
+    var passwordInput = document.getElementById('password');
+    var strengthEl = document.getElementById('passwordStrength');
+    var strengthFill = document.getElementById('strengthFill');
+    var strengthLabel = document.getElementById('strengthLabel');
+    var reqLength = document.getElementById('req-length');
+    var reqUpper = document.getElementById('req-upper');
+    var reqNumber = document.getElementById('req-number');
+
+    passwordInput.addEventListener('input', function() {
+      var val = this.value;
+      if (val.length === 0) {
+        strengthEl.style.display = 'none';
+        reqLength.className = 'req';
+        reqUpper.className = 'req';
+        reqNumber.className = 'req';
+        return;
+      }
+
+      strengthEl.style.display = 'block';
+
+      var hasLength = val.length >= 6;
+      var hasUpper = /[A-Z]/.test(val);
+      var hasNumber = /[0-9]/.test(val);
+
+      reqLength.className = 'req' + (hasLength ? ' met' : '');
+      reqUpper.className = 'req' + (hasUpper ? ' met' : '');
+      reqNumber.className = 'req' + (hasNumber ? ' met' : '');
+
+      var score = 0;
+      if (hasLength) score++;
+      if (hasUpper) score++;
+      if (hasNumber) score++;
+      if (val.length >= 8) score++;
+      if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) score++;
+
+      var levels = [
+        { class: 'weak', label: 'Weak' },
+        { class: 'weak', label: 'Weak' },
+        { class: 'fair', label: 'Fair' },
+        { class: 'good', label: 'Good' },
+        { class: 'strong', label: 'Strong' }
+      ];
+
+      var level = levels[Math.min(score, 4)];
+      strengthFill.className = 'strength-fill ' + level.class;
+      strengthLabel.className = 'strength-label ' + level.class;
+      strengthLabel.textContent = level.label;
+    });
+
+    // Profile Picture Upload
+    var profileInput = document.getElementById('profileInput');
+    var profilePreview = document.getElementById('profilePreview');
+    var profileImage = document.getElementById('profileImage');
+    var profileDataUrl = '';
+
+    profilePreview.addEventListener('click', function() {
+      profileInput.click();
+    });
+
+    profileInput.addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+
+      var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (allowedTypes.indexOf(file.type) === -1) {
+        showToast('Only JPEG, PNG, GIF, and WebP are allowed.', 'error');
+        profileInput.value = '';
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Image must be under 2MB.', 'error');
+        profileInput.value = '';
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        profileDataUrl = ev.target.result;
+        profileImage.src = profileDataUrl;
+        profileImage.classList.add('active');
+        profilePreview.querySelector('i').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Confetti
+    function launchConfetti() {
+      var container = document.getElementById('confettiContainer');
+      container.innerHTML = '';
+      var colors = ['#6366f1', '#a855f7', '#ec4899', '#22c55e', '#f59e0b', '#3b82f6', '#ef4444'];
+      for (var i = 0; i < 60; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        piece.style.animationDelay = (Math.random() * 0.6) + 's';
+        piece.style.width = (Math.random() * 8 + 5) + 'px';
+        piece.style.height = (Math.random() * 8 + 5) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        container.appendChild(piece);
+      }
+      setTimeout(function() { container.innerHTML = ''; }, 4500);
+    }
+
+    // Signup Form
+    var signupForm = document.getElementById('signupForm');
+    var signupBtn = document.getElementById('signupBtn');
+
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var nameVal = document.getElementById('fullName').value.trim();
+      var usernameVal = document.getElementById('username').value.trim();
+      var emailVal = document.getElementById('email').value.trim();
+      var phoneVal = document.getElementById('phone').value.trim();
+      var passVal = passwordInput.value;
+      var confirmVal = document.getElementById('confirmPassword').value;
+      var termsChecked = document.getElementById('agreeTerms').checked;
+
+      // Validate Name
+      if (!nameVal || nameVal.length < 2) {
+        showToast('Full name must be at least 2 characters.', 'error');
+        document.getElementById('fullName').focus();
+        return;
+      }
+
+      // Validate Username
+      if (!usernameVal || usernameVal.length < 3) {
+        showToast('Username must be at least 3 characters.', 'error');
+        document.getElementById('username').focus();
+        return;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(usernameVal)) {
+        showToast('Username must be alphanumeric (letters, numbers, underscores).', 'error');
+        document.getElementById('username').focus();
+        return;
+      }
+
+      // Validate Email
+      if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        showToast('Please enter a valid email address.', 'error');
+        document.getElementById('email').focus();
+        return;
+      }
+
+      // Validate Password
+      if (!passVal || passVal.length < 6) {
+        showToast('Password must be at least 6 characters.', 'error');
+        passwordInput.focus();
+        return;
+      }
+
+      // Validate Confirm Password
+      if (passVal !== confirmVal) {
+        showToast('Passwords do not match.', 'error');
+        document.getElementById('confirmPassword').focus();
+        return;
+      }
+
+      // Validate Terms
+      if (!termsChecked) {
+        showToast('You must agree to the Terms & Conditions.', 'error');
+        return;
+      }
+
+      signupBtn.querySelector('.btn-text').style.display = 'none';
+      signupBtn.querySelector('.spinner').style.display = 'block';
+      signupBtn.disabled = true;
+
+      Auth.register({
+        name: nameVal,
+        username: usernameVal,
+        email: emailVal,
+        phone: phoneVal,
+        password: passVal,
+        confirmPassword: confirmVal,
+        profilePhoto: profileDataUrl,
+        remember: true
+      }).then(function(result) {
+        if (result.success) {
+          var emojis = ['\uD83C\uDF89', '\uD83C\uDF1F', '\uD83C\uDF8A', '\uD83C\uDF88', '\u2728'];
+          document.getElementById('successEmoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          document.getElementById('successOverlay').classList.add('active');
+          launchConfetti();
+          setTimeout(function() {
+            window.location.href = '../../../index.html';
+          }, 2000);
+        } else {
+          showToast(result.message || 'Registration failed.', 'error');
+          signupBtn.querySelector('.btn-text').style.display = 'inline';
+          signupBtn.querySelector('.spinner').style.display = 'none';
+          signupBtn.disabled = false;
+        }
+      }).catch(function() {
+        showToast('An error occurred. Please try again.', 'error');
+        signupBtn.querySelector('.btn-text').style.display = 'inline';
+        signupBtn.querySelector('.spinner').style.display = 'none';
+        signupBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart - SaraswatiLibrary</title>
+  <meta name="description" content="Review and manage the books in your shopping cart. Proceed to checkout to borrow your selected books.">
+  <meta property="og:title" content="Your Cart - SaraswatiLibrary">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaraswatiLibrary">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../../images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    .cart-empty {
+      text-align: center;
+      padding: 80px 24px;
+      grid-column: 1 / -1;
+    }
+    .cart-empty-icon {
+      font-size: 64px;
+      color: var(--text-tertiary);
+      margin-bottom: 20px;
+    }
+    .cart-empty h3 {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    .cart-empty p {
+      color: var(--text-tertiary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .cart-item-remove {
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 6px;
+      font-size: 16px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      align-self: flex-start;
+    }
+    .cart-item-remove:hover {
+      color: #DC2626;
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .order-row.discount {
+      color: #16A34A;
+    }
+    .checkout-btn-wrapper {
+      margin-top: 20px;
+    }
+    .cart-count-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    .cart-count-label strong {
+      color: var(--text-primary);
+    }
+    .checkout-modal-items {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md, 12px);
+      padding: 12px;
+    }
+    .checkout-modal-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .checkout-modal-item:last-child {
+      border-bottom: none;
+    }
+    .checkout-modal-item strong {
+      color: var(--text-primary);
+    }
+    .checkout-success {
+      text-align: center;
+      padding: 24px 0;
+    }
+    .checkout-success i {
+      font-size: 48px;
+      color: #16A34A;
+      margin-bottom: 16px;
+    }
+    .checkout-success h3 {
+      margin-bottom: 8px;
+    }
+    .checkout-success p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body data-page="cart">
+  <div id="navbar"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-page">
+    <div class="container" style="position: relative; z-index: 2;">
+      <h1 class="hero-page-title">Your Cart</h1>
+      <p class="hero-page-subtitle">Review your selected books before checkout</p>
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section class="section">
+    <div class="container">
+      <div class="cart-layout">
+        <!-- Cart Items -->
+        <div>
+          <div class="cart-count-label" id="cart-count-label"></div>
+          <div id="cart-items"></div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary" id="order-summary" style="display:none;">
+          <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+          <div class="order-row">
+            <span>Subtotal</span>
+            <span id="summary-subtotal">NPR 0</span>
+          </div>
+          <div class="order-row">
+            <span>Library Fee</span>
+            <span id="summary-fee">NPR 0</span>
+          </div>
+          <div class="order-row discount">
+            <span>Member Discount</span>
+            <span id="summary-discount">- NPR 0</span>
+          </div>
+          <div class="order-row total">
+            <span>Total</span>
+            <span id="summary-total">NPR 0</span>
+          </div>
+          <div class="checkout-btn-wrapper">
+            <button class="btn btn-secondary btn-block btn-lg" id="checkout-btn">
+              <i class="fas fa-lock"></i> Proceed to Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Checkout Modal -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="modal-content modal-lg">
+      <button class="modal-close" onclick="closeModal('checkout-modal')">&times;</button>
+      <div id="checkout-modal-body"></div>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="../../js/data.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/users.js"></script>
+  <script src="../../js/notifications.js"></script>
+  <script src="../../js/navbar.js"></script>
+  <script src="../../js/main.js"></script>
+  <script>
+    function getCart() {
+      return JSON.parse(localStorage.getItem('librivista_cart') || '[]');
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem('librivista_cart', JSON.stringify(cart));
+      localStorage.setItem('librivista_cart_count', cart.reduce(function (sum, item) { return sum + item.quantity; }, 0).toString());
+      updateCartBadge();
+    }
+
+    function renderCart() {
+      var cart = getCart();
+      var container = document.getElementById('cart-items');
+      var countLabel = document.getElementById('cart-count-label');
+      var summary = document.getElementById('order-summary');
+      var base = getBasePath();
+
+      if (cart.length === 0) {
+        countLabel.textContent = '';
+        summary.style.display = 'none';
+        container.innerHTML =
+          '<div class="cart-empty">' +
+            '<i class="fas fa-shopping-cart cart-empty-icon"></i>' +
+            '<h3>Your cart is empty</h3>' +
+            '<p>Browse our collection and add some books to your cart.</p>' +
+            '<a href="' + base + 'library/books/index.html" class="btn btn-primary btn-lg"><i class="fas fa-book"></i> Browse Books</a>' +
+          '</div>';
+        return;
+      }
+
+      var totalItems = cart.reduce(function (s, i) { return s + i.quantity; }, 0);
+      countLabel.innerHTML = 'You have <strong>' + totalItems + '</strong> item' + (totalItems !== 1 ? 's' : '') + ' in your cart';
+
+      var html = '';
+      cart.forEach(function (item, index) {
+        html +=
+          '<div class="cart-item">' +
+            '<img src="' + base + item.image + '" alt="' + item.title + '" class="cart-item-img">' +
+            '<div class="cart-item-info">' +
+              '<div class="cart-item-title">' + item.title + '</div>' +
+              '<div class="cart-item-author">' + item.author + '</div>' +
+              '<div class="cart-item-price">NPR ' + item.price + '</div>' +
+              '<div class="cart-item-actions">' +
+                '<div class="quantity-selector">' +
+                  '<button onclick="updateQuantity(' + index + ', -1)">-</button>' +
+                  '<span>' + item.quantity + '</span>' +
+                  '<button onclick="updateQuantity(' + index + ', 1)">+</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<button class="cart-item-remove" onclick="removeCartItem(' + index + ')" title="Remove"><i class="fas fa-trash-alt"></i></button>' +
+          '</div>';
+      });
+      container.innerHTML = html;
+
+      // Update summary
+      var subtotal = cart.reduce(function (s, i) { return s + (i.price * i.quantity); }, 0);
+      var fee = Math.round(subtotal * 0.05);
+      var discount = Math.round(subtotal * 0.1);
+      var total = subtotal + fee - discount;
+
+      document.getElementById('summary-subtotal').textContent = 'NPR ' + subtotal;
+      document.getElementById('summary-fee').textContent = 'NPR ' + fee;
+      document.getElementById('summary-discount').textContent = '- NPR ' + discount;
+      document.getElementById('summary-total').textContent = 'NPR ' + total;
+      summary.style.display = 'block';
+    }
+
+    function updateQuantity(index, delta) {
+      var cart = getCart();
+      if (!cart[index]) return;
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      saveCart(cart);
+      renderCart();
+    }
+
+    function removeCartItem(index) {
+      var cart = getCart();
+      if (!cart[index]) return;
+      var title = cart[index].title;
+      cart.splice(index, 1);
+      saveCart(cart);
+      renderCart();
+      showToast('"' + title + '" removed from cart.', 'info');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      renderCart();
+
+      document.getElementById('checkout-btn').addEventListener('click', function () {
+        var cart = getCart();
+        if (cart.length === 0) return;
+
+        var user = Auth.getUser();
+        if (!user) {
+          showToast('Please sign in to checkout.', 'warning');
+          window.location.href = getBasePath() + 'library/auth/login/index.html';
+          return;
+        }
+
+        var subtotal = cart.reduce(function (s, i) { return s + (i.price * i.quantity); }, 0);
+        var fee = Math.round(subtotal * 0.05);
+        var discount = Math.round(subtotal * 0.1);
+        var total = subtotal + fee - discount;
+
+        var itemsHTML = cart.map(function (item) {
+          return '<div class="checkout-modal-item"><span>' + item.title + ' x' + item.quantity + '</span><strong>NPR ' + (item.price * item.quantity) + '</strong></div>';
+        }).join('');
+
+        document.getElementById('checkout-modal-body').innerHTML =
+          '<div class="modal-title"><i class="fas fa-clipboard-check"></i> Confirm Checkout</div>' +
+          '<p style="font-size:14px; color: var(--text-secondary); margin-bottom:16px;">Review your order below and confirm to complete your purchase.</p>' +
+          '<div class="checkout-modal-items">' + itemsHTML + '</div>' +
+          '<div class="order-row"><span>Subtotal</span><span>NPR ' + subtotal + '</span></div>' +
+          '<div class="order-row"><span>Library Fee (5%)</span><span>NPR ' + fee + '</span></div>' +
+          '<div class="order-row discount"><span>Member Discount (10%)</span><span>- NPR ' + discount + '</span></div>' +
+          '<div class="order-row total"><span>Total</span><span>NPR ' + total + '</span></div>' +
+          '<div style="margin-top:20px; display:flex; gap:12px;">' +
+            '<button class="btn btn-outlined flex-1" onclick="closeModal(\'checkout-modal\')">Cancel</button>' +
+            '<button class="btn btn-secondary flex-1" id="confirm-checkout-btn"><i class="fas fa-check"></i> Confirm</button>' +
+          '</div>';
+
+        openModal('checkout-modal');
+
+        document.getElementById('confirm-checkout-btn').addEventListener('click', function () {
+          saveCart([]);
+          closeModal('checkout-modal');
+          document.getElementById('checkout-modal-body').innerHTML =
+            '<div class="checkout-success">' +
+              '<i class="fas fa-check-circle"></i>' +
+              '<h3>Order Placed Successfully!</h3>' +
+              '<p>Thank you for your purchase. You will receive a confirmation email shortly.</p>' +
+              '<a href="' + getBasePath() + 'library/books/index.html" class="btn btn-primary mt-4"><i class="fas fa-book"></i> Continue Browsing</a>' +
+            '</div>';
+          openModal('checkout-modal');
+          renderCart();
+          showToast('Order placed successfully!', 'success');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

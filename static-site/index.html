@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaraswatiLibrary - Free Online Library & Book Collection</title>
+  <meta name="description" content="SaraswatiLibrary offers free access to thousands of books, e-books, and educational resources. Browse fiction, non-fiction, science, technology, and more.">
+  <meta property="og:title" content="SaraswatiLibrary - Free Online Library & Book Collection">
+  <meta property="og:description" content="Free access to thousands of books, e-books, and educational resources. Browse fiction, non-fiction, science, and more.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaraswatiLibrary">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/svg+xml" href="images/logo/book-icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* ===== Welcome Overlay ===== */
+    .welcome-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+    .welcome-overlay.show { opacity: 1; pointer-events: auto; }
+    .welcome-overlay.hiding { opacity: 0; pointer-events: none; }
+    .welcome-logo-pulse { width: 160px; height: 160px; border-radius: 50%; background: rgba(14, 165, 233, 0.2); display: flex; align-items: center; justify-content: center; animation: pulse-ring 2s ease-in-out infinite; margin-bottom: 24px; }
+    .welcome-logo-pulse img { width: 100px; height: 100px; border-radius: 50%; }
+    .welcome-title { font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 800; color: white; margin-bottom: 8px; }
+    .welcome-subtitle { color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 24px; }
+    .welcome-dots { display: flex; gap: 8px; }
+    .welcome-dots span { width: 10px; height: 10px; border-radius: 50%; background: #0EA5E9; animation: pulse 1.5s ease-in-out infinite; }
+    .welcome-dots span:nth-child(2) { animation-delay: 0.3s; }
+    .welcome-dots span:nth-child(3) { animation-delay: 0.6s; }
+    .welcome-skip { margin-top: 32px; padding: 10px 32px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.3); background: transparent; color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .welcome-skip:hover { background: rgba(255,255,255,0.1); border-color: white; }
+
+    /* ===== Hero Slider Background ===== */
+    #hero-slider { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .hero-slides-wrapper { position: relative; width: 100%; height: 100%; }
+    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease; }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: brightness(0.35); transform: scale(1.05); transition: transform 8s ease; }
+    .hero-slide.active .hero-slide-bg { transform: scale(1); }
+    .hero-slide-content { display: none; }
+    .hero-dots { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 5; }
+    .hero-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); background: transparent; cursor: pointer; transition: all 0.3s; padding: 0; }
+    .hero-dot.active { background: #0EA5E9; border-color: #0EA5E9; transform: scale(1.2); }
+    .hero-dot:hover { border-color: #0EA5E9; }
+    .hero-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(8px); }
+    .hero-nav:hover { background: rgba(14,165,233,0.5); border-color: #0EA5E9; }
+    .hero-prev { left: 24px; }
+    .hero-next { right: 24px; }
+
+    /* ===== Ebook Card Styles ===== */
+    .ebook-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg, 16px); overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--glass-shadow); }
+    .ebook-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.12); }
+    .ebook-card-image { height: 200px; background: var(--img-bg); display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden; }
+    .ebook-card-image img { max-height: 100%; object-fit: contain; transition: transform 0.4s ease; }
+    .ebook-card:hover .ebook-card-image img { transform: scale(1.08); }
+    .ebook-format-badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 6px; background: linear-gradient(135deg, #0EA5E9, #8B5CF6); color: white; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ebook-card-body { padding: 20px; }
+    .ebook-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--text-primary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .ebook-author { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+    .ebook-meta { display: flex; gap: 16px; margin-bottom: 16px; font-size: 12px; color: var(--text-tertiary); }
+    .ebook-meta span { display: flex; align-items: center; gap: 4px; }
+    .ebook-download-btn { width: 100%; justify-content: center; }
+
+    /* ===== Testimonial Card Styles ===== */
+    .testimonial-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg, 16px); padding: 28px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-sm); }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .testimonial-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .testimonial-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+    .testimonial-info { flex: 1; }
+    .testimonial-name { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: var(--text-primary); }
+    .testimonial-role { font-size: 13px; color: var(--text-tertiary); }
+    .testimonial-rating { margin-bottom: 14px; display: flex; gap: 3px; }
+    .testimonial-rating .star { font-size: 16px; color: var(--text-tertiary); }
+    .testimonial-rating .star.filled { color: #F59E0B; }
+    .testimonial-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; font-style: italic; position: relative; padding-left: 16px; border-left: 3px solid var(--accent); }
+
+    /* ===== Team Card Styles ===== */
+    .team-home-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg, 16px); overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-sm); text-align: center; }
+    .team-home-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .team-home-img-wrap { height: 260px; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); display: flex; align-items: flex-end; justify-content: center; overflow: hidden; position: relative; }
+    .team-home-img-wrap::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(14,165,233,0.2), transparent 60%); }
+    .team-home-img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid rgba(255,255,255,0.15); position: relative; z-index: 1; margin-bottom: -40px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); background: var(--bg-tertiary); }
+    .team-home-body { padding: 52px 24px 24px; }
+    .team-home-name { font-weight: 800; font-size: 18px; margin-bottom: 4px; color: var(--text-primary); }
+    .team-home-role { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 12px; display: block; }
+    .team-home-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* ===== Section Background Shapes ===== */
+    .section-shapes { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .section-shape { position: absolute; border-radius: 50%; opacity: 0.04; }
+    .section-shape:nth-child(1) { width: 300px; height: 300px; background: var(--accent); top: -80px; right: -60px; }
+    .section-shape:nth-child(2) { width: 200px; height: 200px; background: #8B5CF6; bottom: -60px; left: -40px; }
+
+    /* ===== Newsletter Extra ===== */
+    .newsletter-wrapper { position: relative; overflow: hidden; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 600px) {
+      .hero-nav { width: 38px; height: 38px; font-size: 14px; }
+      .hero-prev { left: 12px; }
+      .hero-next { right: 12px; }
+      .hero-dots { bottom: 20px; }
+      .welcome-logo-pulse { width: 120px; height: 120px; }
+      .welcome-logo-pulse img { width: 72px; height: 72px; }
+      .welcome-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body data-page="home">
+
+  <!-- ============================================
+       1. Welcome Overlay
+       ============================================ -->
+  <div class="welcome-overlay" data-welcome="1">
+    <div class="welcome-logo-pulse">
+      <img src="images/logo.svg" alt="Saraswati Library">
+    </div>
+    <div class="welcome-title">SaraswatiLibrary</div>
+    <div class="welcome-subtitle">Your Gateway to Knowledge &amp; Discovery</div>
+    <div class="welcome-dots">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <button class="welcome-skip" onclick="dismissWelcome()">Click to Continue</button>
+  </div>
+
+  <!-- ============================================
+       2. Navbar Placeholder
+       ============================================ -->
+  <div id="navbar"></div>
+
+  <!-- ============================================
+       3. Hero Slider Section
+       ============================================ -->
+  <section class="hero" id="home-hero">
+    <div id="hero-slider"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-bg-shapes">
+      <div class="hero-shape"></div>
+      <div class="hero-shape"></div>
+      <div class="hero-shape"></div>
+    </div>
+    <div class="container hero-content" style="text-align: center; padding-top: 60px; padding-bottom: 80px;">
+      <span class="section-chip" style="background: rgba(14,165,233,0.15); color: #38BDF8; margin-bottom: 20px; display: inline-flex;">
+        <i class="fa fa-book-open" style="margin-right: 6px;"></i> Welcome to Our Library
+      </span>
+      <h1 style="font-family: 'Playfair Display', serif; font-style: italic; color: #FFFFFF; margin-bottom: 16px; line-height: 1.15;">
+        Welcome To <span style="color: #0EA5E9; font-style: normal;">SaraswatiLibrary</span>
+      </h1>
+      <p style="color: rgba(255,255,255,0.65); font-size: 17px; max-width: 580px; margin: 0 auto 32px; line-height: 1.7;">
+        Discover a modern library experience with thousands of books, e-books, and digital resources. Your journey to knowledge begins here.
+      </p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="library/books/index.html" class="btn btn-secondary btn-lg btn-rounded">
+          <i class="fa fa-book"></i> Browse Collection
+        </a>
+        <a href="about-us/index.html" class="btn btn-lg btn-rounded" style="border: 1.5px solid rgba(255,255,255,0.3); color: #FFFFFF; background: transparent;">
+          <i class="fa fa-map-marker-alt"></i> Visit Us
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       4. Stats Section (Why Readers Choose Us)
+       ============================================ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip">WHY READERS CHOOSE US</span>
+        <h2 class="section-heading">Trusted by Thousands of Readers</h2>
+        <p class="section-subheading">Numbers that reflect our commitment to knowledge, community, and excellence in service.</p>
+      </div>
+      <div id="stats-grid" class="stats-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       5. Ebooks Section
+       ============================================ -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip chip-accent">
+          <i class="fa fa-tablet-alt" style="margin-right: 4px;"></i> TEXTBOOKS
+        </span>
+        <h2 class="section-heading">Class 1-12 Textbooks Online</h2>
+        <p class="section-subheading">Access Nepal curriculum textbooks for all classes. Read online or download PDFs for free.</p>
+      </div>
+      <div class="grid grid-4">
+        <div class="ebook-card scroll-reveal">
+          <div class="ebook-card-image" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+            <i class="fas fa-baby" style="font-size: 48px; color: #d97706;"></i>
+            <span class="ebook-format-badge">PDF</span>
+          </div>
+          <div class="ebook-card-body">
+            <h4 class="ebook-title">Class 1 - Mero Nepali</h4>
+            <p class="ebook-author">NEB Curriculum</p>
+            <div class="ebook-meta">
+              <span><i class="fa fa-file"></i> PDF</span>
+              <span><i class="fa fa-school"></i> Class 1</span>
+            </div>
+            <a href="library/class/index.html?class=1" class="btn btn-primary btn-rounded ebook-download-btn">
+              <i class="fa fa-book-open"></i> View Books
+            </a>
+          </div>
+        </div>
+        <div class="ebook-card scroll-reveal">
+          <div class="ebook-card-image" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0);">
+            <i class="fas fa-flask" style="font-size: 48px; color: #16a34a;"></i>
+            <span class="ebook-format-badge">PDF</span>
+          </div>
+          <div class="ebook-card-body">
+            <h4 class="ebook-title">Class 7 - Science & Technology</h4>
+            <p class="ebook-author">NEB Curriculum</p>
+            <div class="ebook-meta">
+              <span><i class="fa fa-file"></i> PDF</span>
+              <span><i class="fa fa-school"></i> Class 7</span>
+            </div>
+            <a href="library/class/index.html?class=7" class="btn btn-primary btn-rounded ebook-download-btn">
+              <i class="fa fa-book-open"></i> View Books
+            </a>
+          </div>
+        </div>
+        <div class="ebook-card scroll-reveal">
+          <div class="ebook-card-image" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe);">
+            <i class="fas fa-brain" style="font-size: 48px; color: #7c3aed;"></i>
+            <span class="ebook-format-badge">PDF</span>
+          </div>
+          <div class="ebook-card-body">
+            <h4 class="ebook-title">Class 10 - All Subjects</h4>
+            <p class="ebook-author">NEB Curriculum</p>
+            <div class="ebook-meta">
+              <span><i class="fa fa-file"></i> 12 PDFs</span>
+              <span><i class="fa fa-school"></i> Class 10</span>
+            </div>
+            <a href="library/class/index.html?class=10" class="btn btn-primary btn-rounded ebook-download-btn">
+              <i class="fa fa-book-open"></i> View Books
+            </a>
+          </div>
+        </div>
+        <div class="ebook-card scroll-reveal">
+          <div class="ebook-card-image" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe);">
+            <i class="fas fa-atom" style="font-size: 48px; color: #2563eb;"></i>
+            <span class="ebook-format-badge">PDF</span>
+          </div>
+          <div class="ebook-card-body">
+            <h4 class="ebook-title">Class 12 - Science Stream</h4>
+            <p class="ebook-author">NEB Curriculum</p>
+            <div class="ebook-meta">
+              <span><i class="fa fa-file"></i> 3 PDFs</span>
+              <span><i class="fa fa-school"></i> Class 12</span>
+            </div>
+            <a href="library/class/index.html?class=12" class="btn btn-primary btn-rounded ebook-download-btn">
+              <i class="fa fa-book-open"></i> View Books
+            </a>
+          </div>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 36px;">
+        <a href="library/books/index.html" class="btn btn-accent-outlined btn-rounded">
+          <i class="fa fa-arrow-right"></i> Browse All Textbooks
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       6. Featured Books Section
+       ============================================ -->
+  <section class="section" style="position: relative; overflow: hidden;">
+    <div class="section-shapes">
+      <div class="section-shape"></div>
+      <div class="section-shape"></div>
+    </div>
+    <div class="container" style="position: relative; z-index: 1;">
+      <div class="section-title">
+        <span class="section-chip chip-accent">
+          <i class="fa fa-star" style="margin-right: 4px;"></i> Explore Collection
+        </span>
+        <h2 class="section-heading">Featured Books</h2>
+        <p class="section-subheading">Handpicked titles loved by our readers. Discover your next great read from our curated collection.</p>
+      </div>
+      <div id="featured-books-grid" class="grid grid-4"></div>
+      <div style="text-align: center; margin-top: 36px;">
+        <a href="library/books/index.html" class="btn btn-primary btn-rounded">
+          <i class="fa fa-book"></i> View All Books
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       7. Categories Section
+       ============================================ -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip">
+          <i class="fa fa-th-large" style="margin-right: 4px;"></i> Browse by Genre
+        </span>
+        <h2 class="section-heading">Explore Categories</h2>
+        <p class="section-subheading">Find books across a wide range of genres and topics tailored to every interest.</p>
+      </div>
+      <div id="categories-grid" class="grid grid-4"></div>
+      <div style="text-align: center; margin-top: 36px;">
+        <a href="library/books/index.html" class="btn btn-accent-outlined btn-rounded">
+          <i class="fa fa-arrow-right"></i> View All Categories
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       8. Why Choose Us Section
+       ============================================ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip">
+          <i class="fa fa-heart" style="margin-right: 4px;"></i> OUR PROMISE
+        </span>
+        <h2 class="section-heading">Why Choose SaraswatiLibrary</h2>
+        <p class="section-subheading">We go beyond just books. Here is what makes our library experience truly exceptional.</p>
+      </div>
+      <div class="grid grid-4">
+        <!-- Feature 1 -->
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fa fa-star"></i>
+          </div>
+          <h4 class="feature-title">Premium Quality Collection</h4>
+          <p class="feature-desc">Our library houses over 50,000 carefully curated books spanning every genre, from timeless classics to the latest bestsellers and academic references.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fa fa-palette"></i>
+          </div>
+          <h4 class="feature-title">Curated Categories</h4>
+          <p class="feature-desc">Browse through expertly organized categories including Fiction, Science, Technology, History, Self-Help, Business, and Children's literature.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fa fa-bookmark"></i>
+          </div>
+          <h4 class="feature-title">Smart Bookmarks</h4>
+          <p class="feature-desc">Save your reading progress, create wishlists, and bookmark favorite passages. Our smart system remembers where you left off across all devices.</p>
+        </div>
+        <!-- Feature 4 -->
+        <div class="feature-card scroll-reveal">
+          <div class="feature-icon">
+            <i class="fa fa-mobile-alt"></i>
+          </div>
+          <h4 class="feature-title">Mobile Access</h4>
+          <p class="feature-desc">Access our entire digital catalog from your smartphone or tablet. Read e-books, manage your account, and reserve books on the go.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       9. Testimonials Section
+       ============================================ -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-title">
+        <span class="section-chip chip-accent">
+          <i class="fa fa-quote-left" style="margin-right: 4px;"></i> TESTIMONIALS
+        </span>
+        <h2 class="section-heading">What Our Readers Say</h2>
+        <p class="section-subheading">Hear from the students, researchers, and educators who trust SaraswatiLibrary every day.</p>
+      </div>
+      <div id="testimonials-grid" class="grid grid-3"></div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       10. Team Section
+       ============================================ -->
+  <section class="section" style="position: relative; overflow: hidden; background: linear-gradient(135deg, rgba(14,165,233,0.03), rgba(139,92,246,0.03));">
+    <div class="container" style="position: relative; z-index: 1;">
+      <div class="section-title">
+        <span class="section-chip">
+          <i class="fa fa-users" style="margin-right: 4px;"></i> OUR TEAM
+        </span>
+        <h2 class="section-heading">Meet the People Behind the Library</h2>
+        <p class="section-subheading">Passionate individuals dedicated to making knowledge accessible to everyone in our community.</p>
+      </div>
+      <div class="grid grid-2" style="max-width: 800px; margin: 0 auto;">
+        <!-- Team Member 1 -->
+        <div class="team-home-card scroll-reveal">
+          <div class="team-home-img-wrap">
+            <img src="images/team/kunjan.jpg" alt="Kunjan Bhandari" class="team-home-img" loading="lazy" onerror="this.src='images/team/default-avatar.png'">
+          </div>
+          <div class="team-home-body">
+            <h3 class="team-home-name">Kunjan Bhandari</h3>
+            <span class="team-home-role">Founder &amp; Lead Developer</span>
+            <p class="team-home-desc">Kunjan is the visionary behind Saraswati Library. With a passion for technology and education, he has built this platform to make knowledge accessible to everyone.</p>
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 8px;">
+              <a href="https://www.facebook.com/kunjan.vhandari" target="_blank" rel="noopener" class="btn btn-sm btn-outlined btn-rounded" style="font-size: 13px;">
+                <i class="fa fa-facebook-f"></i> Facebook
+              </a>
+              <a href="https://instagram.com/kunjan.bhandari" target="_blank" rel="noopener" class="btn btn-sm btn-outlined btn-rounded" style="font-size: 13px;">
+                <i class="fa fa-instagram"></i> Instagram
+              </a>
+            </div>
+            <a href="head-developer/index.html" class="btn btn-sm btn-primary btn-rounded" style="margin-top: 16px;">
+              <i class="fa fa-user"></i> View Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       11. Newsletter CTA Section
+       ============================================ -->
+  <section class="footer-newsletter newsletter-wrapper">
+    <div class="newsletter-content">
+      <span class="section-chip" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); margin-bottom: 16px;">
+        <i class="fa fa-envelope" style="margin-right: 4px;"></i> STAY CONNECTED
+      </span>
+      <h2 class="newsletter-title">Never Miss a New Release</h2>
+      <p class="newsletter-subtitle">Subscribe to our newsletter and be the first to know about new books, events, and exclusive library updates.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing!', 'success'); this.reset();">
+        <input type="email" placeholder="Enter your email address" required>
+        <button type="submit" class="btn btn-secondary btn-rounded">
+          <i class="fa fa-paper-plane"></i> Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================
+       12. Footer Placeholder
+       ============================================ -->
+  <div id="footer"></div>
+
+  <!-- ============================================
+       13. Toast Container
+       ============================================ -->
+  <div id="toast-container"></div>
+
+  <!-- ============================================
+       14. Admin Password Dialog Modal
+       (Also generated by navbar.js; this is a
+        fallback static version for accessibility)
+       ============================================ -->
+  <div class="modal-overlay" id="admin-login-modal-static" style="display:none;">
+    <div class="modal-content modal-sm">
+      <button class="modal-close" onclick="document.getElementById('admin-login-modal-static').style.display='none'; document.body.style.overflow='';">&times;</button>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0EA5E9,#8B5CF6);display:inline-flex;align-items:center;justify-content:center;font-size:24px;color:white;margin-bottom:12px;">
+          <i class="fa fa-shield-alt"></i>
+        </div>
+        <h3 class="modal-title" style="margin-bottom:4px;">Admin Access</h3>
+        <p style="font-size:14px;color:var(--text-secondary);margin:0;">Enter your admin password to continue</p>
+      </div>
+       <form onsubmit="event.preventDefault(); handleAdminLogin(event);">
+        <div class="form-group">
+          <label class="form-label" for="admin-username-static"><i class="fa fa-user"></i> Username</label>
+          <input type="text" id="admin-username-static" class="form-input" placeholder="Enter admin username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="admin-password-static"><i class="fa fa-key"></i> Password</label>
+          <input type="password" id="admin-password-static" class="form-input" placeholder="Enter admin password" required>
+        </div>
+        <div id="admin-login-error-static" class="form-error" style="display:none;color:#EF4444;font-size:13px;margin-bottom:12px;"></div>
+        <button type="submit" class="btn btn-secondary btn-rounded" style="width:100%;justify-content:center;">
+          <i class="fa fa-sign-in-alt"></i> Authenticate
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================
+       Scripts
+       ============================================ -->
+  <script>
+    if (!sessionStorage.getItem('librivista_welcomed')) {
+      document.querySelector('.welcome-overlay')?.classList.add('show');
+      sessionStorage.setItem('librivista_welcomed', '1');
+    } else {
+      document.querySelector('.welcome-overlay')?.remove();
+    }
+    function dismissWelcome() {
+      const el = document.querySelector('.welcome-overlay');
+      if (el) { el.classList.add('hiding'); setTimeout(() => el.remove(), 500); }
+    }
+    setTimeout(dismissWelcome, 3000);
+  </script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/users.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
