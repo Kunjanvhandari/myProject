@@ -4,6 +4,8 @@ out/
 .env*
 .env.local
 .env.production
+.env.migrate
+id-map.json
 *.log
 dev_err.txt
 dev_out.txt
