@@ -1,14 +1,14 @@
 [build]
+  base = "my-app/frontend"
   command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
 
-# Netlify's built-in Next.js Runtime handles SSR, static files, and routing
-# automatically when base directory points to a Next.js project.
-# No publish directory or plugin needed.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
-# Proxy API and uploads to backend (update URL when backend is deployed)
 [[redirects]]
   from = "/api/v1/*"
   to = "https://your-backend-url.com/api/v1/:splat"
