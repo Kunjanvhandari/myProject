@@ -80,13 +80,21 @@ CREATE INDEX idx_books_isbn ON books(isbn);
 CREATE INDEX idx_books_status ON books(status);
 CREATE INDEX idx_books_tags ON books USING GIN(tags);
 
--- Full text search column (immutable, computed at insert/update)
-ALTER TABLE books ADD COLUMN search_vector tsvector
-    GENERATED ALWAYS AS (
-        to_tsvector('english', coalesce(title, '') || ' ' || coalesce(author, '') || ' ' || coalesce(array_to_string(tags, ' '), ''))
-    ) STORED;
+-- Full text search column (updated via trigger)
+ALTER TABLE books ADD COLUMN search_vector tsvector;
 
 CREATE INDEX idx_books_search ON books USING GIN(search_vector);
+
+CREATE OR REPLACE FUNCTION update_books_search_vector()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.search_vector := to_tsvector('english', coalesce(NEW.title, '') || ' ' || coalesce(NEW.author, ''));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_books_search BEFORE INSERT OR UPDATE ON books
+    FOR EACH ROW EXECUTE FUNCTION update_books_search_vector();
 
 -- ============================================
 -- 3. BORROWINGS TABLE
